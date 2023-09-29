@@ -1,6 +1,6 @@
 # SparX
 
-Bienvenue sur le git de l'équipe **SparX**. Ceci est un document README.md, je contiens de information importantes pour vous. Il aura un document README dans chaque dossier majeur afin d'avoir une description de leur contenue. L'extension **.md** est pour les fichiers de types **Markdown**. Allez sur [Stackedit](https://stackedit.io/app#)  afin de faire d'avoir accès à un editeur Markdown!
+Bienvenue sur le git de l'équipe **SparX**. Ceci est un document README.md, je contiens de information importantes pour vous. Il aura un document README dans chaque dossier majeur afin d'avoir une description de leur contenue. L'extension **.md** est pour les fichiers de types **Markdown**. Allez sur [Stackedit](https://stackedit.io/app#)  afin d'avoir accès à un editeur Markdown!
 
 
 # Dossiers
