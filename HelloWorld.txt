@@ -1,5 +1,8 @@
 Hello World Jacob
 Hello World Bramptonn is here
+<<<<<<< Updated upstream
 Yo les gros big
 yo les gros big #2
-
+coucouuuuu
+=======
+>>>>>>> Stashed changes
