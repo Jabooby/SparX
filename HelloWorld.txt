@@ -1,3 +1,8 @@
 Hello World Jacob
 Hello World Bramptonn is here
-J'aime les patates cuites (Antoine est vraiment beau)
+<<<<<<< Updated upstream
+Yo les gros big
+yo les gros big #2
+coucouuuuu
+=======
+>>>>>>> Stashed changes
