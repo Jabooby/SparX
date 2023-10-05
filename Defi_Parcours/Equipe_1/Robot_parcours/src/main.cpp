@@ -110,7 +110,6 @@ bool capteur_infrarouge();
 
 void setup() {
   // put your setup code here, to run once:
-  int result = myFunction(2, 3);
   BoardInit();
   sparx.pid.errsum = 0.0;
   pinMode(LED_BUILTIN,OUTPUT);//détecteur de proximité
@@ -122,6 +121,10 @@ void setup() {
 void loop() {
   //mettre code sifflet
   //verif +bouge
+  while(sparx.position[1] < 10)
+  {
+    verification_obstacle();
+  }
 }
 
 /*
