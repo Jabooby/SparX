@@ -52,9 +52,9 @@ enum ligne {
 /************************* DÉCLARATION DE STRUCTURE *************************/
 struct PID {
   //constantes PID
-  float kp = 0.00;
-  float ki = 0.0;
-  float kd = 0.0;
+  float kp = 0.00061;
+  float ki = 0.000001;
+  float kd = 0.000016;
   //variables de calcul PID
   float errsum  = 0.0;
   float prevErr = 0.0;
