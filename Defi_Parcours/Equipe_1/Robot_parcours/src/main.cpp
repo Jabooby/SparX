@@ -40,9 +40,9 @@ enum ligne {
   L_NORD_EST    = 5, //ligne Nord et Est
   L_NORD_OUEST  = 6, //ligne Nord et Ouest
   L_NORD_SUD    = 7, //ligne Nord et Sud
-  L_EST_OUEST   = 8, //ligne Nord et Ouest
-  L_EST_SUD     = 9, //ligne Nord et Sud
-  L_OUEST_SUD   = 10, //ligne Nord et Ouest
+  L_EST_OUEST   = 8, //ligne Est et Ouest
+  L_EST_SUD     = 9, //ligne Est et Sud
+  L_OUEST_SUD   = 10, //ligne Ouest et Sud
   L_NORD_EST_OUEST=11, //ligne Nord, Est et Ouest
   L_NORD_EST_SUD=12, //ligne Nord, Est et Sud
   L_NORD_OUEST_SUD=13,//ligne Nord, Ouest et Sud
