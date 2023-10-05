@@ -41,6 +41,11 @@ enum ligne {
   L_EST_OUEST   = 7, //ligne Nord et Ouest
   L_EST_SUD     = 8, //ligne Nord et Sud
   L_OUEST_SUD   = 9, //ligne Nord et Ouest
+  L_NORD_EST_OUEST=10, //ligne Nord, Est et Ouest
+  L_NORD_EST_SUD=11, //ligne Nord, Est et Sud
+  L_NORD_OUEST_SUD=12,//ligne Nord, Ouest et Sud
+  L_EST_OUEST_SUD=13, //ligne Est, Ouest et Sud
+  L_NORD_EST_OUEST_SUD=14,//ligne Nord, Est, Ouest et Sud
 } ligne; //dicte l'emplacement des lignes par rapport au centre d'une case
 
 /************************* DÉCLARATION DE STRUCTURE *************************/
