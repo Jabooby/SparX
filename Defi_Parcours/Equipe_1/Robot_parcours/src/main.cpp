@@ -32,21 +32,22 @@ enum deplacement {
 } deplacement; //dicte le déplacement que le robot doit faire
 
 enum ligne {
-  L_NORD        = 0, //ligne au Nord du centre
-  L_EST         = 1, //ligne à l'Est du centre
-  L_OUEST       = 2, //ligne à l'Ouest du centre
-  L_SUD         = 3, //ligne au Sud du centre
-  L_NORD_EST    = 4, //ligne Nord et Est
-  L_NORD_OUEST  = 5, //ligne Nord et Ouest
-  L_NORD_SUD    = 6, //ligne Nord et Sud
-  L_EST_OUEST   = 7, //ligne Nord et Ouest
-  L_EST_SUD     = 8, //ligne Nord et Sud
-  L_OUEST_SUD   = 9, //ligne Nord et Ouest
-  L_NORD_EST_OUEST=10, //ligne Nord, Est et Ouest
-  L_NORD_EST_SUD=11, //ligne Nord, Est et Sud
-  L_NORD_OUEST_SUD=12,//ligne Nord, Ouest et Sud
-  L_EST_OUEST_SUD=13, //ligne Est, Ouest et Sud
-  L_NORD_EST_OUEST_SUD=14,//ligne Nord, Est, Ouest et Sud
+  VIDE          = 0,
+  L_NORD        = 1, //ligne au Nord du centre
+  L_EST         = 2, //ligne à l'Est du centre
+  L_OUEST       = 3, //ligne à l'Ouest du centre
+  L_SUD         = 4, //ligne au Sud du centre
+  L_NORD_EST    = 5, //ligne Nord et Est
+  L_NORD_OUEST  = 6, //ligne Nord et Ouest
+  L_NORD_SUD    = 7, //ligne Nord et Sud
+  L_EST_OUEST   = 8, //ligne Nord et Ouest
+  L_EST_SUD     = 9, //ligne Nord et Sud
+  L_OUEST_SUD   = 10, //ligne Nord et Ouest
+  L_NORD_EST_OUEST=11, //ligne Nord, Est et Ouest
+  L_NORD_EST_SUD=12, //ligne Nord, Est et Sud
+  L_NORD_OUEST_SUD=13,//ligne Nord, Ouest et Sud
+  L_EST_OUEST_SUD=14, //ligne Est, Ouest et Sud
+  L_NORD_EST_OUEST_SUD=15,//ligne Nord, Est, Ouest et Sud
 } ligne; //dicte l'emplacement des lignes par rapport au centre d'une case
 
 /************************* DÉCLARATION DE STRUCTURE *************************/
@@ -73,6 +74,7 @@ struct robot {
   bool depart = false;
   int vertpin = 53;
   int rougepin = 49;
+  int position[2] = {0,1};
 };
 /************************* VARIABLES GLOBALES *************************/
 struct robot sparx; //création de la valeur global SparX. SparX est le robot et nous pouvons accéder
@@ -82,8 +84,9 @@ int counter = 0;
 int timer = 0;
 int reset = 0;
 int interval = 50; //50 mS
+
  int matrice_parcour[10][3]{
-    {0,0,0},//1
+    {0,L_NORD,0},//1
     {0,0,0},//2
     {0,0,0},//3
     {0,0,0},//4
@@ -92,7 +95,7 @@ int interval = 50; //50 mS
     {0,0,0},//7
     {0,0,0},//8
     {0,0,0},//9
-    {0,0,0}//10
+    {0,0,0} //10
   };
 /************************* DECLARATIONS DE FONCTIONS *************************/
 int myFunction(int, int); //ceci est un exemple
@@ -110,27 +113,15 @@ void setup() {
   int result = myFunction(2, 3);
   BoardInit();
   sparx.pid.errsum = 0.0;
-   pinMode(LED_BUILTIN,OUTPUT);//détecteur de proximité
+  pinMode(LED_BUILTIN,OUTPUT);//détecteur de proximité
   pinMode(sparx.vertpin, INPUT);
   pinMode(sparx.rougepin, INPUT);
   delay(100);
 }
 
 void loop() {
-  //compteur de chaque itération du loop
-  counter++;
-  //lecture du clock
-  timer = millis();
-  //calcul des données après chaque 50 mS
-  if ((timer-reset) > interval){
-    PID(); //calculs PID
-    avance();
-    reset = timer; //recommencer la clock
-  }
-  //Capture de données pendant 50 mS
-  else if ((timer-reset) <= interval){
-    avance();
-  }
+  //mettre code sifflet
+  //verif +bouge
 }
 
 /*
@@ -147,14 +138,27 @@ void arret(){
   MOTOR_SetSpeed(RIGHT, 0);
   MOTOR_SetSpeed(LEFT, 0);
 };
+
 void avance(){
-  MOTOR_SetSpeed(RIGHT,sparx.vitesse_moteur_droite);
-  MOTOR_SetSpeed(LEFT, sparx.vitesse_moteur_gauche);
+  PID();
+  int distance_init = getDistance();
+  while(getDistance()- distance_init <= 50)
+  {
+    PID();
+    MOTOR_SetSpeed(RIGHT,sparx.vitesse_moteur_droite);
+    MOTOR_SetSpeed(LEFT, sparx.vitesse_moteur_gauche);
+  }
 };
 
 void recule(){
-  MOTOR_SetSpeed(RIGHT,-sparx.vitesse_moteur_droite);
-  MOTOR_SetSpeed(LEFT, -sparx.vitesse_moteur_gauche);
+  PID();
+  int distance_init = getDistance();
+  while(getDistance()- distance_init <= 50)
+  {
+    PID();
+    MOTOR_SetSpeed(RIGHT,-sparx.vitesse_moteur_droite);
+    MOTOR_SetSpeed(LEFT, -sparx.vitesse_moteur_gauche);
+  }
 };
 
 void tourneDroit(){
@@ -174,14 +178,14 @@ void PID(){
     //calcul d'erreur
     float error = right - left;
     //calcul propotionelle
-    float proportionalValue = error * sparx.pid.kp;
+    float proportionalValue = abs(error * sparx.pid.kp);
     //calcul intégrale
     sparx.pid.errsum += error;
-    float integralValue = sparx.pid.ki * sparx.pid.errsum;
+    float integralValue = abs(sparx.pid.ki * sparx.pid.errsum);
     //calcul dérivé
     float errdiff = error-sparx.pid.prevErr;
     sparx.pid.prevErr = error;
-    float derivativeValue = sparx.pid.kd*errdiff;
+    float derivativeValue = abs(sparx.pid.kd*errdiff);
     //si la moteur gauche est plus lente
     if (error > 0){
       sparx.vitesse_moteur_gauche = sparx.vitesse + proportionalValue + integralValue + derivativeValue;
@@ -207,4 +211,90 @@ bool capteur_infrarouge() {
       etat = 1;
     }
   return etat;
+}
+
+int getDistance(){
+  float left = ENCODER_Read(0);
+  float right = ENCODER_Read(1);
+  float circumference = diametre * PI;
+  float distancel = (left/3200) * circumference;
+  float distancer = (right/3200) * circumference;
+  float distance = (distancel+distancer)/2;
+  //Serial.print("distance: ");
+  //Serial.println(distance);
+  return distance;
+
+}
+
+void verification_obstacle()
+{
+  //sparx.orientation
+  //sparx.position
+  PID();
+  //NORD
+  if(sparx.orientation == NORD)
+  {
+    if((matrice_parcour[sparx.position[0]][sparx.position[1]] == L_NORD) || (!capteur_infrarouge())/*(1||5||6||7||11||12||13||15)*/)
+    {
+      tourneDroit();
+      sparx.orientation = EST;
+    }
+    else
+    {
+      avance();
+      matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
+      sparx.position[0]++;
+    }
+  }
+  //EST
+  else if(sparx.orientation == EST)
+  {
+    if((matrice_parcour[sparx.position[0]][sparx.position[1]] == L_EST) || (!capteur_infrarouge()))
+    {
+      tourneDroit();
+      tourneDroit();
+      sparx.orientation = OUEST;
+    }
+    else
+    {
+      avance();
+      matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
+      tourneGauche();
+      sparx.orientation = NORD;
+      sparx.position[1]++;
+    }
+  }
+  //OUEST
+  else if(sparx.orientation == OUEST)
+  {
+    if((matrice_parcour[sparx.position[0]][sparx.position[1]] == L_OUEST) || (!capteur_infrarouge()))
+    {
+      tourneGauche();
+      sparx.orientation = SUD;
+    }
+    else
+    {
+      avance();
+      matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
+      tourneDroit();
+      sparx.orientation = NORD;
+      sparx.position[1]--;
+    }
+  }
+  //SUD
+  else if(sparx.orientation == SUD)
+  {
+    if(matrice_parcour[sparx.position[0]][sparx.position[1]] == L_SUD)
+    {
+      tourneDroit();
+      sparx.orientation = EST;
+    }
+    else
+    {
+      avance();
+      matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
+      sparx.position[0]--;
+    }
+  }
+
 }
