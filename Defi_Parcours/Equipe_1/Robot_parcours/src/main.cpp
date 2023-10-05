@@ -9,6 +9,7 @@
 
 /************************* INCLUDES *************************/
 #include <Arduino.h>
+#include <LibRobus.h>
 /************************* CONSTANTES *************************/
 #define wow       "wow" //ceci est un exemple
 #define pi        3.14159
@@ -49,19 +50,36 @@ enum ligne {
 } ligne; //dicte l'emplacement des lignes par rapport au centre d'une case
 
 /************************* DÉCLARATION DE STRUCTURE *************************/
+struct PID {
+  //constantes PID
+  float kp = 0.00;
+  float ki = 0.0;
+  float kd = 0.0;
+  //variables de calcul PID
+  float counter = 0;
+  float errsum  = 0.0;
+  float prevErr = 0.0;
+  float errdiff = 0;
+};
 struct robot {
+  struct PID pid;
   char orientation = NORD;
   char mouvement = ARRET;
   float vitesse_moteur_gauche = 0.0;
   float vitesse_moteur_droite = 0.0;
+  float vitesse = 0.0;
   bool detection = false;
   int position[2] = {0,0}; //position X et Y
   bool retour = false;
   bool depart = false;
 };
 /************************* VARIABLES GLOBALES *************************/
-struct robot SparX; //création de la valeur global SparX. SparX est le robot et nous pouvons accéder
+struct robot sparx; //création de la valeur global SparX. SparX est le robot et nous pouvons accéder
 // les différentes fonctions du robot. Pour accéder le moteur gauche juste faire "Sparx.vitesse_moteur_gauche"
+//variables timer
+int timer = 0;
+int reset = 0;
+int interval = 50; //50 mS
 /************************* DECLARATIONS DE FONCTIONS *************************/
 int myFunction(int, int); //ceci est un exemple
 
