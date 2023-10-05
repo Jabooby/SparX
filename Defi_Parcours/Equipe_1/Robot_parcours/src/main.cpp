@@ -71,6 +71,8 @@ struct robot {
   int position[2] = {0,0}; //position X et Y
   bool retour = false;
   bool depart = false;
+  int vertpin = 53;
+  int rougepin = 49;
 };
 /************************* VARIABLES GLOBALES *************************/
 struct robot sparx; //création de la valeur global SparX. SparX est le robot et nous pouvons accéder
@@ -100,6 +102,7 @@ void recule();
 void tourneDroit();
 void tourneGauche();
 void PID();
+bool capteur_infrarouge();
 
 
 void setup() {
@@ -107,6 +110,10 @@ void setup() {
   int result = myFunction(2, 3);
   BoardInit();
   sparx.pid.errsum = 0.0;
+   pinMode(LED_BUILTIN,OUTPUT);//détecteur de proximité
+  pinMode(sparx.vertpin, INPUT);
+  pinMode(sparx.rougepin, INPUT);
+  delay(100);
 }
 
 void loop() {
@@ -186,4 +193,18 @@ void PID(){
       
     }
     else sparx.vitesse = sparx.vitesse;
+}
+
+bool capteur_infrarouge() {
+  bool etat;
+  bool vert = digitalRead(sparx.vertpin);
+  bool rouge = digitalRead(sparx.rougepin);
+
+  if (vert && rouge){ // aucun obstacle => avance
+      etat = 0;
+    }
+  else {// obstacle==> avance pas
+      etat = 1;
+    }
+  return etat;
 }

@@ -9,8 +9,6 @@ bool vert = false;
 bool rouge = false;
 int etat = 0; // = 0 arrêt 1 = avance
 
-
-
 void setup(){
   BoardInit();
   
