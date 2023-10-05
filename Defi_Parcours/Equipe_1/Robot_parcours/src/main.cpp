@@ -84,6 +84,8 @@ int counter = 0;
 int timer = 0;
 int reset = 0;
 int interval = 50; //50 mS
+int analog1 = A0;
+int analog2 = A1;
 
  int matrice_parcour[10][3]{
     {0,L_NORD,0},//1
@@ -106,7 +108,7 @@ void tourneDroit();
 void tourneGauche();
 void PID();
 bool capteur_infrarouge();
-
+bool start();
 
 void setup() {
   // put your setup code here, to run once:
@@ -115,6 +117,8 @@ void setup() {
   pinMode(LED_BUILTIN,OUTPUT);//détecteur de proximité
   pinMode(sparx.vertpin, INPUT);
   pinMode(sparx.rougepin, INPUT);
+  pinMode(analog1, INPUT_PULLUP);
+  pinMode(analog2, INPUT_PULLUP);
   delay(100);
 }
 
@@ -300,4 +304,11 @@ void verification_obstacle()
     }
   }
 
+}
+bool start() {
+  bool go = false;
+  int frequency = analogRead(analog1);
+  int ambiant = analogRead(analog2);
+  if (frequency > ambiant) go=true;
+  return go;
 }

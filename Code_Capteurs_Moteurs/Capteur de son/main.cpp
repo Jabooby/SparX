@@ -2,7 +2,7 @@
 #include <LibRobus.h>
 int analog1 = A0;
 int analog2 = A1;
-bool go = false;
+
 
 void setup() {
   pinMode(analog1, INPUT_PULLUP);
@@ -10,8 +10,10 @@ void setup() {
  
 }
 
-void loop() {
+bool start() {
+  bool go = false;
   int frequency = analogRead(analog1);
   int ambiant = analogRead(analog2);
   if (frequency > ambiant) go=true;
+  return go;
 }
