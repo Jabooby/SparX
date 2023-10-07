@@ -61,13 +61,18 @@ struct PID {
   float prevErr = 0.0;
   float errdiff = 0;
 };
+struct moteurs {
+  float vitesse_moteur_gauche = 0.3;
+  float vitesse_moteur_droite = 0.3;
+  float vitesse = 0.3;
+  int encodeurGauche = 0;
+  int encodeurDroite = 0;
+};
 struct robot {
   struct PID pid;
+  struct moteurs moteurs;
   char orientation = NORD;
   char mouvement = ARRET;
-  float vitesse_moteur_gauche = 0.0;
-  float vitesse_moteur_droite = 0.0;
-  float vitesse = 0.0;
   bool detection = false;
   int position[2] = {0,0}; //position X et Y
   bool retour = false;
@@ -156,8 +161,8 @@ void avance(){
   while(getDistance()- distance_init < 50)
   {
     PID();
-    MOTOR_SetSpeed(RIGHT,sparx.vitesse_moteur_droite);
-    MOTOR_SetSpeed(LEFT, sparx.vitesse_moteur_gauche);
+    MOTOR_SetSpeed(RIGHT,sparx.moteurs.vitesse_moteur_droite);
+    MOTOR_SetSpeed(LEFT, sparx.moteurs.vitesse_moteur_gauche);
   }
   arret();
 };
@@ -175,8 +180,8 @@ void avance(){
 };*/
 
 void actionDroit(){
-  MOTOR_SetSpeed(RIGHT,0.5*sparx.vitesse_moteur_droite);
-  MOTOR_SetSpeed(LEFT, -0.5*sparx.vitesse_moteur_gauche);
+  MOTOR_SetSpeed(RIGHT,-0.5*sparx.moteurs.vitesse_moteur_droite);
+  MOTOR_SetSpeed(LEFT, 0.5*sparx.moteurs.vitesse_moteur_gauche);
 };
 
 /*void tourneGauche(){
@@ -186,10 +191,10 @@ void actionDroit(){
 
 void PID(){
     //lire les valeurs des encodeurs
-    float left = ENCODER_Read(0);
-    float right = ENCODER_Read(1);
+    sparx.moteurs.encodeurGauche = ENCODER_Read(0);
+    sparx.moteurs.encodeurDroite = ENCODER_Read(1);
     //calcul d'erreur
-    float error = right - left;
+    float error = abs(sparx.moteurs.encodeurDroite) - abs(sparx.moteurs.encodeurGauche);
     //calcul propotionelle
     float proportionalValue = abs(error * sparx.pid.kp);
     //calcul intégrale
@@ -201,15 +206,29 @@ void PID(){
     float derivativeValue = abs(sparx.pid.kd*errdiff);
     //si la moteur gauche est plus lente
     if (error > 0){
-      sparx.vitesse_moteur_gauche = sparx.vitesse + proportionalValue + integralValue + derivativeValue;
+      sparx.moteurs.vitesse_moteur_gauche = sparx.moteurs.vitesse + proportionalValue + integralValue + derivativeValue;
 
     } 
     //si la moteur gauche est plus vite
     else if (error < 0) {
-      sparx.vitesse_moteur_gauche = sparx.vitesse - (proportionalValue + integralValue + derivativeValue);
+      sparx.moteurs.vitesse_moteur_gauche = sparx.moteurs.vitesse - (proportionalValue + integralValue + derivativeValue);
       
     }
-    else sparx.vitesse = sparx.vitesse;
+    else
+    {
+      sparx.moteurs.vitesse = sparx.moteurs.vitesse;
+      sparx.moteurs.vitesse_moteur_gauche = sparx.moteurs.vitesse;
+      sparx.moteurs.vitesse_moteur_droite = sparx.moteurs.vitesse;
+    }
+    
+}
+
+void travel(int distance){
+  PID();
+  float moyenne = (abs(sparx.moteurs.encodeurGauche) + abs(sparx.moteurs.encodeurDroite))/2;
+  float circonference = 2*PI*38.1;
+  float goalVal = (3200.0f*500.0f)/circonference;
+  if((moyenne == goalVal) or ((moyenne >= goalVal-100) and (moyenne <= goalVal+100))) sparx.mouvement = ARRET;
 }
 
 bool capteur_infrarouge() {
@@ -352,7 +371,6 @@ void tourneDroit()
   getangle();
   while(!rightangle)
   {
-    PID();
     actionDroit();
     getangle();
   }
