@@ -141,6 +141,7 @@ void loop() {
     verification_obstacle();
   }
   
+  
   while(1);
   //Serial.println(capteur_infrarouge());
 }
@@ -285,7 +286,7 @@ void verification_obstacle()
   //NORD
   if(sparx.orientation == NORD)
   {
-    //Serial.println("NORD");
+    Serial.println((capteur_infrarouge()));
     if((matrice_parcour[sparx.position[0]][sparx.position[1]] == L_NORD) || (!capteur_infrarouge())/*(1||5||6||7||11||12||13||15)*/)
     {
       Serial.println("droite");
@@ -369,25 +370,25 @@ void getangle(){
 sparx.moteurs.encodeurGauche = ENCODER_Read(0);
 sparx.moteurs.encodeurDroite = ENCODER_Read(1);
 
-/*Serial.print("left: ");
-    Serial.println(left1);
+Serial.print("left: ");
+    Serial.println(sparx.moteurs.encodeurGauche);
     Serial.print("right: ");
-    Serial.println(right2);
-*/
+    Serial.println(sparx.moteurs.encodeurDroite);
+
 float circonference = (18.5*PI);
 
 float distance = (circonference/4.0);
 float nbtours = (distance/23.93);
 float nbpulses = (nbtours*3200);
-/*Serial.print("nbpulses: ");
+Serial.print("nbpulses: ");
 Serial.println(nbpulses);
-*/
-if ((sparx.moteurs.encodeurDroite <= (nbpulses+50)) and (sparx.moteurs.encodeurDroite >= (nbpulses-50)))
-  {
-   //Serial.println("turn");
-   rightangle = true;
+
+if (abs(sparx.moteurs.encodeurDroite) > (nbpulses-30))
+{
+  Serial.println("turn");
+  rightangle = true;
    
-  }
+}
 
 };
 
