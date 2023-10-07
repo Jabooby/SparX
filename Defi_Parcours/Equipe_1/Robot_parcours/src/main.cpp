@@ -79,7 +79,6 @@ struct robot {
   bool depart = false;
   int vertpin = 53;
   int rougepin = 49;
-  int position[2] = {0,1};
 };
 /************************* VARIABLES GLOBALES *************************/
 struct robot sparx; //création de la valeur global SparX. SparX est le robot et nous pouvons accéder
@@ -117,7 +116,9 @@ void PID();
 bool capteur_infrarouge();
 bool start();
 void getangle();
-
+void verification_obstacle();
+int getDistance();
+  
 
 void setup() {
   // put your setup code here, to run once:
@@ -155,6 +156,7 @@ void arret(){
   MOTOR_SetSpeed(LEFT, 0);
 };
 
+//not used
 void avance(){
   PID();
   int distance_init = getDistance();
@@ -184,10 +186,10 @@ void actionDroit(){
   MOTOR_SetSpeed(LEFT, 0.5*sparx.moteurs.vitesse_moteur_gauche);
 };
 
-/*void tourneGauche(){
-  MOTOR_SetSpeed(RIGHT, -0.5*sparx.vitesse_moteur_droite);
-  MOTOR_SetSpeed(LEFT, 0.5*sparx.vitesse_moteur_gauche);
-};*/
+void tourneGauche(){
+  MOTOR_SetSpeed(RIGHT, -0.5*sparx.moteurs.vitesse_moteur_droite);
+  MOTOR_SetSpeed(LEFT, 0.5*sparx.moteurs.vitesse_moteur_gauche);
+};
 
 void PID(){
     //lire les valeurs des encodeurs
@@ -246,11 +248,11 @@ bool capteur_infrarouge() {
 }
 
 int getDistance(){
-  float left = ENCODER_Read(0);
-  float right = ENCODER_Read(1);
+  sparx.moteurs.encodeurGauche = ENCODER_Read(0);
+  sparx.moteurs.encodeurDroite = ENCODER_Read(1);
   float circumference = diametre * PI;
-  float distancel = (left/3200) * circumference;
-  float distancer = (right/3200) * circumference;
+  float distancel = (sparx.moteurs.encodeurGauche/3200) * circumference;
+  float distancer = (sparx.moteurs.encodeurDroite/3200) * circumference;
   float distance = (distancel+distancer)/2;
   //Serial.print("distance: ");
   //Serial.println(distance);
@@ -273,7 +275,7 @@ void verification_obstacle()
     }
     else
     {
-      avance();
+      travel(500);
       matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
       sparx.position[0]++;
     }
@@ -289,7 +291,7 @@ void verification_obstacle()
     }
     else
     {
-      avance();
+      travel(500);
       matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
       tourneGauche();
       sparx.orientation = NORD;
@@ -306,7 +308,7 @@ void verification_obstacle()
     }
     else
     {
-      avance();
+      travel(500);
       matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
       tourneDroit();
       sparx.orientation = NORD;
@@ -323,7 +325,7 @@ void verification_obstacle()
     }
     else
     {
-      avance();
+      travel(500);
       matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
       sparx.position[0]--;
     }
