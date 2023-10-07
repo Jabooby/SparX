@@ -86,6 +86,7 @@ int reset = 0;
 int interval = 50; //50 mS
 int analog1 = A0;
 int analog2 = A1;
+bool rightangle = false;
 
  int matrice_parcour[10][3]{
     {0,L_NORD,0},//1
@@ -105,10 +106,13 @@ void arret();
 void avance();
 void recule();
 void tourneDroit();
+void actionDroit();
 void tourneGauche();
 void PID();
 bool capteur_infrarouge();
 bool start();
+void getangle();
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -149,34 +153,36 @@ void arret(){
 void avance(){
   PID();
   int distance_init = getDistance();
-  while(getDistance()- distance_init <= 50)
+  while(getDistance()- distance_init < 50)
   {
     PID();
     MOTOR_SetSpeed(RIGHT,sparx.vitesse_moteur_droite);
     MOTOR_SetSpeed(LEFT, sparx.vitesse_moteur_gauche);
   }
+  arret();
 };
 
-void recule(){
+/*void recule(){
   PID();
   int distance_init = getDistance();
-  while(getDistance()- distance_init <= 50)
+  while(getDistance()- distance_init >= -50)
   {
     PID();
     MOTOR_SetSpeed(RIGHT,-sparx.vitesse_moteur_droite);
     MOTOR_SetSpeed(LEFT, -sparx.vitesse_moteur_gauche);
   }
-};
+  arret();
+};*/
 
-void tourneDroit(){
+void actionDroit(){
   MOTOR_SetSpeed(RIGHT,0.5*sparx.vitesse_moteur_droite);
   MOTOR_SetSpeed(LEFT, -0.5*sparx.vitesse_moteur_gauche);
 };
 
-void tourneGauche(){
+/*void tourneGauche(){
   MOTOR_SetSpeed(RIGHT, -0.5*sparx.vitesse_moteur_droite);
   MOTOR_SetSpeed(LEFT, 0.5*sparx.vitesse_moteur_gauche);
-};
+};*/
 
 void PID(){
     //lire les valeurs des encodeurs
@@ -311,4 +317,47 @@ bool start() {
   int ambiant = analogRead(analog2);
   if (frequency > ambiant) go=true;
   return go;
+}
+
+void getangle(){
+
+float left1 = ENCODER_Read(0);
+float right2 = ENCODER_Read(1);
+
+/*Serial.print("left: ");
+    Serial.println(left1);
+    Serial.print("right: ");
+    Serial.println(right2);
+*/
+float circonference = (18.5*PI);
+
+float distance = (circonference/4.0);
+float nbtours = (distance/23.93);
+float nbpulses = (nbtours*3200);
+/*Serial.print("nbpulses: ");
+Serial.println(nbpulses);
+*/
+if ((right2 <= (nbpulses+50)) and (right2 >= (nbpulses-50)))
+  {
+   //Serial.println("turn");
+   rightangle = true;
+   
+  }
+
+};
+
+void tourneDroit()
+{
+  PID();
+  getangle();
+  while(!rightangle)
+  {
+    PID();
+    actionDroit();
+    getangle();
+  }
+  ENCODER_ReadReset(0);
+  ENCODER_ReadReset(1);
+  rightangle = false;
+  arret();
 }
