@@ -93,17 +93,18 @@ int analog1 = A0;
 int analog2 = A1;
 bool rightangle = false;
 
- int matrice_parcour[10][3]{
+ int matrice_parcour[11][3]{
     {9,4,10},//1
-    {8,8,8},//2
+    {2,0,3},//2
     {2,0,3},//3
-    {8,8,8},//4
+    {2,0,3},//4
     {2,0,3},//5
-    {8,8,8},//6
+    {2,0,3},//6
     {2,0,3},//7
-    {8,8,8},//8
+    {2,0,3},//8
     {2,0,3},//9
-    {11,11,11} //10
+    {11,11,11}, //10
+    {15,15,15} //11
   };
 /************************* DECLARATIONS DE FONCTIONS *************************/
 int myFunction(int, int); //ceci est un exemple
@@ -148,7 +149,6 @@ void loop() {
   }
   Serial.println("Position fin de code: ");
   Serial.println(sparx.position[0]);
-  
   while(1);
   //Serial.println(capteur_infrarouge());
 }
@@ -168,8 +168,8 @@ void arret(){
   MOTOR_SetSpeed(LEFT, 0);
   ENCODER_Reset(0);
   ENCODER_Reset(1);
-  timer = millis();
-  while((timer+500) < millis());
+  /*timer = millis();
+  while((timer+100) < millis());*/
 };
 
 //not used
@@ -247,10 +247,12 @@ void travel(float distance){
   float circonference = 2*PI*38.1;
   float goalVal = (3200.0f*distance)/circonference;
   
-
+  PID();
   while(moyenne < goalVal)
   {
     PID();
+    /*sparx.moteurs.encodeurGauche = ENCODER_Read(0);
+    sparx.moteurs.encodeurDroite = ENCODER_Read(1);*/
     moyenne = (abs(sparx.moteurs.encodeurGauche) + abs(sparx.moteurs.encodeurDroite))/2;    
     MOTOR_SetSpeed(RIGHT, sparx.moteurs.vitesse_moteur_droite);
     MOTOR_SetSpeed(LEFT, sparx.moteurs.vitesse_moteur_gauche);
@@ -431,9 +433,9 @@ void verification_obstacle()
   //NORD
   if(sparx.orientation == NORD)
   {
-    //Serial.println((capteur_infrarouge()));
     
-    if((verification_matrice(sparx.position[0], sparx.position[1], sparx.orientation) || (capteur_infrarouge()) || (matrice_parcour[sparx.position[0]+1][sparx.position[1]] == 15))/*(1||5||6||7||11||12||13||15)*/)
+    
+    if((verification_matrice(sparx.position[0], sparx.position[1], sparx.orientation) || (capteur_infrarouge()) /*(matrice_parcour[(sparx.position[0])+1][sparx.position[1]] == 15)*/)/*(1||5||6||7||11||12||13||15)*/)
     {
       //Serial.println("droite");
       tourneDroit();
@@ -441,11 +443,9 @@ void verification_obstacle()
     }
     else
     {
-      //Serial.println("Poopoo");
-      travel(500);
-      sparx.position[0]++;
       matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
-      sparx.orientation = NORD;
+      sparx.position[0]+= 1;
+      travel(500);
     }
     
   }
