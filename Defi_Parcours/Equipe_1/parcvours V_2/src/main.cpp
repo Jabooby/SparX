@@ -442,16 +442,12 @@ void verification_obstacle()
     else
     {
       //Serial.println("Poopoo");
-      if (sparx.position[0] == 0)
-        sparx.position[0] = 1;
-      else
-      {
-        travel(500);
-        matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
-        sparx.position[0]+= 1;
-      }
-      
+      travel(500);
+      sparx.position[0]++;
+      matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
+      sparx.orientation = NORD;
     }
+    
   }
   //EST
   else if(sparx.orientation == EST)
