@@ -14,6 +14,7 @@
 #define wow       "wow" //ceci est un exemple
 #define pi        3.14159
 #define diametre  7.62 //les roues ont 2 pouces de diametre
+#define circonference_cm diametre * PI
 #define circonference_mm  76 * PI
 #define radius    diametre / 2
 /************************* DECLARATION DES ÉTATS MACHINE *************************/
@@ -56,7 +57,7 @@ struct PID {
   //constantes PID
   float kp = 0.00061;
   float ki = 0.000001;
-  float kd = 0.000016;
+  float kd = 0.00001;
   //variables de calcul PID
   float errsum  = 0.0;
   float prevErr = 0.0;
@@ -109,7 +110,7 @@ bool rightangle = false;
 /************************* DECLARATIONS DE FONCTIONS *************************/
 int myFunction(int, int); //ceci est un exemple
 void arret();
-//void avance();
+void avance();
 void recule();
 void tourneDroit();
 void actionDroit();
@@ -119,7 +120,7 @@ bool capteur_infrarouge();
 bool start();
 void getangle(float angle);
 void verification_obstacle();
-int getDistance();
+float getDistance();
 void travel(float distance);
 void tourneGauche();
 bool verification_matrice(int y, int x, int direction);
@@ -143,6 +144,7 @@ void loop() {
   //tourneGauche();
   
   //travel(500);
+  //avance();
   while(sparx.position[0] < 9)
   {
     verification_obstacle();
@@ -173,17 +175,18 @@ void arret(){
 };
 
 //not used
-/*void avance(){
+void avance(){
   PID();
-  int distance_init = getDistance();
-  while(getDistance()- distance_init < 50)
+  //float distance_init = getDistance();
+  while(getDistance() < 50.0f)
   {
+    //Serial.println(getDistance());
     PID();
     MOTOR_SetSpeed(RIGHT,sparx.moteurs.vitesse_moteur_droite);
     MOTOR_SetSpeed(LEFT, sparx.moteurs.vitesse_moteur_gauche);
   }
   arret();
-};*/
+};
 
 /*void recule(){
   PID();
@@ -250,9 +253,9 @@ void travel(float distance){
   PID();
   while(moyenne < goalVal)
   {
-    PID();
-    /*sparx.moteurs.encodeurGauche = ENCODER_Read(0);
-    sparx.moteurs.encodeurDroite = ENCODER_Read(1);*/
+    //PID();
+    sparx.moteurs.encodeurGauche = ENCODER_Read(0);
+    sparx.moteurs.encodeurDroite = ENCODER_Read(1);
     moyenne = (abs(sparx.moteurs.encodeurGauche) + abs(sparx.moteurs.encodeurDroite))/2;    
     MOTOR_SetSpeed(RIGHT, sparx.moteurs.vitesse_moteur_droite);
     MOTOR_SetSpeed(LEFT, sparx.moteurs.vitesse_moteur_gauche);
@@ -274,15 +277,11 @@ bool capteur_infrarouge() {
   return etat;
 }
 
-int getDistance(){
-  sparx.moteurs.encodeurGauche = ENCODER_Read(0);
-  sparx.moteurs.encodeurDroite = ENCODER_Read(1);
-  float circumference = diametre * PI;
-  float distancel = (sparx.moteurs.encodeurGauche/3200) * circumference;
-  float distancer = (sparx.moteurs.encodeurDroite/3200) * circumference;
-  float distance = (distancel+distancer)/2;
-  
-  return distance;
+float getDistance(){
+  sparx.moteurs.encodeurGauche = ENCODER_Read(LEFT);
+  //Serial.println(sparx.moteurs.encodeurGauche);
+  float distancel = (sparx.moteurs.encodeurGauche/3200.0f) * circonference_cm;
+  return distancel;
 
 }
 bool verification_matrice(int y, int x, int direction)
@@ -443,9 +442,11 @@ void verification_obstacle()
     }
     else
     {
+      avance();
+      //travel(500);
       matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
-      sparx.position[0]+= 1;
-      travel(500);
+      sparx.position[0]++;
+      Serial.println(sparx.position[0]);
     }
     
   }
@@ -460,7 +461,8 @@ void verification_obstacle()
     }
     else
     {
-      travel(500);
+      //travel(500);
+      avance();
       matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
       tourneGauche();
       sparx.orientation = NORD;
@@ -477,7 +479,8 @@ void verification_obstacle()
     }
     else
     {
-      travel(500);
+      //travel(500);
+      avance();
       matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
       tourneDroit();
       sparx.orientation = NORD;
@@ -494,7 +497,8 @@ void verification_obstacle()
     }
     else
     {
-      travel(500);
+      //travel(500);
+      avance();
       matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
       sparx.position[0]--;
     }
@@ -530,7 +534,7 @@ void tourneDroit()
   {
     PID();
     actionDroit();
-    getangle(79.3); //29-A = 79.3
+    getangle(79.0); //29-A = 79.3
   }
   ENCODER_ReadReset(0);
   ENCODER_ReadReset(1);
