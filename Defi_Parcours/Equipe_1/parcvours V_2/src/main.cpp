@@ -75,7 +75,7 @@ struct robot {
   char orientation = NORD;
   char mouvement = ARRET;
   bool detection = false;
-  int position[2] = {1,0}; //position X et Y
+  int position[2] = {0,1}; //position Y et X
   bool retour = false;
   bool depart = false;
   int vertpin = 48;
@@ -94,16 +94,16 @@ int analog2 = A1;
 bool rightangle = false;
 
  int matrice_parcour[10][3]{
-    {6,1,5},//1
+    {9,4,10},//1
     {8,8,8},//2
     {3,0,2},//3
     {8,8,8},//4
-    {3,0,2},//5
+    {2,0,3},//5
     {8,8,8},//6
-    {3,0,2},//7
+    {2,0,3},//7
     {8,8,8},//8
-    {3,0,2},//9
-    {14,14,14} //10
+    {2,0,3},//9
+    {11,11,11} //10
   };
 /************************* DECLARATIONS DE FONCTIONS *************************/
 int myFunction(int, int); //ceci est un exemple
@@ -121,6 +121,7 @@ void verification_obstacle();
 int getDistance();
 void travel(float distance);
 void tourneGauche();
+bool verification_matrice(int y, int x, int direction);
   
 
 void setup() {
@@ -138,13 +139,13 @@ void setup() {
 void loop() {
   //mettre code sifflet
   //verif +bouge
-  tourneGauche();
-  /*
+  //tourneGauche();
+  
   while(sparx.position[1] < 10)
   {
     verification_obstacle();
   }
-  */
+  
   
   while(1);
   //Serial.println(capteur_infrarouge());
@@ -282,6 +283,144 @@ int getDistance(){
   return distance;
 
 }
+bool verification_matrice(int y, int x, int direction)
+{
+  int etatCase = matrice_parcour[y][x];
+  switch(direction)
+  {
+    case NORD:
+      switch(etatCase)
+      {
+        case L_NORD:
+          return true;
+          break;
+        case L_NORD_EST:
+          return true;
+          break;
+        case L_NORD_EST_OUEST:
+          return true;
+          break;
+        case L_NORD_EST_SUD:
+          return true;
+          break;
+        case L_NORD_OUEST:
+            return true;
+          break;
+        case L_NORD_OUEST_SUD:
+            return true;
+          break;
+        case L_NORD_SUD:
+            return true;
+          break;
+        case L_NORD_EST_OUEST_SUD:
+            return true;
+          break;
+        default:
+          return false;
+          break;
+      }
+      break;
+    case OUEST:
+    switch(etatCase)
+      {
+        case L_EST:
+          return true;
+          break;
+        case L_NORD_EST:
+          return true;
+          break;
+        case L_NORD_EST_OUEST:
+          return true;
+          break;
+        case L_NORD_EST_SUD:
+          return true;
+          break;
+        case L_EST_OUEST:
+          return true;
+          break;
+        case L_EST_OUEST_SUD:
+          return true;
+          break;
+        case L_EST_SUD:
+          return true;
+          break;
+        case L_NORD_EST_OUEST_SUD:
+          return true;
+          break;
+        default:
+          return false;
+          break;
+      }
+      break;
+    case EST:
+    switch(etatCase)
+      {
+        case L_OUEST:
+          return true;
+          break;
+        case L_OUEST_SUD:
+          return true;
+          break;
+        case L_NORD_EST_OUEST:
+          return true;
+          break;
+        case L_EST_OUEST:
+          return true;
+          break;
+        case L_NORD_OUEST:
+          return true;
+          break;
+        case L_NORD_OUEST_SUD:
+          return true;
+          break;
+        case L_EST_OUEST_SUD:
+          return true;
+          break;
+        case L_NORD_EST_OUEST_SUD:
+          return true;
+          break;
+        default:
+          return false;
+          break;
+      }
+      break;
+    case SUD:
+    switch(etatCase)
+      {
+        case L_SUD:
+          return true;
+          break;
+        case L_EST_SUD:
+          return true;
+          break;
+        case L_NORD_SUD:
+          return true;
+          break;
+        case L_NORD_EST_SUD:
+          return true;
+          break;
+        case L_OUEST_SUD:
+          return true;
+          break;
+        case L_NORD_OUEST_SUD:
+          return true;
+          break;
+        case L_EST_OUEST_SUD:
+          return true;
+          break;
+        case L_NORD_EST_OUEST_SUD:
+          return true;
+          break;
+        default:
+          return false;
+          break;
+      }
+      break;
+    default:
+      break;
+  }
+
+}
 
 void verification_obstacle()
 {
@@ -292,10 +431,11 @@ void verification_obstacle()
   //NORD
   if(sparx.orientation == NORD)
   {
-    Serial.println((capteur_infrarouge()));
-    if(/*(matrice_parcour[sparx.position[0]][sparx.position[1]] == L_NORD)*/ (capteur_infrarouge())/*(1||5||6||7||11||12||13||15)*/)
+    //Serial.println((capteur_infrarouge()));
+    
+    if((verification_matrice(sparx.position[0], sparx.position[1], sparx.orientation) || (capteur_infrarouge()) || (matrice_parcour[sparx.position[0]+1][sparx.position[1]] == 15))/*(1||5||6||7||11||12||13||15)*/)
     {
-      Serial.println("droite");
+      //Serial.println("droite");
       tourneDroit();
       sparx.orientation = EST;
     }
@@ -310,7 +450,7 @@ void verification_obstacle()
   //EST
   else if(sparx.orientation == EST)
   {
-    if(/*(matrice_parcour[sparx.position[0]][sparx.position[1]] == L_EST) || */(capteur_infrarouge()))
+    if((verification_matrice(sparx.position[0], sparx.position[1], sparx.orientation)|| (capteur_infrarouge()) || (matrice_parcour[sparx.position[0]][sparx.position[1]+1] == 15)))
     {
       tourneDroit();
       tourneDroit();
@@ -328,7 +468,7 @@ void verification_obstacle()
   //OUEST
   else if(sparx.orientation == OUEST)
   {
-    if(/*(matrice_parcour[sparx.position[0]][sparx.position[1]] == L_OUEST) || */(capteur_infrarouge()))
+    if((verification_matrice(sparx.position[0], sparx.position[1], sparx.orientation) || (capteur_infrarouge()) || (matrice_parcour[sparx.position[0]][sparx.position[1]-1] == 15)))
     {
       tourneGauche();
       sparx.orientation = SUD;
@@ -343,9 +483,9 @@ void verification_obstacle()
     }
   }
   //SUD
-  else if(/*sparx.orientation == SUD*/(capteur_infrarouge()))
+  else if(sparx.orientation == SUD)
   {
-    if(matrice_parcour[sparx.position[0]][sparx.position[1]] == L_SUD)
+    if(verification_matrice(sparx.position[0], sparx.position[1], sparx.orientation) || (capteur_infrarouge()) || (matrice_parcour[sparx.position[0]-1][sparx.position[1]] == 15))
     {
       tourneDroit();
       sparx.orientation = EST;
@@ -376,7 +516,7 @@ float nbpulses = (nbtours*3200);
 sparx.moteurs.encodeurDroite = ENCODER_Read(1);
 if (abs(sparx.moteurs.encodeurDroite) > (nbpulses))
 {
-  Serial.println("turn");
+  //Serial.println("turn");
   rightangle = true;
 }
 };
@@ -401,7 +541,7 @@ void tourneGauche()
   while(!rightangle)
   {
     actionGauche();
-    getangle(81);
+    getangle(86);
   }
   ENCODER_ReadReset(0);
   ENCODER_ReadReset(1);
