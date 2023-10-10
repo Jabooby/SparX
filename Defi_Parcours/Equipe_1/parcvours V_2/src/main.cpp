@@ -14,6 +14,7 @@
 #define wow       "wow" //ceci est un exemple
 #define pi        3.14159
 #define diametre  7.62 //les roues ont 2 pouces de diametre
+#define circonference_mm  76 * PI
 #define radius    diametre / 2
 /************************* DECLARATION DES ÉTATS MACHINE *************************/
 enum direction {
@@ -115,10 +116,11 @@ void tourneGauche();
 void PID();
 bool capteur_infrarouge();
 bool start();
-void getangle();
+void getangle(int angle);
 void verification_obstacle();
 int getDistance();
 void travel(float distance);
+void tourneGauche();
   
 
 void setup() {
@@ -136,11 +138,13 @@ void setup() {
 void loop() {
   //mettre code sifflet
   //verif +bouge
+  tourneGauche();
+  /*
   while(sparx.position[1] < 10)
   {
     verification_obstacle();
   }
-  
+  */
   
   while(1);
   //Serial.println(capteur_infrarouge());
@@ -195,9 +199,9 @@ void actionDroit(){
   MOTOR_SetSpeed(LEFT, 0.5*sparx.moteurs.vitesse_moteur_gauche);
 };
 
-void tourneGauche(){
-  MOTOR_SetSpeed(RIGHT, -0.5*sparx.moteurs.vitesse_moteur_droite);
-  MOTOR_SetSpeed(LEFT, 0.5*sparx.moteurs.vitesse_moteur_gauche);
+void actionGauche(){
+  MOTOR_SetSpeed(RIGHT, 0.5*sparx.moteurs.vitesse_moteur_droite);
+  MOTOR_SetSpeed(LEFT, -0.5*sparx.moteurs.vitesse_moteur_gauche);
 };
 
 void PID(){
@@ -316,9 +320,7 @@ void verification_obstacle()
     {
       travel(500);
       matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
-      tourneDroit();
-      tourneDroit();
-      tourneDroit();
+      tourneGauche();
       sparx.orientation = NORD;
       sparx.position[1]++;
     }
@@ -328,9 +330,7 @@ void verification_obstacle()
   {
     if(/*(matrice_parcour[sparx.position[0]][sparx.position[1]] == L_OUEST) || */(capteur_infrarouge()))
     {
-      tourneDroit();
-      tourneDroit();
-      tourneDroit();
+      tourneGauche();
       sparx.orientation = SUD;
     }
     else
@@ -367,41 +367,41 @@ bool start() {
   return go;
 }
 
-void getangle(){
-
-sparx.moteurs.encodeurGauche = ENCODER_Read(0);
-sparx.moteurs.encodeurDroite = ENCODER_Read(1);
-
-/*Serial.print("left: ");
-    Serial.println(sparx.moteurs.encodeurGauche);
-    Serial.print("right: ");
-    Serial.println(sparx.moteurs.encodeurDroite);*/
-
-float circonference = (18.5*PI);
-
-float distance = (circonference/4.0);
+void getangle(int angle){
+float coefficient = 360.0 /angle ;
+float circonference = (22.0*PI);
+float distance = (circonference/coefficient);
 float nbtours = (distance/23.93);
 float nbpulses = (nbtours*3200);
-//Serial.print("nbpulses: ");
-//Serial.println(nbpulses);
-
-if (abs(sparx.moteurs.encodeurDroite) > (nbpulses-30))
+sparx.moteurs.encodeurDroite = ENCODER_Read(1);
+if (abs(sparx.moteurs.encodeurDroite) > (nbpulses))
 {
-  //Serial.println("turn");
+  Serial.println("turn");
   rightangle = true;
-   
 }
-
 };
 
 void tourneDroit()
 {
   PID();
-  getangle();
   while(!rightangle)
   {
     actionDroit();
-    getangle();
+    getangle(87);
+  }
+  ENCODER_ReadReset(0);
+  ENCODER_ReadReset(1);
+  rightangle = false;
+  arret();
+}
+
+void tourneGauche()
+{
+  PID();
+  while(!rightangle)
+  {
+    actionGauche();
+    getangle(81);
   }
   ENCODER_ReadReset(0);
   ENCODER_ReadReset(1);
