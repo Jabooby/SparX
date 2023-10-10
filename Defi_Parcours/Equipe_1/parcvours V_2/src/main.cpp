@@ -141,11 +141,13 @@ void loop() {
   //verif +bouge
   //tourneGauche();
   
+  //travel(500);
   while(sparx.position[0] < 9)
   {
     verification_obstacle();
   }
-  
+  Serial.println("Position fin de code: ");
+  Serial.println(sparx.position[0]);
   
   while(1);
   //Serial.println(capteur_infrarouge());
@@ -167,7 +169,7 @@ void arret(){
   ENCODER_Reset(0);
   ENCODER_Reset(1);
   timer = millis();
-  while((timer+250) < millis());
+  while((timer+500) < millis());
 };
 
 //not used
@@ -196,13 +198,13 @@ void arret(){
 };*/
 
 void actionDroit(){
-  MOTOR_SetSpeed(RIGHT, -0.15);
-  MOTOR_SetSpeed(LEFT, 0.15);
+  MOTOR_SetSpeed(RIGHT, -0.5*sparx.moteurs.vitesse_moteur_droite);
+  MOTOR_SetSpeed(LEFT, 0.5*sparx.moteurs.vitesse_moteur_gauche);
 };
 
 void actionGauche(){
-  MOTOR_SetSpeed(RIGHT, 0.15);
-  MOTOR_SetSpeed(LEFT, -0.15);
+  MOTOR_SetSpeed(RIGHT, 0.5*sparx.moteurs.vitesse_moteur_droite);
+  MOTOR_SetSpeed(LEFT, -0.5*sparx.moteurs.vitesse_moteur_gauche);
 };
 
 void PID(){
@@ -232,7 +234,7 @@ void PID(){
     }
     else
     {
-      sparx.moteurs.vitesse = sparx.moteurs.vitesse;
+      //sparx.moteurs.vitesse = sparx.moteurs.vitesse;
       sparx.moteurs.vitesse_moteur_gauche = sparx.moteurs.vitesse;
       sparx.moteurs.vitesse_moteur_droite = sparx.moteurs.vitesse;
     }
@@ -240,17 +242,16 @@ void PID(){
 }
 
 void travel(float distance){
-  PID();
   float moyenne = (abs(sparx.moteurs.encodeurGauche) + abs(sparx.moteurs.encodeurDroite))/2;
-  Serial.println(moyenne);
+  
   float circonference = 2*PI*38.1;
   float goalVal = (3200.0f*distance)/circonference;
-  Serial.println(goalVal);
+  
 
-  while(moyenne <= goalVal)
+  while(moyenne < goalVal)
   {
     PID();
-    moyenne = (abs(sparx.moteurs.encodeurGauche) + abs(sparx.moteurs.encodeurDroite))/2;    MOTOR_SetSpeed(RIGHT, sparx.moteurs.vitesse_moteur_droite);
+    moyenne = (abs(sparx.moteurs.encodeurGauche) + abs(sparx.moteurs.encodeurDroite))/2;    
     MOTOR_SetSpeed(RIGHT, sparx.moteurs.vitesse_moteur_droite);
     MOTOR_SetSpeed(LEFT, sparx.moteurs.vitesse_moteur_gauche);
   }
@@ -278,8 +279,7 @@ int getDistance(){
   float distancel = (sparx.moteurs.encodeurGauche/3200) * circumference;
   float distancer = (sparx.moteurs.encodeurDroite/3200) * circumference;
   float distance = (distancel+distancer)/2;
-  //Serial.print("distance: ");
-  //Serial.println(distance);
+  
   return distance;
 
 }
@@ -426,7 +426,7 @@ void verification_obstacle()
 {
   //sparx.orientation
   //sparx.position
-  PID();
+  
   //Serial.println("PID");
   //NORD
   if(sparx.orientation == NORD)
@@ -442,9 +442,15 @@ void verification_obstacle()
     else
     {
       //Serial.println("Poopoo");
-      travel(500);
-      matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
-      sparx.position[0]++;
+      if (sparx.position[0] == 0)
+        sparx.position[0] = 1;
+      else
+      {
+        travel(500);
+        matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
+        sparx.position[0]+= 1;
+      }
+      
     }
   }
   //EST
@@ -508,17 +514,17 @@ bool start() {
 }
 
 void getangle(float angle){
-float coefficient = 360.0 /angle ;
-float circonference = (22.0*PI);
-float distance = (circonference/coefficient);
-float nbtours = (distance/23.93);
-float nbpulses = (nbtours*3200);
-sparx.moteurs.encodeurDroite = ENCODER_Read(1);
-if (abs(sparx.moteurs.encodeurDroite) > (nbpulses-10))
-{
-  //Serial.println("turn");
-  rightangle = true;
-}
+  float coefficient = 360.0 /angle ;
+  float circonference = (22.0*PI);
+  float distance = (circonference/coefficient);
+  float nbtours = (distance/23.93);
+  float nbpulses = (nbtours*3200);
+  sparx.moteurs.encodeurDroite = ENCODER_Read(1);
+  if (abs(sparx.moteurs.encodeurDroite) > (nbpulses-10))
+  {
+    //Serial.println("turn");
+    rightangle = true;
+  }
 };
 
 void tourneDroit()
