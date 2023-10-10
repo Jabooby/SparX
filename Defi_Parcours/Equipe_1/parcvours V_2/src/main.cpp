@@ -56,8 +56,8 @@ enum ligne {
 struct PID {
   //constantes PID
   float kp = 0.00061;
-  float ki = 0.000001;
-  float kd = 0.00001;
+  float ki = 0.0000011;
+  float kd = 0.000032;
   //variables de calcul PID
   float errsum  = 0.0;
   float prevErr = 0.0;
@@ -96,13 +96,13 @@ bool rightangle = false;
 
  int matrice_parcour[11][3]{
     {9,4,10},//1
-    {2,0,3},//2
+    {8,8,8},//2
     {2,0,3},//3
-    {2,0,3},//4
+    {8,8,8},//4
     {2,0,3},//5
-    {2,0,3},//6
+    {8,8,8},//6
     {2,0,3},//7
-    {2,0,3},//8
+    {8,8,8},//8
     {2,0,3},//9
     {11,11,11}, //10
     {15,15,15} //11
@@ -434,7 +434,7 @@ void verification_obstacle()
   {
     
     
-    if((verification_matrice(sparx.position[0], sparx.position[1], sparx.orientation) || (capteur_infrarouge()) /*(matrice_parcour[(sparx.position[0])+1][sparx.position[1]] == 15)*/)/*(1||5||6||7||11||12||13||15)*/)
+    if((verification_matrice(sparx.position[0], sparx.position[1], sparx.orientation) || (capteur_infrarouge()) || (matrice_parcour[sparx.position[0]+1][sparx.position[1]] == 15))/*(1||5||6||7||11||12||13||15)*/)
     {
       //Serial.println("droite");
       tourneDroit();
@@ -446,7 +446,7 @@ void verification_obstacle()
       //travel(500);
       matrice_parcour[sparx.position[0]][sparx.position[1]] = 15;
       sparx.position[0]++;
-      Serial.println(sparx.position[0]);
+      
     }
     
   }
@@ -492,7 +492,7 @@ void verification_obstacle()
   {
     if(verification_matrice(sparx.position[0], sparx.position[1], sparx.orientation) || (capteur_infrarouge()) || (matrice_parcour[sparx.position[0]-1][sparx.position[1]] == 15))
     {
-      tourneDroit();
+      tourneGauche();
       sparx.orientation = EST;
     }
     else
