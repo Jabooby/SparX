@@ -77,7 +77,7 @@ struct robot {
   int position[2] = {1,0}; //position X et Y
   bool retour = false;
   bool depart = false;
-  int vertpin = 53;
+  int vertpin = 48;
   int rougepin = 49;
 };
 /************************* VARIABLES GLOBALES *************************/
@@ -107,7 +107,7 @@ bool rightangle = false;
 /************************* DECLARATIONS DE FONCTIONS *************************/
 int myFunction(int, int); //ceci est un exemple
 void arret();
-void avance();
+//void avance();
 void recule();
 void tourneDroit();
 void actionDroit();
@@ -161,10 +161,12 @@ void arret(){
   MOTOR_SetSpeed(LEFT, 0);
   ENCODER_Reset(0);
   ENCODER_Reset(1);
+  timer = millis();
+  while((timer+250) < millis());
 };
 
 //not used
-void avance(){
+/*void avance(){
   PID();
   int distance_init = getDistance();
   while(getDistance()- distance_init < 50)
@@ -174,7 +176,7 @@ void avance(){
     MOTOR_SetSpeed(LEFT, sparx.moteurs.vitesse_moteur_gauche);
   }
   arret();
-};
+};*/
 
 /*void recule(){
   PID();
@@ -287,7 +289,7 @@ void verification_obstacle()
   if(sparx.orientation == NORD)
   {
     Serial.println((capteur_infrarouge()));
-    if((matrice_parcour[sparx.position[0]][sparx.position[1]] == L_NORD) || (!capteur_infrarouge())/*(1||5||6||7||11||12||13||15)*/)
+    if(/*(matrice_parcour[sparx.position[0]][sparx.position[1]] == L_NORD)*/ (capteur_infrarouge())/*(1||5||6||7||11||12||13||15)*/)
     {
       Serial.println("droite");
       tourneDroit();
@@ -304,7 +306,7 @@ void verification_obstacle()
   //EST
   else if(sparx.orientation == EST)
   {
-    if((matrice_parcour[sparx.position[0]][sparx.position[1]] == L_EST) || (!capteur_infrarouge()))
+    if(/*(matrice_parcour[sparx.position[0]][sparx.position[1]] == L_EST) || */(capteur_infrarouge()))
     {
       tourneDroit();
       tourneDroit();
@@ -324,7 +326,7 @@ void verification_obstacle()
   //OUEST
   else if(sparx.orientation == OUEST)
   {
-    if((matrice_parcour[sparx.position[0]][sparx.position[1]] == L_OUEST) || (!capteur_infrarouge()))
+    if(/*(matrice_parcour[sparx.position[0]][sparx.position[1]] == L_OUEST) || */(capteur_infrarouge()))
     {
       tourneDroit();
       tourneDroit();
@@ -341,7 +343,7 @@ void verification_obstacle()
     }
   }
   //SUD
-  else if(sparx.orientation == SUD)
+  else if(/*sparx.orientation == SUD*/(capteur_infrarouge()))
   {
     if(matrice_parcour[sparx.position[0]][sparx.position[1]] == L_SUD)
     {
@@ -370,22 +372,22 @@ void getangle(){
 sparx.moteurs.encodeurGauche = ENCODER_Read(0);
 sparx.moteurs.encodeurDroite = ENCODER_Read(1);
 
-Serial.print("left: ");
+/*Serial.print("left: ");
     Serial.println(sparx.moteurs.encodeurGauche);
     Serial.print("right: ");
-    Serial.println(sparx.moteurs.encodeurDroite);
+    Serial.println(sparx.moteurs.encodeurDroite);*/
 
 float circonference = (18.5*PI);
 
 float distance = (circonference/4.0);
 float nbtours = (distance/23.93);
 float nbpulses = (nbtours*3200);
-Serial.print("nbpulses: ");
-Serial.println(nbpulses);
+//Serial.print("nbpulses: ");
+//Serial.println(nbpulses);
 
 if (abs(sparx.moteurs.encodeurDroite) > (nbpulses-30))
 {
-  Serial.println("turn");
+  //Serial.println("turn");
   rightangle = true;
    
 }
