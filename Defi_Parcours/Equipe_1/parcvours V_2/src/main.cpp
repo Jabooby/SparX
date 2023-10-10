@@ -96,7 +96,7 @@ bool rightangle = false;
  int matrice_parcour[10][3]{
     {9,4,10},//1
     {8,8,8},//2
-    {3,0,2},//3
+    {2,0,3},//3
     {8,8,8},//4
     {2,0,3},//5
     {8,8,8},//6
@@ -116,7 +116,7 @@ void tourneGauche();
 void PID();
 bool capteur_infrarouge();
 bool start();
-void getangle(int angle);
+void getangle(float angle);
 void verification_obstacle();
 int getDistance();
 void travel(float distance);
@@ -141,7 +141,7 @@ void loop() {
   //verif +bouge
   //tourneGauche();
   
-  while(sparx.position[1] < 10)
+  while(sparx.position[0] < 9)
   {
     verification_obstacle();
   }
@@ -196,13 +196,13 @@ void arret(){
 };*/
 
 void actionDroit(){
-  MOTOR_SetSpeed(RIGHT,-0.5*sparx.moteurs.vitesse_moteur_droite);
-  MOTOR_SetSpeed(LEFT, 0.5*sparx.moteurs.vitesse_moteur_gauche);
+  MOTOR_SetSpeed(RIGHT, -0.15);
+  MOTOR_SetSpeed(LEFT, 0.15);
 };
 
 void actionGauche(){
-  MOTOR_SetSpeed(RIGHT, 0.5*sparx.moteurs.vitesse_moteur_droite);
-  MOTOR_SetSpeed(LEFT, -0.5*sparx.moteurs.vitesse_moteur_gauche);
+  MOTOR_SetSpeed(RIGHT, 0.15);
+  MOTOR_SetSpeed(LEFT, -0.15);
 };
 
 void PID(){
@@ -452,8 +452,8 @@ void verification_obstacle()
   {
     if((verification_matrice(sparx.position[0], sparx.position[1], sparx.orientation)|| (capteur_infrarouge()) || (matrice_parcour[sparx.position[0]][sparx.position[1]+1] == 15)))
     {
-      tourneDroit();
-      tourneDroit();
+      tourneGauche();
+      tourneGauche();
       sparx.orientation = OUEST;
     }
     else
@@ -507,14 +507,14 @@ bool start() {
   return go;
 }
 
-void getangle(int angle){
+void getangle(float angle){
 float coefficient = 360.0 /angle ;
 float circonference = (22.0*PI);
 float distance = (circonference/coefficient);
 float nbtours = (distance/23.93);
 float nbpulses = (nbtours*3200);
 sparx.moteurs.encodeurDroite = ENCODER_Read(1);
-if (abs(sparx.moteurs.encodeurDroite) > (nbpulses))
+if (abs(sparx.moteurs.encodeurDroite) > (nbpulses-10))
 {
   //Serial.println("turn");
   rightangle = true;
@@ -523,11 +523,12 @@ if (abs(sparx.moteurs.encodeurDroite) > (nbpulses))
 
 void tourneDroit()
 {
-  PID();
+  
   while(!rightangle)
   {
+    PID();
     actionDroit();
-    getangle(87);
+    getangle(79.3); //29-A = 79.3
   }
   ENCODER_ReadReset(0);
   ENCODER_ReadReset(1);
@@ -537,11 +538,12 @@ void tourneDroit()
 
 void tourneGauche()
 {
-  PID();
+  
   while(!rightangle)
   {
+    PID();
     actionGauche();
-    getangle(86);
+    getangle(77.2); //29-A = 77.2
   }
   ENCODER_ReadReset(0);
   ENCODER_ReadReset(1);
