@@ -168,7 +168,26 @@ void loop() {
     {
       verification_obstacle();
     }
-    
+    avance();
+    if(sparx.position[1] == 2)
+    {
+      tourneGauche();
+      avance();
+      tourneGauche();
+      avance();
+    }
+    else
+    {
+      tourneDroit();
+      avance();
+      tourneDroit();
+      avance();
+    }
+    for(int i = 0; i < 11; i++)
+    {
+      avance();
+    }
+    while(1);
   }
   //Serial.println("Position fin de code: ");
   //Serial.println(sparx.position[0]);
@@ -198,9 +217,12 @@ void arret(){
 
 //not used
 void avance(){
+  sparx.moteurs.vitesse_moteur_gauche = 0.3;
+  sparx.moteurs.vitesse_moteur_droite = 0.3;
+  sparx.moteurs.vitesse = 0.3;
   PID();
   //float distance_init = getDistance();
-  while(getDistance() < 50.0f)
+  while(getDistance() < 50.5f)
   {
     //Serial.println(getDistance());
     PID();
@@ -552,12 +574,14 @@ void getangle(float angle){
 
 void tourneDroit()
 {
-  
+  sparx.moteurs.vitesse_moteur_gauche = 0.3;
+  sparx.moteurs.vitesse_moteur_droite = 0.3;
+  sparx.moteurs.vitesse = 0.3;
   while(!rightangle)
   {
     PID();
     actionDroit();
-    getangle(79.0); //29-A = 79.3
+    getangle(76.0); //29-A = 76.0 29-B =75.5
   }
   ENCODER_ReadReset(0);
   ENCODER_ReadReset(1);
@@ -567,12 +591,15 @@ void tourneDroit()
 
 void tourneGauche()
 {
+  sparx.moteurs.vitesse_moteur_gauche = 0.3;
+  sparx.moteurs.vitesse_moteur_droite = 0.3;
+  sparx.moteurs.vitesse = 0.3;
   
   while(!rightangle)
   {
     PID();
     actionGauche();
-    getangle(77.2); //29-A = 77.2
+    getangle(75.2); //29-A = 75.2 29-B =74.4
   }
   ENCODER_ReadReset(0);
   ENCODER_ReadReset(1);
