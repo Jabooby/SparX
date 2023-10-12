@@ -224,10 +224,29 @@ void avance(){
   //float distance_init = getDistance();
   while(getDistance() < 50.5f)
   {
+    if(getDistance() > 10.5f)
+    {
+      sparx.moteurs.vitesse_moteur_gauche = 0.4;
+      sparx.moteurs.vitesse_moteur_droite = 0.4;
+      sparx.moteurs.vitesse = 0.4;
+    }
+    if(getDistance() > 37.5f)
+    {
+      sparx.moteurs.vitesse_moteur_gauche = 0.3;
+      sparx.moteurs.vitesse_moteur_droite = 0.3;
+      sparx.moteurs.vitesse = 0.3;
+    }
+    if(getDistance() > 42.5f)
+    {
+      sparx.moteurs.vitesse_moteur_gauche = 0.15;
+      sparx.moteurs.vitesse_moteur_droite = 0.15;
+      sparx.moteurs.vitesse = 0.15;
+    }
     //Serial.println(getDistance());
     PID();
     MOTOR_SetSpeed(RIGHT,sparx.moteurs.vitesse_moteur_droite);
     MOTOR_SetSpeed(LEFT, sparx.moteurs.vitesse_moteur_gauche);
+    
   }
   arret();
 };
