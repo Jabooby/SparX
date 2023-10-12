@@ -56,7 +56,7 @@ enum ligne {
 struct PID {
   //constantes PID
   float kp = 0.00061;
-  float ki = 0.0000011;
+  float ki = 0.0000001;
   float kd = 0.000032;
   //variables de calcul PID
   float errsum  = 0.0;
@@ -69,6 +69,7 @@ struct moteurs {
   float vitesse = 0.3;
   int encodeurGauche = 0;
   int encodeurDroite = 0;
+  
 };
 struct robot {
   struct PID pid;
@@ -88,23 +89,24 @@ struct robot sparx; //création de la valeur global SparX. SparX est le robot et
 //variables timer
 int counter = 0;
 int timer = 0;
+bool go = false;
 int reset = 0;
 int interval = 50; //50 mS
-int analog1 = A0;
-int analog2 = A1;
+int ambiantpin = A2;
+int intensitypin = A3;
 bool rightangle = false;
 
  int matrice_parcour[11][3]{
-    {9,4,10},//1
-    {8,8,8},//2
-    {2,0,3},//3
-    {8,8,8},//4
-    {2,0,3},//5
+    {9,7,10},//1
+    {8,15,8},//2
+    {2,7,3},//3
+    {8,15,8},//4
+    {2,4,3},//5
     {8,8,8},//6
-    {2,0,3},//7
-    {8,8,8},//8
-    {2,0,3},//9
-    {11,11,11}, //10
+    {2,1,3},//7
+    {8,15,8},//8
+    {2,7,3},//9
+    {11,15,11}, //10
     {15,15,15} //11
   };
 /************************* DECLARATIONS DE FONCTIONS *************************/
@@ -125,7 +127,21 @@ void travel(float distance);
 void tourneGauche();
 bool verification_matrice(int y, int x, int direction);
   
+bool start() {
+  //bool go = false;
+  int frequency = analogRead(intensitypin);
+  int ambiant = analogRead(ambiantpin);
+  Serial.print("intensity: ");
+  Serial.println(frequency);
+  Serial.print("ambiant: ");
+  Serial.println(ambiant);
 
+  if (frequency > 800){
+    go=true;
+  } 
+  else go = false;
+  return go;
+}
 void setup() {
   // put your setup code here, to run once:
   BoardInit();
@@ -133,8 +149,8 @@ void setup() {
   pinMode(LED_BUILTIN,OUTPUT);//détecteur de proximité
   pinMode(sparx.vertpin, INPUT);
   pinMode(sparx.rougepin, INPUT);
-  pinMode(analog1, INPUT_PULLUP);
-  pinMode(analog2, INPUT_PULLUP);
+  pinMode(intensitypin, INPUT_PULLUP);
+  pinMode(ambiantpin, INPUT_PULLUP);
   delay(100);
 }
 
@@ -145,13 +161,19 @@ void loop() {
   
   //travel(500);
   //avance();
-  while(sparx.position[0] < 9)
-  {
-    verification_obstacle();
+  start();
+  if (start()){
+
+    while(sparx.position[0] < 9)
+    {
+      verification_obstacle();
+    }
+    
   }
-  Serial.println("Position fin de code: ");
-  Serial.println(sparx.position[0]);
-  while(1);
+  //Serial.println("Position fin de code: ");
+  //Serial.println(sparx.position[0]);
+  else;
+  
   //Serial.println(capteur_infrarouge());
 }
 
@@ -505,6 +527,7 @@ void verification_obstacle()
   }
 
 }
+/*
 bool start() {
   bool go = false;
   int frequency = analogRead(analog1);
@@ -512,7 +535,7 @@ bool start() {
   if (frequency > ambiant) go=true;
   return go;
 }
-
+*/
 void getangle(float angle){
   float coefficient = 360.0 /angle ;
   float circonference = (22.0*PI);
