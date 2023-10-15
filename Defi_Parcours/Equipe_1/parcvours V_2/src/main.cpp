@@ -120,21 +120,20 @@ void tourneGauche();
 void PID();
 bool capteur_infrarouge();
 bool start();
-void getangle(float angle);
+bool getangle(float angle);
 void verification_obstacle();
 float getDistance();
 void travel(float distance);
 void tourneGauche();
 bool verification_matrice(int y, int x, int direction);
+void tourne180();
+void avanceFin();
   
 bool start() {
   //bool go = false;
   int frequency = analogRead(intensitypin);
   int ambiant = analogRead(ambiantpin);
-  Serial.print("intensity: ");
-  Serial.println(frequency);
-  Serial.print("ambiant: ");
-  Serial.println(ambiant);
+  
 
   if (frequency > 800){
     go=true;
@@ -185,7 +184,7 @@ void loop() {
     }
     for(int i = 0; i < 11; i++)
     {
-      avance();
+      avanceFin();
     }
     while(1);
   }
@@ -193,6 +192,7 @@ void loop() {
   //Serial.println(sparx.position[0]);
   else;
   
+ 
   //Serial.println(capteur_infrarouge());
 }
 
@@ -215,7 +215,22 @@ void arret(){
   while((timer+100) < millis());*/
 };
 
-//not used
+void avanceFin(){
+  sparx.moteurs.vitesse_moteur_gauche = 0.45;
+  sparx.moteurs.vitesse_moteur_droite = 0.45;
+  sparx.moteurs.vitesse = 0.6;
+  PID();
+  //float distance_init = getDistance();
+  while(getDistance() < 50.5f)
+  {
+    //Serial.println(getDistance());
+    PID();
+    MOTOR_SetSpeed(RIGHT,sparx.moteurs.vitesse_moteur_droite);
+    MOTOR_SetSpeed(LEFT, sparx.moteurs.vitesse_moteur_gauche);
+    
+  }
+  arret();
+};
 void avance(){
   sparx.moteurs.vitesse_moteur_gauche = 0.3;
   sparx.moteurs.vitesse_moteur_droite = 0.3;
@@ -263,7 +278,7 @@ void avance(){
   arret();
 };*/
 
-void actionDroit(){
+void actionDroite(){
   MOTOR_SetSpeed(RIGHT, -0.5*sparx.moteurs.vitesse_moteur_droite);
   MOTOR_SetSpeed(LEFT, 0.5*sparx.moteurs.vitesse_moteur_gauche);
 };
@@ -518,8 +533,7 @@ void verification_obstacle()
   {
     if((verification_matrice(sparx.position[0], sparx.position[1], sparx.orientation)|| (capteur_infrarouge()) || (matrice_parcour[sparx.position[0]][sparx.position[1]+1] == 15)))
     {
-      tourneGauche();
-      tourneGauche();
+      tourne180();
       sparx.orientation = OUEST;
     }
     else
@@ -577,20 +591,6 @@ bool start() {
   return go;
 }
 */
-void getangle(float angle){
-  float coefficient = 360.0 /angle ;
-  float circonference = (22.0*PI);
-  float distance = (circonference/coefficient);
-  float nbtours = (distance/23.93);
-  float nbpulses = (nbtours*3200);
-  sparx.moteurs.encodeurDroite = ENCODER_Read(1);
-  if (abs(sparx.moteurs.encodeurDroite) > (nbpulses-10))
-  {
-    //Serial.println("turn");
-    rightangle = true;
-  }
-};
-
 void tourneDroit()
 {
   sparx.moteurs.vitesse_moteur_gauche = 0.3;
@@ -600,7 +600,7 @@ void tourneDroit()
   {
     PID();
     actionDroit();
-    getangle(76.0); //29-A = 76.0 29-B =75.5
+    getangle(75.5); //29-A = 76.0 29-B =75.5
   }
   ENCODER_ReadReset(0);
   ENCODER_ReadReset(1);
@@ -618,10 +618,108 @@ void tourneGauche()
   {
     PID();
     actionGauche();
-    getangle(75.2); //29-A = 75.2 29-B =74.4
+    getangle(74.65); //29-A = 75.2 29-B =74.4
   }
   ENCODER_ReadReset(0);
   ENCODER_ReadReset(1);
   rightangle = false;
   arret();
 }
+
+void tourne180_gauche()
+{
+  sparx.moteurs.vitesse_moteur_gauche = 0.3;
+  sparx.moteurs.vitesse_moteur_droite = 0.3;
+  sparx.moteurs.vitesse = 0.3;
+  
+  while(!rightangle)
+  {
+    PID();
+    actionGauche();
+    getangle(149.4); 
+  }
+  ENCODER_ReadReset(0);
+  ENCODER_ReadReset(1);
+  rightangle = false;
+  arret();
+}
+
+void tourne180_droite()
+{
+  sparx.moteurs.vitesse_moteur_gauche = 0.3;
+  sparx.moteurs.vitesse_moteur_droite = 0.3;
+  sparx.moteurs.vitesse = 0.3;
+  
+  while(!rightangle)
+  {
+    PID();
+    actionGauche();
+    getangle(149.4); 
+  }
+  ENCODER_ReadReset(0);
+  ENCODER_ReadReset(1);
+  rightangle = false;
+  arret();
+}
+
+
+/*
+ * @brief Fonction qui permet de tourner le robot en mode pivot. (voir: https://docs.idew.org/code-robotics/references/robot-behaviors/turning)
+ * @param angle: si l'angle est positif on tourne à droite , sinon à gauche. Angle définie l'angle que le robot doit tourner;
+ * @return void
+ */
+void tourner(float angle)
+{
+  //si angle plus grand que 0
+  if (angle > 0.0)
+  {
+    //tand que on est pas arrivé à l'angle voulue
+    while(!(getangle(angle)))
+    {
+      PID(); //PID pour savoir si les 2 moteurs ont un vitesse angulaire égal
+      actionDroite(); //tourne à droite
+    }
+    ENCODER_ReadReset(LEFT); //reset encodeur du moteur gauch
+    ENCODER_ReadReset(RIGHT); //reset encodeur du moteur droit
+    rightangle = false; //remet la valeur global à false
+    arret(); //force le robot à faire un stop 
+  }
+  //si l'angle ets plus petit que 0 (négatif)
+  else
+  {
+    //tand que on est pas arrivé à l'angle voulue
+    while(!(getangle(angle)))
+    {
+      PID(); //PID pour savoir si les 2 moteurs ont un vitesse angulaire égal
+      actionGauche(); //tourne à gauche
+    }
+    ENCODER_ReadReset(LEFT); //reset encodeur du moteur gauche
+    ENCODER_ReadReset(RIGHT); //reset encodeur du moteur droit
+    rightangle = false; //remet la valeur global à false
+    arret(); //force le robot à faire un stop 
+  }
+}
+
+/*
+ * @brief Fonction permet de vérifier si le robot est arrrivé à l'angle voulue
+ * @param angle: l'angle que l'on désire savoir si notre robot l'a atteint;
+ * @return bool: retourne true si l'angle est atteint, flase si non
+ */
+bool getangle(float angle){
+  float coefficient = 360.0 / angle ; //coefficient utiliser dans le calcul, 360/90, on doit divisr par 4
+  float circonference = (22.0*PI); //calcul de la circonférence de rotation (à changer/calculer (voir: https://en.wikipedia.org/wiki/Differential_wheeled_robot ))
+  float distance = (circonference/coefficient); //calcul la distance qu'une roue doit parcourir
+  //!!!!pourrait utiliser getDistance ici!!!!!
+  float nbtours = (distance/23.93); //convertie la distance en nombre de tour de roue
+  float nbpulses = (nbtours*3200); // convertie le nombre de tour en nombre de pulse
+  sparx.moteurs.encodeurDroite = ENCODER_Read(1); //lecture de l'encodeur droit
+  //si on a atteint la valeur d'encodeur 
+  if (abs(sparx.moteurs.encodeurDroite) > (nbpulses) ) 
+  {
+    //retourne true
+    return true;
+  }
+  else
+  //sinon false
+    return false;
+};
