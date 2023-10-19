@@ -1,0 +1,49 @@
+{
+    "name":"robot_sparX",
+    "description":"Library for P-29 best team",
+    "keywords":"sparX",
+    "authors":
+    [
+      {
+        "name": "Jacob Turcotte",
+        "maintainer": true
+      },
+      {
+        "name": "Michaël Bruneau",
+        "maintainer": true
+      },
+      {
+        "name": "Brampton....", 
+        "//_comment": "I give up on writing your name, love you bud",
+        "maintainer": true
+      },
+      {
+        "name": "Elisabeth Simon",
+        "maintainer": true
+      },
+      {
+        "name": "Henri Allard",
+        "maintainer": true
+      },
+      {
+        "name": "Édouard Lebel-Bernier", 
+        "//_comment": "nom composé yeay, so long, so much fun, such wow",
+        "maintainer": true
+      },
+      {
+        "name": "Marilie Bélanger",
+        "maintainer": true
+      },
+      {
+        "name": "Antoine Bouchard",
+        "maintainer": true
+      },
+      {
+        "name": "Jérome Lefebvre", 
+        "//_comment": "Hehehe Jérôme",
+        "maintainer": true
+      }
+  
+    ],
+    "version": "1.0.5"
+  }

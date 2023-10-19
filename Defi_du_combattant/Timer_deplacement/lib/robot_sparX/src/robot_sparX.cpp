@@ -10,13 +10,9 @@
 
 
 /************************* INCLUDES *************************/
-//#include <robot_sparX.h>
+#include <robot_sparX.h>
 #include <LibRobus.h>
 #include <Arduino.h>
-
-/************************* VARIABLES GLOBALES *************************/
-struct robot sparx; //création de la valeur global SparX. SparX est le robot et nous pouvons accéder
-// les différentes fonctions du robot. Pour accéder le moteur gauche juste faire "Sparx.vitesse_moteur_gauche"
 
 
 /************************* FONCTIONS *************************/
@@ -178,7 +174,7 @@ bool getAngle(float angle){
   float distance = (circonference/coefficient); //calcul la distance qu'une roue doit parcourir
   //!!!!pourrait utiliser getDistance ici!!!!!
   float nbtours = (distance/23.93); //convertie la distance en nombre de tour de roue
-  float nbpulses = (nbtours*nbpulses); // convertie le nombre de tour en nombre de pulse
+  float nbpulses = (nbtours*pulse_tour); // convertie le nombre de tour en nombre de pulse
   sparx.moteurs.encodeurDroite = ENCODER_Read(1); //lecture de l'encodeur droit
   //si on a atteint la valeur d'encodeur 
   if (abs(sparx.moteurs.encodeurDroite) > (nbpulses) ) 
