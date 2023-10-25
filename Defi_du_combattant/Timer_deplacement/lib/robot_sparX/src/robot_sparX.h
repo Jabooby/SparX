@@ -15,7 +15,7 @@
 #include <Arduino.h>
 #include <LibRobus.h>
 /************************* CONSTANTES *************************/
-#define diametre_roue_cm  7.62 //les roues ont 2 pouces de diametre
+#define diametre_roue_cm  7.62 //les roues ont 3 pouces de diametre
 #define circonference_cm diametre_roue_cm * PI
 #define circonference_mm  76.2 * PI
 #define radius_cm    diametre_roue_cm / 2
@@ -24,23 +24,25 @@
 #define pin_vert            48 //infrarouge
 #define pulse_tour          3200.0f
 #define TIMER_TIME          50 //en ms 
+#define COS_45_RAD          cos(45*DEG_TO_RAD)
+#define distance_entre_roues_m 0.19
 /************************* DECLARATION DES ÉTATS MACHINE *************************/
-enum direction {
+/*enum direction {
   NORD          = 0, //pointe vers la fin (90degrée)
   EST           = 1, //pointe vers la droite (0degrée ou 360degrée)
   OUEST         = 2, //pointe vers la gauche (180 degrée)
   SUD           = 3, //pointe vers le début (270 degrée)
-} direction; //la direction dépend de la direction du robot selon le point de départ
+} direction; //la direction dépend de la direction du robot selon le point de départ*/
 
-enum deplacement {
+/*enum deplacement {
   ARRET         = 0, 
   AVANCE        = 1,
   TOURNE_DROITE = 2,
   TOURNE_GAUCHE = 3,
   RECULE        = 4,
-} deplacement; //dicte le déplacement que le robot doit faire
+} deplacement; //dicte le déplacement que le robot doit faire*/
 
-enum ligne {
+/*enum ligne {
   VIDE          = 0,
   L_NORD        = 1, //ligne au Nord du centre
   L_EST         = 2, //ligne à l'Est du centre
@@ -57,7 +59,7 @@ enum ligne {
   L_NORD_OUEST_SUD=13,//ligne Nord, Ouest et Sud
   L_EST_OUEST_SUD=14, //ligne Est, Ouest et Sud
   L_NORD_EST_OUEST_SUD=15,//ligne Nord, Est, Ouest et Sud
-} ligne; //dicte l'emplacement des lignes par rapport au centre d'une case
+} ligne; //dicte l'emplacement des lignes par rapport au centre d'une case*/
 
 /************************* DÉCLARATION DE STRUCTURE *************************/
 /*
@@ -65,21 +67,22 @@ Sructure PID: structure qui aide à organiser les valeurs PID. Elle sera utilis�
 */
 struct PID {
   //constantes PID
-  float kp = 0.00061; //Constante proportionnel
-  float ki = 0.0000001; //Constante d'intégrale (shake mcguy)
-  float kd = 0.000032; //Constante de dérivée
+  float kp = 0.00081; //Constante proportionnel
+  float ki = 0.00025; //Constante d'intégrale (shake mcguy) 0000001
+  float kd = 0.00005; //Constante de dérivée 0.000032
   //variables de calcul PID
   float errsum  = 0.0; //somme d'erreur
-  float prevErr = 0.0; //
+  float prevErr = 0.0; //erreur avant
   float errdiff = 0.0; //différence d'erreur
 };
 /*
 Sructure moteurs: structure qui aide à organiser les moteurs. Elle sera utilisée dans la structure robot.
 */
 struct moteurs {
-  float vitesse_moteur_gauche = 0.3; //vitesse du moteur gauche
-  float vitesse_moteur_droite = 0.3; //vitesse du moteur froit
-  float vitesse = 0.3; //vitesse des deux moteurs
+  float vitesse_moteur_gauche = 0.0; //vitesse du moteur gauche
+  float vitesse_moteur_droite = 0.0; //vitesse du moteur froit
+  float vitesse_moment = 0.0; //vitesse des deux moteurs
+  float vitesse_voulue = 0.3;
   int encodeurGauche = 0; //variable qui store la valeur lue sur l'encodeur du moteur gauche
   int encodeurDroite = 0; //variable qui store la valeur lue sur l'encodeur du droit gauche
   
@@ -94,15 +97,15 @@ struct robot {
   struct PID pid;
   struct moteurs moteurs;
   struct capteurs capteurs;
-  char orientation = NORD; //store l'orientation du robot, à changer
-  char mouvement = ARRET; //store le mouvement voulue selon l'algorithme, à incorporer dans le code éventuellement
+  //char orientation = NORD; //store l'orientation du robot, à changer
+  //char mouvement = ARRET; //store le mouvement voulue selon l'algorithme, à incorporer dans le code éventuellement
   int position[2] = {0,1}; //position Y et X du robot, à changer
   unsigned long startTimer = millis();
   bool timerRunning = true;
 };
 
 /************************* VARIABLES GLOBALES *************************/
-struct robot sparx; //création de la valeur global SparX. SparX est le robot et nous pouvons accéder
+extern struct robot sparx; //création de la valeur global SparX. SparX est le robot et nous pouvons accéder
 // les différentes fonctions du robot. Pour accéder le moteur gauche juste faire "Sparx.vitesse_moteur_gauche"
 
 
@@ -123,7 +126,7 @@ void tourner(float angle);
  * @param rien
  * @return rien
  */
-void PID();
+void PID(float vGauche, float vDroite);
 /*
  * @brief Fonction dit au moteur de tourner à droite.
  * @param rien
