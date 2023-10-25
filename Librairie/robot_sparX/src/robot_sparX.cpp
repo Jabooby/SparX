@@ -11,12 +11,11 @@
 
 /************************* INCLUDES *************************/
 #include <robot_sparX.h>
+#include <LibRobus.h>
+#include <Arduino.h>
 
 
-/************************* VARIABLES GLOBALES *************************/
-struct robot sparx; //création de la valeur global SparX. SparX est le robot et nous pouvons accéder
-// les différentes fonctions du robot. Pour accéder le moteur gauche juste faire "Sparx.vitesse_moteur_gauche"
-
+struct robot sparx;
 
 /************************* FONCTIONS *************************/
 
@@ -34,7 +33,7 @@ void tourner(float angle)
     //tand que on est pas arrivé à l'angle voulue
     while(!(getAngle(angle)))
     {
-      PID(); //PID pour savoir si les 2 moteurs ont un vitesse angulaire égal
+      PID(sparx.moteurs.vitesse_moteur_gauche, sparx.moteurs.vitesse_moteur_droite); //PID pour savoir si les 2 moteurs ont un vitesse angulaire égal
       actionDroite(); //tourne à droite
     }
     ENCODER_ReadReset(LEFT); //reset encodeur du moteur gauch
@@ -47,7 +46,7 @@ void tourner(float angle)
     //tand que on est pas arrivé à l'angle voulue
     while(!(getAngle(angle)))
     {
-      PID(); //PID pour savoir si les 2 moteurs ont un vitesse angulaire égal
+      PID(sparx.moteurs.vitesse_moteur_gauche, sparx.moteurs.vitesse_moteur_droite); //PID pour savoir si les 2 moteurs ont un vitesse angulaire égal
       actionGauche(); //tourne à gauche
     }
     ENCODER_ReadReset(LEFT); //reset encodeur du moteur gauche
@@ -64,38 +63,42 @@ void tourner(float angle)
  * @param rien
  * @return rien
  */
-void PID(){
+void PID(float vGauche, float vDroite){
     //lire les valeurs des encodeurs
-    sparx.moteurs.encodeurGauche = ENCODER_Read(0);
-    sparx.moteurs.encodeurDroite = ENCODER_Read(1);
+    sparx.moteurs.encodeurGauche = ENCODER_Read(LEFT) / vGauche;
+    sparx.moteurs.encodeurDroite = ENCODER_Read(RIGHT) / vDroite;
+
     //calcul d'erreur
-    float error = abs(sparx.moteurs.encodeurDroite) - abs(sparx.moteurs.encodeurGauche);
+    float error = sparx.moteurs.encodeurDroite - sparx.moteurs.encodeurGauche;
     //calcul propotionelle
     float proportionalValue = abs(error * sparx.pid.kp);
     //calcul intégrale
-    sparx.pid.errsum += error;
+    if (error < 3.0)
+      sparx.pid.errsum = error;
+    else
+      sparx.pid.errsum += error;
     float integralValue = abs(sparx.pid.ki * sparx.pid.errsum);
     //calcul dérivé
-    float errdiff = error-sparx.pid.prevErr;
+    float errdiff = abs(error)-abs(sparx.pid.prevErr);
     sparx.pid.prevErr = error;
     float derivativeValue = abs(sparx.pid.kd*errdiff);
+    sparx.moteurs.vitesse_moteur_gauche = vGauche ;
+    sparx.moteurs.vitesse_moteur_droite = vDroite ;
     //si la moteur gauche est plus lente
     if (error > 0){
-      sparx.moteurs.vitesse_moteur_gauche = sparx.moteurs.vitesse + proportionalValue + integralValue + derivativeValue;
-
+      sparx.moteurs.vitesse_moteur_gauche += proportionalValue + integralValue + derivativeValue;
     } 
     //si la moteur gauche est plus vite
     else if (error < 0) {
-      sparx.moteurs.vitesse_moteur_gauche = sparx.moteurs.vitesse - (proportionalValue + integralValue + derivativeValue);
-      
+      sparx.moteurs.vitesse_moteur_gauche -= (proportionalValue + integralValue + derivativeValue);
     }
     else
     {
       //sparx.moteurs.vitesse = sparx.moteurs.vitesse;
-      sparx.moteurs.vitesse_moteur_gauche = sparx.moteurs.vitesse;
-      sparx.moteurs.vitesse_moteur_droite = sparx.moteurs.vitesse;
+      sparx.moteurs.vitesse_moteur_gauche = vGauche ;
+      sparx.moteurs.vitesse_moteur_droite = vDroite ;
     }
-    
+     
 }
 /*
  * @brief Fonction dit au moteur de tourner à droite.
@@ -118,15 +121,15 @@ void actionGauche(){
 };
 
 /*
- * @brief Fonction dit au moteur d'avancer en ligne droite selon une distance donnée en cm.
- * @param ditance: distance en cm que nous voulons avancer en ligne droite.
+ * @brief Fonction dit au moteur d'avancer en droite selon une distance donnée en cm.
+ * @param ditance: distance en cm que nous voulons avancer en droite.
  * @return rien
  */
 void avance(float distance){
-  PID(); //fait une premièere itération de PID
+  PID(sparx.moteurs.vitesse_moteur_gauche, sparx.moteurs.vitesse_moteur_droite); //fait une premièere itération de PID
   while(getDistance() < distance) //continue si la distance parcourue est plus petite que celle voulue
   {
-    PID(); //on refait un PID àa chaque boucle While
+    PID(sparx.moteurs.vitesse_moteur_gauche, sparx.moteurs.vitesse_moteur_droite); //on refait un PID àa chaque boucle While
     //on donne les nouvelles vitesses calculer grâce à la fonction PID aux moteurs
     MOTOR_SetSpeed(RIGHT,sparx.moteurs.vitesse_moteur_droite); 
     MOTOR_SetSpeed(LEFT, sparx.moteurs.vitesse_moteur_gauche);
@@ -177,7 +180,7 @@ bool getAngle(float angle){
   float distance = (circonference/coefficient); //calcul la distance qu'une roue doit parcourir
   //!!!!pourrait utiliser getDistance ici!!!!!
   float nbtours = (distance/23.93); //convertie la distance en nombre de tour de roue
-  float nbpulses = (nbtours*nbpulses); // convertie le nombre de tour en nombre de pulse
+  float nbpulses = (nbtours* pulse_tour); // convertie le nombre de tour en nombre de pulse
   sparx.moteurs.encodeurDroite = ENCODER_Read(1); //lecture de l'encodeur droit
   //si on a atteint la valeur d'encodeur 
   if (abs(sparx.moteurs.encodeurDroite) > (nbpulses) ) 
