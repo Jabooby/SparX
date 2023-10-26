@@ -1,11 +1,21 @@
 #include <Arduino.h>
 #include <LibRobus.h>
 #include <robot_sparX.h>
+#include <QTRSensors.h>
+
+
+QTRSensors sensor; //classe QTR
+
+const uint8_t SensorCount = 8;
+uint16_t sensorValues[SensorCount];
+const float kP = 15;
+const float threshold = 4.5;
 
 // put function declarations here:
 int myFunction(int, int);
 float deplacer(float angle);
 void acceleration();
+float Follow();
 
 void setup() {
   // put your setup code here, to run once:
@@ -14,8 +24,17 @@ void setup() {
   //start de timer
   sparx.startTimer = millis();
   sparx.timerRunning = true;
-  sparx.moteurs.vitesse_voulue = 1.0;
+  sparx.moteurs.vitesse_voulue = 0.3;
   delay(100);
+  //setup du suiveur de lignes
+  float difference = 0;
+  float adjust = 0;
+  Serial.begin(9600);
+  sensor.setTypeRC();
+  sensor.setSensorPins((const uint8_t[]){A4, A5, A6, A7, A8, A9, A10, A11}, SensorCount);
+  sensor.setEmitterPin(22);
+  
+
 }
 
 void loop() {
@@ -24,7 +43,8 @@ void loop() {
   if (sparx.timerRunning && ((millis() - sparx.startTimer) > TIMER_TIME))
   {
     sparx.startTimer += TIMER_TIME;
-    deplacer(90.0);
+    deplacer(Follow());
+    //deplacer(90.0);
   }
 }
 /*
@@ -32,6 +52,38 @@ void loop() {
  * @param angle : <90 droite (horaire), >90 gauche (antihoraire)
  * @return float: retourne le radius
  */
+float Follow()
+{
+  // read raw sensor values
+  float index = 0;
+  float somme_capteurs = 0;
+  float moyenne_capteurs = 0; //moyenne des numéros de capteurs
+  float conversion = 0;
+  float difference = 0;
+  sensor.read(sensorValues);
+ 
+  // print the sensor values as numbers from 0 to 2500, where 0 means maximum
+  // reflectance and 2500 means minimum reflectance
+  for (uint8_t i = 0; i < SensorCount; i++)
+  {
+    Serial.print(sensorValues[i]);
+    Serial.print('\t');
+    if( sensorValues[i] > 1250)
+    { 
+      index++;  
+      somme_capteurs += i + 1; 
+    }
+  }
+  Serial.print('\n');
+  moyenne_capteurs = (somme_capteurs)/(index);
+  
+  difference = moyenne_capteurs - threshold;
+  conversion = (difference*kP) + 90;
+  Serial.print(conversion);
+  Serial.print('\n');
+  return conversion;
+}
+
 float deplacer(float angle)
 {
   float radius = 0;
