@@ -8,16 +8,14 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Detecteur_infrarouge_V2/include",
-                "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Detecteur_infrarouge_V2/src",
-                "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Detecteur_infrarouge_V2/lib/SharpIR-master",
-                "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Detecteur_infrarouge_V2/lib/LibRobUS-master/src",
+                "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Servo test/include",
+                "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Servo test/src",
+                "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Servo test/lib/LibRobUS-master/src",
                 "C:/Users/turco/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                 "C:/Users/turco/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
                 "C:/Users/turco/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
                 "C:/Users/turco/.platformio/packages/framework-arduino-avr/cores/arduino",
                 "C:/Users/turco/.platformio/packages/framework-arduino-avr/variants/mega",
-                "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Detecteur_infrarouge_V2/.pio/libdeps/megaatmega2560/Unity/src",
                 "C:/Users/turco/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
                 "C:/Users/turco/.platformio/packages/framework-arduino-avr/libraries/HID/src",
                 ""
@@ -25,16 +23,14 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Detecteur_infrarouge_V2/include",
-                    "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Detecteur_infrarouge_V2/src",
-                    "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Detecteur_infrarouge_V2/lib/SharpIR-master",
-                    "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Detecteur_infrarouge_V2/lib/LibRobUS-master/src",
+                    "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Servo test/include",
+                    "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Servo test/src",
+                    "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Servo test/lib/LibRobUS-master/src",
                     "C:/Users/turco/.platformio/packages/framework-arduino-avr/libraries/SPI/src",
                     "C:/Users/turco/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src",
                     "C:/Users/turco/.platformio/packages/framework-arduino-avr/libraries/Wire/src",
                     "C:/Users/turco/.platformio/packages/framework-arduino-avr/cores/arduino",
                     "C:/Users/turco/.platformio/packages/framework-arduino-avr/variants/mega",
-                    "C:/Users/turco/OneDrive - USherbrooke/UNI/Projet_S1/SparX/SparX/Code_Capteurs_Moteurs/Detecteur_infrarouge_V2/.pio/libdeps/megaatmega2560/Unity/src",
                     "C:/Users/turco/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src",
                     "C:/Users/turco/.platformio/packages/framework-arduino-avr/libraries/HID/src",
                     ""
