@@ -1,11 +1,13 @@
 #include <Arduino.h>
 #include <LibRobus.h>
 #include <robot_sparX.h>
+#include <QTRSensors.h>
 
 // put function declarations here:
 int myFunction(int, int);
 float deplacer(float angle);
 void acceleration();
+void Follow();
 
 void setup() {
   // put your setup code here, to run once:
@@ -76,7 +78,9 @@ void acceleration()
     sparx.moteurs.vitesse_moment = sparx.moteurs.vitesse_voulue;
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+void Follow()
+{
+
+
+
 }
