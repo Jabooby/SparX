@@ -65,8 +65,8 @@ void tourner(float angle)
  */
 void PID(float vGauche, float vDroite){
     //lire les valeurs des encodeurs
-    sparx.moteurs.encodeurGauche = ENCODER_Read(LEFT) / vGauche;
-    sparx.moteurs.encodeurDroite = ENCODER_Read(RIGHT) / vDroite;
+    sparx.moteurs.encodeurGauche = ENCODER_Read(LEFT) / vGauche; //1.0
+    sparx.moteurs.encodeurDroite = ENCODER_Read(RIGHT) / vDroite; //0.5
 
     //calcul d'erreur
     float error = sparx.moteurs.encodeurDroite - sparx.moteurs.encodeurGauche;

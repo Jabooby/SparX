@@ -16,8 +16,8 @@ void detectionVerre();
 
 SharpIR irDroite(IR_PIN[IR_DROITE], MODEL_IR);
 SharpIR irGauche(IR_PIN[IR_GAUCHE], MODEL_IR);
-Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_1X);
-int nbTour = 1;
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
+int nbTour = 2;
 uint16_t valCouleurDebut[4] = {0,0,0,0}; //Red, Green, Blue, Clear
 
 void setup() {
@@ -29,7 +29,7 @@ void setup() {
   sparx.timerRunning = true;
   sparx.moteurs.vitesse_voulue = 0.3;
   SERVO_Enable(SERVO_1);
-  SERVO_SetAngle(SERVO_1, 60);
+  SERVO_SetAngle(SERVO_1, 60); //60 == 90 degré
   delay(1000);
   if (tcs.begin()) 
   {
@@ -47,12 +47,13 @@ void loop() {
   {
     sparx.startTimer += TIMER_TIME; //toujours la premiere chose dans le IF
     if (nbTour >= 2)
-      sparx.orientation += detectionMur();
+      sparx.orientation += detectionMur(); //shortcut no touchy
     else
     {
-      detectionVerre();
+      //detectionVerre();
     }
     //Serial.print("Orientation: "), Serial.println(sparx.orientation);
+    //sparx.orientation == 90 go straight
     deplacer(sparx.orientation); //toujours la dernière chose à faire dans le IF
   }
 }
@@ -185,6 +186,4 @@ void detectionVerre()
   {
     SERVO_SetAngle(SERVO_1, 60);
   }
-
 }
-
