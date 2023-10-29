@@ -4,8 +4,10 @@
 #include <SharpIR.h>
 #include <Wire.h>
 #include <Adafruit_TCS34725.h>
+#include <QTRSensors.h>
 
 #define MODEL_IR 1080
+#define SENSOR_COUNT 8
 // put function declarations here:
 int myFunction(int, int);
 float deplacer(float angle);
@@ -13,11 +15,15 @@ void acceleration();
 float detectionMur();
 void couleurStart();
 void detectionVerre();
+float followV2();
 
 SharpIR irDroite(IR_PIN[IR_DROITE], MODEL_IR);
 SharpIR irGauche(IR_PIN[IR_GAUCHE], MODEL_IR);
+uint16_t sensorValues[SENSOR_COUNT];
+QTRSensors sensor; //classe QTR
+QTRReadMode mode = QTRReadMode::On;
 Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_4X);
-int nbTour = 2;
+int nbTour = 1;
 uint16_t valCouleurDebut[4] = {0,0,0,0}; //Red, Green, Blue, Clear
 
 void setup() {
@@ -33,11 +39,14 @@ void setup() {
   delay(1000);
   if (tcs.begin()) 
   {
-    Serial.println("Found sensor");
+    //Serial.println("Found sensor");
     couleurStart();
-    Serial.print("R: "), Serial.print(valCouleurDebut[0]), Serial.print(", G: "), Serial.print(valCouleurDebut[1]),
-    Serial.print(", B: "), Serial.print(valCouleurDebut[2]), Serial.print(", Clear: "), Serial.println(valCouleurDebut[3]); 
+    //Serial.print("R: "), Serial.print(valCouleurDebut[0]), Serial.print(", G: "), Serial.print(valCouleurDebut[1]),
+    //Serial.print(", B: "), Serial.print(valCouleurDebut[2]), Serial.print(", Clear: "), Serial.println(valCouleurDebut[3]); 
   }
+  sensor.setTypeRC();
+  sensor.setSensorPins((const uint8_t[]){38, 39, 40, 41, 42, 43, 44, 45}, SENSOR_COUNT);
+  sensor.setEmitterPin(37);
 }
 
 void loop() {
@@ -50,7 +59,9 @@ void loop() {
       sparx.orientation += detectionMur(); //shortcut no touchy
     else
     {
-      //detectionVerre();
+      detectionVerre();
+      //If dans le blanc, suit les lignes
+      //sparx.orientation += followV2();
     }
     //Serial.print("Orientation: "), Serial.println(sparx.orientation);
     //sparx.orientation == 90 go straight
@@ -185,5 +196,37 @@ void detectionVerre()
   else
   {
     SERVO_SetAngle(SERVO_1, 60);
+  }
+}
+
+float followV2()
+{
+  int position = 0;
+  int error = 0;
+  sensor.read(sensorValues, mode);
+  for (uint8_t i = 0; i < SENSOR_COUNT; i++)
+  {
+    if(sensorValues[i] > 2000)
+    {
+      position = 1000 * i;
+      break;
+    }
+    else
+    {
+      position = 7000;
+    }
+  }
+  error = position - 3500; //si capteur 3 ou 4 on fait rien
+  if((error < 1000) && (error > -1000))
+  {
+    sparx.orientation = 90.0;
+    return 0.0;
+  }
+  else
+  {
+    if ((sparx.orientation < 125) && (sparx.orientation > 55))
+      return (error / 500);
+    else
+      return 0.0;
   }
 }

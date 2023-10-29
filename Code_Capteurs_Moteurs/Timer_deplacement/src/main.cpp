@@ -8,14 +8,17 @@ QTRSensors sensor; //classe QTR
 
 const uint8_t SensorCount = 8;
 uint16_t sensorValues[SensorCount];
+QTRReadMode mode = QTRReadMode::On;
 const float kP = 15;
 const float threshold = 4.5;
+float degre = 90.0;
 
 // put function declarations here:
 int myFunction(int, int);
 float deplacer(float angle);
 void acceleration();
 float Follow();
+float followV2();
 
 void setup() {
   // put your setup code here, to run once:
@@ -31,8 +34,8 @@ void setup() {
   float adjust = 0;
   Serial.begin(9600);
   sensor.setTypeRC();
-  sensor.setSensorPins((const uint8_t[]){A4, A5, A6, A7, A8, A9, A10, A11}, SensorCount);
-  sensor.setEmitterPin(22);
+  sensor.setSensorPins((const uint8_t[]){38, 39, 40, 41, 42, 43, 44, 45}, SensorCount);
+  sensor.setEmitterPin(37);
   
 
 }
@@ -43,7 +46,8 @@ void loop() {
   if (sparx.timerRunning && ((millis() - sparx.startTimer) > TIMER_TIME))
   {
     sparx.startTimer += TIMER_TIME;
-    deplacer(Follow());
+    degre += followV2();
+    deplacer(degre);
     //deplacer(90.0);
   }
 }
@@ -66,23 +70,51 @@ float Follow()
   // reflectance and 2500 means minimum reflectance
   for (uint8_t i = 0; i < SensorCount; i++)
   {
-    Serial.print(sensorValues[i]);
-    Serial.print('\t');
     if( sensorValues[i] > 1250)
     { 
       index++;  
       somme_capteurs += i + 1; 
     }
   }
-  Serial.print('\n');
   moyenne_capteurs = (somme_capteurs)/(index);
   
   difference = moyenne_capteurs - threshold;
   conversion = (difference*kP) + 90;
-  Serial.print(conversion);
-  Serial.print('\n');
   return conversion;
 }
+
+float followV2()
+{
+  int position = 0;
+  int error = 0;
+  sensor.read(sensorValues, mode);
+  for (uint8_t i = 0; i < SensorCount; i++)
+  {
+    if(sensorValues[i] > 2000)
+    {
+      position = 1000 * i;
+      break;
+    }
+    else
+    {
+      position = 7000;
+    }
+  }
+  error = position - 3500; //si capteur 3 ou 4 on fait rien
+  if((error < 1000) && (error > -1000))
+  {
+    degre = 90.0;
+    return 0.0;
+  }
+  else
+  {
+    if ((degre < 125) && (degre > 55))
+      return (error / 500);
+    else
+      return 0.0;
+  }
+}
+
 
 float deplacer(float angle)
 {
