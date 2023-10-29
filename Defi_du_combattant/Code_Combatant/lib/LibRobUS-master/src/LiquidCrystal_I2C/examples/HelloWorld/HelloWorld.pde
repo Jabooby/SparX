@@ -23,4 +23,8 @@ void setup()
 
 void loop()
 {
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes
