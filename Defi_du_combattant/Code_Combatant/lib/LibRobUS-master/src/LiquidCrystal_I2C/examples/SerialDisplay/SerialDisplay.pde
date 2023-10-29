@@ -31,4 +31,8 @@ void loop()
       lcd.write(Serial.read());
     }
   }
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes
