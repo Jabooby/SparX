@@ -23,7 +23,7 @@
 #define pin_rouge           49 //infrarouge
 #define pin_vert            48 //infrarouge
 #define pulse_tour          3200.0f
-#define TIMER_TIME          50 //en ms 
+#define TIMER_TIME          24 //en ms 
 #define COS_45_RAD          cos(45*DEG_TO_RAD)
 #define distance_entre_roues_m 0.19
 #define IR_GAUCHE           0
