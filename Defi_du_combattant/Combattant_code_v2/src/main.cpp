@@ -112,7 +112,9 @@ void loop() {
     //Serial.print("Orientation: "), Serial.println(sparx.orientation);
     //sparx.orientation == 90 go straight
     deplacer(sparx.orientation); //toujours la dernière chose à faire dans le IF
+    
   }
+
 }
 
 /*
@@ -304,6 +306,26 @@ char retour_couleur() {
     couleur='T';
   }
   return couleur;
+}
+
+void dropcup()// nous devons initialiser le servo
+{
+  SERVO_SetAngle(SERVO_2, 25);//choisis l'angle du servo moteur
+  delay(500);
+  SERVO_SetAngle(SERVO_2, 69);//Remet l'angle de base du servo moteur
+  delay(500);
+  SERVO_SetAngle(SERVO_2, 25);//choisis l'angle du servo moteur
+  delay(500);
+  delay(1000);
+  MOTOR_SetSpeed(RIGHT, 0.4);
+  delay(800);
+  MOTOR_SetSpeed(RIGHT, 0);
+  delay(500);
+
+  MOTOR_SetSpeed(RIGHT, -0.4);
+  delay(800);
+  MOTOR_SetSpeed(RIGHT, 0);
+  delay(1000);
 }
 
 //ne marche pas
