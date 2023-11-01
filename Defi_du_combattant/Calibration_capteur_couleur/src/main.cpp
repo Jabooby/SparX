@@ -1,4 +1,3 @@
-//capteur de son A14 = intensite = orange A15 = ambient = brun
 #include <Arduino.h>
 #include <LibRobus.h>
 #include <robot_sparX.h>
@@ -19,6 +18,8 @@ void detectionVerre();
 float followV2();
 char retour_couleur();
 bool start();
+void calibration(char couleur, int temps);
+void getRawData_noDelay(uint16_t* r, uint16_t* g, uint16_t* b, uint16_t* c);
 
 SharpIR irDroite(IR_PIN[IR_DROITE], MODEL_IR);
 SharpIR irGauche(IR_PIN[IR_GAUCHE], MODEL_IR);
@@ -29,6 +30,7 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS3472
 int nbTour = 1;
 char CouleurDebut; //Red, Green, Blue, Clear
 bool go = false;
+int bumperArr = 0;
 int distanceRobotMur = 0;
 
 void setup() {
@@ -45,8 +47,8 @@ void setup() {
   delay(1000);
   if (tcs.begin()) 
   {
-    //Serial.println("Found sensor");
-    CouleurDebut = retour_couleur();
+    Serial.println("Found sensor");
+    //CouleurDebut = retour_couleur();
     //Serial.print("R: "), Serial.print(valCouleurDebut[0]), Serial.print(", G: "), Serial.print(valCouleurDebut[1]),
     //Serial.print(", B: "), Serial.print(valCouleurDebut[2]), Serial.print(", Clear: "), Serial.println(valCouleurDebut[3]); 
   }
@@ -58,68 +60,73 @@ void setup() {
 }
 
 void loop() {
-  // timer de 50ms, le code dans le if est executé au 24 ms 
-  // changer TIMER_TIMER dans robot_sparX.h pour changer le temps
-  if (sparx.timerRunning && ((millis() - sparx.startTimer) > TIMER_TIME))
+  //Serial.println(ROBUS_IsBumper(3));
+  if(ROBUS_IsBumper(3))
   {
-    sparx.startTimer += TIMER_TIME; //toujours la premiere chose dans le IF
-    if (nbTour >= 2)
-      sparx.orientation += detectionMur(8); //shortcut no touchy //8cm il fait le shortcut
-    else
-    {
-      if(retour_couleur() == CouleurDebut)
-        detectionVerre();
-      if(retour_couleur() == 'W')
-      {
-        sparx.orientation += followV2();
-        sparx.moteurs.vitesse_voulue = 0.18;
-      }        
-      else
-      {
-        sparx.orientation += detectionMur(distanceRobotMur);
-        /*
-        sparx.moteurs.vitesse_voulue = 0.3;
-        //code suivit parcours selon couleur
-        if(CouleurDebut == 'J') //jaune
-        {
-          if(retour_couleur() == 'R')
-          {
-            sparx.orientation -= 2.0;
-          }
-          if(retour_couleur() == 'V')
-          {
-            sparx.orientation += 2.0;
-          }
-          else
-          {
-            sparx.orientation = 90.0;
-          }
-        }
-        else //vert
-        {
-          if(retour_couleur() == 'J')
-          {
-            sparx.orientation -= 2.0;
-          }
-          if(retour_couleur() == 'B')
-          {
-            sparx.orientation += 2.0;
-          }
-          else
-          {
-            sparx.orientation = 90.0;
-          }
-        }
-        */
+    while(ROBUS_IsBumper(3));
 
-      }
-    }
-    //Serial.print("Orientation: "), Serial.println(sparx.orientation);
-    //sparx.orientation == 90 go straight
-    deplacer(sparx.orientation); //toujours la dernière chose à faire dans le IF
+    bumperArr++;
+  }
+  if(bumperArr == 1)
+  {
+    calibration('W', 5000);
+    bumperArr++;
+  }
+  if(bumperArr == 3)
+  {
+    calibration('R', 5000);
+    bumperArr++;
+  }
+  if(bumperArr == 5)
+  {
+    calibration('J', 5000);
+    bumperArr++;
+  }
+  if(bumperArr == 7)
+  {
+    calibration('V', 5000);
+    bumperArr++;
+  }
+  if(bumperArr == 9)
+  {
+    calibration('B', 5000);
+    bumperArr++;
   }
 }
 
+void calibration(char couleur, int temps)
+{
+  Serial.print("Début de calibration de la couleur :"), Serial.println(couleur);
+  int tempsRestant = temps;
+  uint16_t r, g, b, c = 0;
+  uint16_t sR,sG, sB = 0;
+  uint32_t sC = 0;
+  uint16_t rR, rG, rB = 0;
+  uint32_t rC = 0;
+  int intervalle = 0;
+  while(tempsRestant > 0)
+  {
+    if (sparx.timerRunning && ((millis() - sparx.startTimer) > TIMER_TIME))
+    {
+      sparx.startTimer += TIMER_TIME; //toujours la premiere chose dans le IF
+      tempsRestant -= TIMER_TIME;
+      intervalle++;
+      getRawData_noDelay(&r,&g,&b,&c);
+      sR += r;
+      sG += g;
+      sB += b;
+      sC += c;
+    }
+  }
+  rR = sR / intervalle;
+  rG = sG / intervalle;
+  rB = sB / intervalle;
+  rC = sC / intervalle;
+  Serial.print("Valeur rouge moyenne: "),Serial.println(rR),
+  Serial.print("Valeur verte moyenne: "),Serial.println(rG),
+  Serial.print("Valeur bleue moyenne: "),Serial.println(rB),
+  Serial.print("Valeur clear moyenne: "),Serial.println(rC);
+}
 /*
  * @brief Lit les valeur reçues du capteur en I2C, on vient mettre ses valeur dans une variable grâce à un pointeur
  * @param r: pointeur pour le rouge
