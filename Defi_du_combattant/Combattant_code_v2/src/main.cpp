@@ -40,7 +40,7 @@ void setup() {
   sparx.timerRunning = true;
   sparx.moteurs.vitesse_voulue = 0.3;
   SERVO_Enable(SERVO_1);
-  SERVO_SetAngle(SERVO_1, 60); //60 == 90 degré
+  //SERVO_SetAngle(SERVO_1, 60); //60 == 90 degré
   sparx.orientation = 90.0;
   delay(1000);
   if (tcs.begin()) 
@@ -62,14 +62,16 @@ void loop() {
   // changer TIMER_TIMER dans robot_sparX.h pour changer le temps
   if (sparx.timerRunning && ((millis() - sparx.startTimer) > TIMER_TIME))
   {
+    char couleur = retour_couleur();
+    Serial.println(couleur);
     sparx.startTimer += TIMER_TIME; //toujours la premiere chose dans le IF
     if (nbTour >= 2)
       sparx.orientation += detectionMur(8); //shortcut no touchy //8cm il fait le shortcut
     else
     {
-      if(retour_couleur() == CouleurDebut)
+      if(couleur == CouleurDebut)
         detectionVerre();
-      if(retour_couleur() == 'W')
+      if(couleur == 'W')
       {
         sparx.orientation += followV2();
         sparx.moteurs.vitesse_voulue = 0.18;
@@ -77,18 +79,18 @@ void loop() {
       else
       {
         sparx.orientation += detectionMur(distanceRobotMur);
-        /*
+        
         sparx.moteurs.vitesse_voulue = 0.3;
         //code suivit parcours selon couleur
         if(CouleurDebut == 'J') //jaune
         {
-          if(retour_couleur() == 'R')
+          if(couleur == 'R')
           {
-            sparx.orientation -= 2.0;
+            sparx.orientation -= 0.5;
           }
-          if(retour_couleur() == 'V')
+          if(couleur == 'V')
           {
-            sparx.orientation += 2.0;
+            sparx.orientation += 0.5;
           }
           else
           {
@@ -97,20 +99,20 @@ void loop() {
         }
         else //vert
         {
-          if(retour_couleur() == 'J')
+          if(couleur == 'J')
           {
-            sparx.orientation -= 2.0;
+            sparx.orientation -= 0.5;
           }
-          if(retour_couleur() == 'B')
+          if(couleur == 'B')
           {
-            sparx.orientation += 2.0;
+            sparx.orientation += 0.5;
           }
           else
           {
             sparx.orientation = 90.0;
           }
         }
-        */
+        
 
       }
     }
@@ -292,19 +294,19 @@ char retour_couleur() {
    uint16_t r, g , b, c;
    char couleur ;
    getRawData_noDelay(&r, &g, &b, &c);
-  if((r>60)&&(r<80)&&(g>50)&&(g<60)&&(b>55)&&(b<70)&&(c>190)&&(c<225)){
+  if((r>60-10)&&(r<80+10)&&(g>50-10)&&(g<60+10)&&(b>55-10)&&(b<70+10)&&(c>190-10)&&(c<225+10)){
       couleur='R';
     }
-  else if((r>35)&&(r<50)&&(g>75)&&(g<60)&&(b>60)&&(b<75)&&(c>190)&&(c<210)){
+  else if((r>35-10)&&(r<50+10)&&(g>75-10)&&(g<60+10)&&(b>60-10)&&(b<75+10)&&(c>190-10)&&(c<210+10)){
       couleur='G';
   }
-  else if((r<30)&&(r<45)&&(g>55)&&(g<70)&&(b>75)&&(b<90)&&(c>190)&&(c<210)){
+  else if((r<30)&&(r<45+10)&&(g>55-10)&&(g<70+10)&&(b>75-10)&&(b<90+10)&&(c>190-10)&&(c<210+10)){
       couleur='B';
   }
-  else if((r>130)&&(r<145)&&(g>120)&&(g<130)&&(b>80)&&(b<90)&&(c>375)&&(c<400)){
+  else if((r>130-10)&&(r<145+10)&&(g>120-10)&&(g<130+10)&&(b>80-10)&&(b<90+10)&&(c>375-10)&&(c<400+10)){
       couleur='J';
   }
-  else if((r>160)&&(r<190)&&(g>170)&&(g<180)&&(b>175)&&(b<185)&&(c>555)){
+  else if((r>160-10)&&(r<190+10)&&(g>170-10)&&(g<180+10)&&(b>175-10)&&(b<185+10)&&(c>555-10)){
       couleur='W';
   }
   else{
