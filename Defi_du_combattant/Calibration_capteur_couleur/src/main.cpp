@@ -92,6 +92,11 @@ void loop() {
     calibration('B', 5000);
     bumperArr++;
   }
+  if(bumperArr == 11)
+  {
+    calibration('T', 5000);
+    bumperArr++;
+  }
 }
 
 void calibration(char couleur, int temps)
@@ -104,6 +109,15 @@ void calibration(char couleur, int temps)
   uint16_t rR, rG, rB = 0;
   uint32_t rC = 0;
   int intervalle = 0;
+  int ValeurRmax = 0; 
+  int ValeurRmin = 69420; 
+  int ValeurGmax = 0;
+  int ValeurGmin = 69420;
+  int ValeurBmax = 0;
+  int ValeurBmin = 69420;
+  int ValeurCmax = 0;
+  int ValeurCmin = 69420; 
+
   while(tempsRestant > 0)
   {
     if (sparx.timerRunning && ((millis() - sparx.startTimer) > TIMER_TIME))
@@ -116,6 +130,39 @@ void calibration(char couleur, int temps)
       sG += g;
       sB += b;
       sC += c;
+
+    if (r > ValeurRmax)
+    {
+      ValeurRmax = r;
+    }
+    if (r < ValeurRmin)
+    {
+      ValeurRmin = r;
+    }
+    if (g > ValeurGmax)
+    {
+      ValeurGmax = g;
+    }
+    if (g < ValeurGmin)
+    {
+      ValeurGmin = g;
+    }
+    if (b > ValeurBmax)
+    {
+      ValeurBmax = b;
+    }
+    if (b < ValeurBmin)
+    {
+      ValeurBmin = b;
+    }
+    if (c > ValeurCmax)
+    {
+      ValeurCmax = c;
+    }
+    if (c < ValeurCmin)
+    {
+      ValeurCmin = c;
+    }
     }
   }
   rR = sR / intervalle;
@@ -126,6 +173,18 @@ void calibration(char couleur, int temps)
   Serial.print("Valeur verte moyenne: "),Serial.println(rG),
   Serial.print("Valeur bleue moyenne: "),Serial.println(rB),
   Serial.print("Valeur clear moyenne: "),Serial.println(rC);
+  
+  Serial.print("Valeur rouge max: "),Serial.println(ValeurRmax),
+  Serial.print("Valeur verte max: "),Serial.println(ValeurGmax),
+  Serial.print("Valeur bleue max: "),Serial.println(ValeurBmax),
+  Serial.print("Valeur clear max: "),Serial.println(ValeurCmax);
+  
+  Serial.print("Valeur rouge min: "),Serial.println(ValeurRmin),
+  Serial.print("Valeur verte min: "),Serial.println(ValeurGmin),
+  Serial.print("Valeur bleue min: "),Serial.println(ValeurBmin),
+  Serial.print("Valeur clear min: "),Serial.println(ValeurCmin);
+  
+
 }
 /*
  * @brief Lit les valeur reçues du capteur en I2C, on vient mettre ses valeur dans une variable grâce à un pointeur
