@@ -86,30 +86,34 @@ void loop() {
         {
           if(couleur == 'R')
           {
-            sparx.orientation -= 0.5;
+            sparx.orientation -= 2.0;
           }
-          if(couleur == 'V')
+          else if(couleur == 'V')
           {
-            sparx.orientation += 0.5;
+            sparx.orientation += 2.0;
           }
+          else if(couleur == 'J' || couleur == 'T')
+            sparx.orientation = 90.0;
           else
           {
-            sparx.orientation = 90.0;
+            sparx.orientation = sparx.orientation;
           }
         }
         else //vert
         {
           if(couleur == 'J')
           {
-            sparx.orientation -= 0.5;
+            sparx.orientation -= 2.0;
           }
-          if(couleur == 'B')
+          else if(couleur == 'B')
           {
-            sparx.orientation += 0.5;
+            sparx.orientation += 2.0;
           }
+          else if(couleur == 'V' || couleur == 'T')
+            sparx.orientation = 90.0;
           else
           {
-            sparx.orientation = 90.0;
+            sparx.orientation = sparx.orientation;
           }
         }
         
@@ -292,26 +296,30 @@ float followV2()
 //Renvoie la couleur du sol
 char retour_couleur() {
    uint16_t r, g , b, c;
-   char couleur ;
+   char couleur;
    getRawData_noDelay(&r, &g, &b, &c);
   if((r>60-10)&&(r<80+10)&&(g>50-10)&&(g<60+10)&&(b>55-10)&&(b<70+10)&&(c>190-10)&&(c<225+10)){
       couleur='R';
     }
-  else if((r>35-10)&&(r<50+10)&&(g>75-10)&&(g<60+10)&&(b>60-10)&&(b<75+10)&&(c>190-10)&&(c<210+10)){
+  else if((r>35-10)&&(r<50+10)&&(g>60-10)&&(g<75+10)&&(b>60-10)&&(b<75+10)&&(c>190-10)&&(c<210+10)){
       couleur='G';
   }
-  else if((r<30)&&(r<45+10)&&(g>55-10)&&(g<70+10)&&(b>75-10)&&(b<90+10)&&(c>190-10)&&(c<210+10)){
+  else if((r>30)&&(r<45+10)&&(g>55-10)&&(g<70+10)&&(b>75-10)&&(b<90+10)&&(c>190)&&(c<210+20)){
       couleur='B';
   }
-  else if((r>130-10)&&(r<145+10)&&(g>120-10)&&(g<130+10)&&(b>80-10)&&(b<90+10)&&(c>375-10)&&(c<400+10)){
+  else if((r>130-5)&&(r<155+30)&&(g>120)&&(g<145+20)&&(b>80-5)&&(b<90+15)&&(c>375-10)&&(c<500)){
       couleur='J';
   }
-  else if((r>160-10)&&(r<190+10)&&(g>170-10)&&(g<180+10)&&(b>175-10)&&(b<185+10)&&(c>555-10)){
+  else if((r>160)&&(r<195+10)&&(g>170)&&(g<205+10)&&(b>200-10)&&(b<210+10)&&(c>600-10)){
       couleur='W';
   }
-  else{
+  else if ((r>55)&&(r<75)&&(g>65)&&(g<90)&&(b>75)&&(b<95)&&(c>230)&&(c<270))
+  {
     couleur='T';
   }
+  else
+    couleur = 'N';
+  Serial.print(r), Serial.print(' '), Serial.print(g), Serial.print(' '), Serial.print(b),Serial.print(' '), Serial.println(c);
   return couleur;
 }
 

@@ -4,36 +4,44 @@ Valeur rouge moyenne: 165
 Valeur verte moyenne: 175
 Valeur bleue moyenne: 181
 Valeur clear moyenne: 567
+
 Valeur rouge max: 168
 Valeur verte max: 178
 Valeur bleue max: 183
 Valeur clear max: 576
+
 Valeur rouge min: 163
 Valeur verte min: 174
 Valeur bleue min: 179
 Valeur clear min: 562
+
 Début de calibration de la couleur :R
 Valeur rouge moyenne: 134
 Valeur verte moyenne: 54
 Valeur bleue moyenne: 62
 Valeur clear moyenne: 204
+
 Valeur rouge max: 72
 Valeur verte max: 55
 Valeur bleue max: 63
 Valeur clear max: 207
+
 Valeur rouge min: 69
 Valeur verte min: 53
 Valeur bleue min: 61
 Valeur clear min: 201
+
 Début de calibration de la couleur :J
 Valeur rouge moyenne: 155
 Valeur verte moyenne: 136
 Valeur bleue moyenne: 86
 Valeur clear moyenne: 385
+
 Valeur rouge max: 140
 Valeur verte max: 128
 Valeur bleue max: 88
 Valeur clear max: 391
+
 Valeur rouge min: 136
 Valeur verte min: 125
 Valeur bleue min: 86
@@ -43,27 +51,33 @@ Valeur rouge moyenne: 41
 Valeur verte moyenne: 66
 Valeur bleue moyenne: 68
 Valeur clear moyenne: 197
+
 Valeur rouge max: 42
 Valeur verte max: 67
 Valeur bleue max: 69
 Valeur clear max: 200
+
 Valeur rouge min: 41
 Valeur verte min: 66
 Valeur bleue min: 68
 Valeur clear min: 196
+
 Début de calibration de la couleur :B
 Valeur rouge moyenne: 76
 Valeur verte moyenne: 182
 Valeur bleue moyenne: 84
 Valeur clear moyenne: 204
+
 Valeur rouge max: 40
 Valeur verte max: 62
 Valeur bleue max: 86
 Valeur clear max: 208
+
 Valeur rouge min: 37
 Valeur verte min: 60
 Valeur bleue min: 84
 Valeur clear min: 200
+
 Début de calibration de la couleur :T
 Valeur rouge moyenne: 60
 Valeur verte moyenne: 75
