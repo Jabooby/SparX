@@ -63,39 +63,66 @@ void loop() {
   //Serial.println(ROBUS_IsBumper(3));
   if(ROBUS_IsBumper(3))
   {
+    MOTOR_SetSpeed(RIGHT, 0.1);
+    MOTOR_SetSpeed(LEFT, 0.1);
     while(ROBUS_IsBumper(3));
-
     bumperArr++;
+    MOTOR_SetSpeed(RIGHT, 0);
+    MOTOR_SetSpeed(LEFT, 0); 
   }
   if(bumperArr == 1)
   {
+     MOTOR_SetSpeed(RIGHT, 0.1);
+    MOTOR_SetSpeed(LEFT, 0.1);
     calibration('W', 5000);
     bumperArr++;
+    MOTOR_SetSpeed(RIGHT, 0);
+    MOTOR_SetSpeed(LEFT, 0);
   }
   if(bumperArr == 3)
   {
+     MOTOR_SetSpeed(RIGHT, 0.1);
+    MOTOR_SetSpeed(LEFT, 0.1);
     calibration('R', 5000);
     bumperArr++;
+    MOTOR_SetSpeed(RIGHT, 0);
+    MOTOR_SetSpeed(LEFT, 0);
   }
   if(bumperArr == 5)
   {
+     MOTOR_SetSpeed(RIGHT, 0.1);
+    MOTOR_SetSpeed(LEFT, 0.1);
     calibration('J', 5000);
     bumperArr++;
+    MOTOR_SetSpeed(RIGHT, 0);
+    MOTOR_SetSpeed(LEFT, 0);
   }
   if(bumperArr == 7)
   {
+     MOTOR_SetSpeed(RIGHT, 0.1);
+    MOTOR_SetSpeed(LEFT, 0.1);
     calibration('V', 5000);
     bumperArr++;
+    MOTOR_SetSpeed(RIGHT, 0);
+    MOTOR_SetSpeed(LEFT, 0);
   }
   if(bumperArr == 9)
   {
+     MOTOR_SetSpeed(RIGHT, 0.1);
+    MOTOR_SetSpeed(LEFT, 0.1);
     calibration('B', 5000);
     bumperArr++;
+    MOTOR_SetSpeed(RIGHT, 0);
+    MOTOR_SetSpeed(LEFT, 0);
   }
   if(bumperArr == 11)
   {
+     MOTOR_SetSpeed(RIGHT, 0.1);
+    MOTOR_SetSpeed(LEFT, 0.1);
     calibration('T', 5000);
     bumperArr++;
+     MOTOR_SetSpeed(RIGHT, 0);
+    MOTOR_SetSpeed(LEFT, 0);
   }
 }
 
