@@ -77,7 +77,7 @@ void setup() {
     distanceRobotMur1 = 30; // don't touch
     distanceDepart = 30;
   }
-  //while(start());
+  while(!start());
   
   depart = millis();
 }
@@ -423,7 +423,7 @@ bool start() {
   Serial.println(frequency);
   Serial.println(ambiant);
 
-  if (frequency > 800){
+  if (frequency > 500){
     go=true;
   } 
   else go = false;
