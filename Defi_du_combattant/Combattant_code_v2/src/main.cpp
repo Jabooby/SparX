@@ -52,10 +52,6 @@ void setup() {
     //Serial.print("R: "), Serial.print(valCouleurDebut[0]), Serial.print(", G: "), Serial.print(valCouleurDebut[1]),
     //Serial.print(", B: "), Serial.print(valCouleurDebut[2]), Serial.print(", Clear: "), Serial.println(valCouleurDebut[3]); 
   }
-  retour_couleur();
-  retour_couleur();
-  retour_couleur();
-  retour_couleur();
   sensor.setTypeRC();
   sensor.setSensorPins((const uint8_t[]){38, 39, 40, 41, 42, 43, 44, 45}, SENSOR_COUNT);
   sensor.setEmitterPin(37);
