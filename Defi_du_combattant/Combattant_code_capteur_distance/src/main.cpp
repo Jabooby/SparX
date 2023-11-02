@@ -32,7 +32,8 @@ int temp = 0;
 char CouleurDebut; //Red, Green, Blue, Clear
 bool go = false;
 int distanceRobotMur1 = 0;
-int distanceRobotMur2 = 8;
+int distanceRobotMur2 = 0;
+int distanceDepart = 0;
 double depart = 0;
 
 void setup() {
@@ -43,6 +44,8 @@ void setup() {
   sparx.startTimer = millis();
   sparx.timerRunning = true;
   SERVO_Enable(SERVO_1);
+  SERVO_Enable(SERVO_2);
+  SERVO_SetAngle(SERVO_2, 60);
   //SERVO_SetAngle(SERVO_1, 60); //60 == 90 degré
   sparx.orientation = 90.0;
   delay(1000);
@@ -65,14 +68,17 @@ void setup() {
   if (distanceRobotMur1 > 55) //jaune
   {
     distanceRobotMur1 = 60;
+    distanceDepart = 60;
     sparx.moteurs.vitesse_voulue = 0.44;
   }
   else //vert 
   {
     sparx.moteurs.vitesse_voulue = 0.3;
     distanceRobotMur1 = 30; // don't touch
+    distanceDepart = 30;
   }
   //while(start());
+  
   depart = millis();
 }
 
@@ -88,12 +94,53 @@ void loop() {
     temp = tcs.calculateColorTemperature(r,g,b);
     Serial.println(temp);
     sparx.startTimer += TIMER_TIME; //toujours la premiere chose dans le IF
-    if (nbTour >= 2)
+    if (distanceDepart > 45)
     {
-      sparx.moteurs.vitesse_voulue = 0.3;
-      if((distanceRobotMur1 > distanceRobotMur2) && (millis()%240 < 24))
-        distanceRobotMur1--;
-      sparx.orientation += detectionMur(distanceRobotMur1); //shortcut no touchy //8cm il fait le shortcut
+      if ((millis()-depart) > 9200 && (millis()-depart) < 12200)
+        {
+          detectionVerre();
+        }
+       if ((millis()-depart) > 12200 && (millis()-depart) < 16500)
+        {
+          detectionVerre();
+          //sparx.moteurs.vitesse_voulue = 0.3;
+          sparx.orientation = 90.3;
+        }
+        else if ((millis()-depart) > 16500 && (millis()-depart) < 17300)
+        {
+          sparx.orientation = 65.0;
+          /*sparx.moteurs.vitesse_voulue = 0.4;
+          distanceRobotMur1 = 35;
+          sparx.orientation += detectionMur(distanceRobotMur1);
+          SERVO_SetAngle(SERVO_1, 60);*/
+        }
+        else if ((millis()-depart) > 17300 && (millis()-depart) < 19100)
+        {
+          sparx.orientation = 90.0;
+          SERVO_SetAngle(SERVO_1, 60);
+        }
+        else if ((millis()-depart) > 19100 && (millis()-depart) < 23650)
+        {
+          sparx.moteurs.vitesse_voulue = 0.4;
+          distanceRobotMur1 = 35;
+          sparx.orientation += detectionMur(distanceRobotMur1);
+          SERVO_SetAngle(SERVO_1, 60);
+        }
+        else if ((millis()-depart) > 23650 && (millis()-depart) < 30800)
+        {
+          sparx.moteurs.vitesse_voulue = 0.3;
+          sparx.orientation = 88.4;
+          SERVO_SetAngle(SERVO_2, 150);
+          distanceRobotMur2 = irDroite.distance();
+        }
+        else if ((millis()-depart) > 30800 || distanceRobotMur2 == 10)
+        {
+          SERVO_SetAngle(SERVO_2, 150);
+          distanceRobotMur1 = 10;
+          sparx.orientation += detectionMur(distanceRobotMur1);
+        }
+        else
+          sparx.orientation += detectionMur(distanceRobotMur1);
     }
     else
     {
@@ -106,28 +153,32 @@ void loop() {
         SERVO_SetAngle(SERVO_1, 60);
       }      */  
       
-        detectionVerre();
-        if ((millis()-depart) > 12000 && (millis()-depart) < 18200)
+        
+        if ((millis()-depart) > 12000 && (millis()-depart) < 18000)
         {
+          detectionVerre();
           //sparx.moteurs.vitesse_voulue = 0.3;
-          sparx.orientation = 90.0;
+          sparx.orientation = 89.8;
         }
-        if ((millis()-depart) > 18200 && (millis()-depart) < 25000)
+        else if ((millis()-depart) > 18000 && (millis()-depart) < 25400)
         {
           sparx.moteurs.vitesse_voulue = 0.4;
+          distanceRobotMur1 = 35;
           sparx.orientation += detectionMur(distanceRobotMur1);
+          SERVO_SetAngle(SERVO_1, 60);
         }
-        else if ((millis()-depart) > 25000 && (millis()-depart) < 30000)
+        else if ((millis()-depart) > 25400 && (millis()-depart) < 30250)
         {
           sparx.moteurs.vitesse_voulue = 0.3;
-          sparx.orientation = 90.0;
+          sparx.orientation = 88.2;
+          SERVO_SetAngle(SERVO_1, 60);
+          SERVO_SetAngle(SERVO_2, 150);
+          distanceRobotMur2 = irDroite.distance();
         }
-        else if((millis()-depart) > 30000)
+        else if ((millis()-depart) > 30250 || distanceRobotMur2 == 10)
         {
-          if(millis()%480 == 0 && distanceRobotMur1 > 8)
-          {
-            distanceRobotMur1--;
-          }
+          SERVO_SetAngle(SERVO_2, 150);
+          distanceRobotMur1 = 10;
           sparx.orientation += detectionMur(distanceRobotMur1);
         }
         else
@@ -200,14 +251,14 @@ float detectionMur(int distanceMur)
   //Serial.print("Distance Droite: "), Serial.println(distanceDroite);
   if(distanceDroite < distanceMur)
   {
-    if(sparx.orientation <= 110.0)
+    if(sparx.orientation <= 105.0)
       return 3.0;
     else
       return 0.0;
   }
-  if (distanceDroite > (distanceMur + buffer + 1))
+  if (distanceDroite > (distanceMur + buffer))
   {
-    if(sparx.orientation >= 65.0)
+    if(sparx.orientation >= 69.0)
       return -3.0;
     else
       return 0.0;
