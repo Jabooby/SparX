@@ -126,14 +126,14 @@ void loop() {
           sparx.orientation += detectionMur(distanceRobotMur1);
           SERVO_SetAngle(SERVO_1, 60);
         }
-        else if ((millis()-depart) > 23650 && (millis()-depart) < 30800)
+        else if ((millis()-depart) > 23650 && (millis()-depart) < 30800) //ici modifier 2ième valeur pour 45000
         {
           sparx.moteurs.vitesse_voulue = 0.3;
-          sparx.orientation = 88.4;
+          sparx.orientation = 88.4; //ici option 2 mettre à 90
           SERVO_SetAngle(SERVO_2, 150);
           distanceRobotMur2 = irDroite.distance();
         }
-        else if ((millis()-depart) > 30800 || distanceRobotMur2 == 10)
+        else if ((millis()-depart) > 30800 || distanceRobotMur2 == 10) //ici modifier valeur aussi
         {
           SERVO_SetAngle(SERVO_2, 150);
           distanceRobotMur1 = 10;
