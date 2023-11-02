@@ -98,23 +98,41 @@ void loop() {
     else
     {
       //if(couleur == 'W')
-      if((temp < 10000) && (temp > 8500))
+      /*if((temp < 10500) && (temp > 8200))
       {
         distanceRobotMur1 = 54;
         sparx.orientation += detectionMur(distanceRobotMur1);
         sparx.moteurs.vitesse_voulue = 0.5;
-      }        
-      else
-      {
+        SERVO_SetAngle(SERVO_1, 60);
+      }      */  
+      
         detectionVerre();
-        if ((millis()-depart) > 12000 && (millis()-depart) < 16500)
+        if ((millis()-depart) > 12000 && (millis()-depart) < 18200)
         {
           //sparx.moteurs.vitesse_voulue = 0.3;
           sparx.orientation = 90.0;
         }
+        if ((millis()-depart) > 18200 && (millis()-depart) < 25000)
+        {
+          sparx.moteurs.vitesse_voulue = 0.4;
+          sparx.orientation += detectionMur(distanceRobotMur1);
+        }
+        else if ((millis()-depart) > 25000 && (millis()-depart) < 30000)
+        {
+          sparx.moteurs.vitesse_voulue = 0.3;
+          sparx.orientation = 90.0;
+        }
+        else if((millis()-depart) > 30000)
+        {
+          if(millis()%480 == 0 && distanceRobotMur1 > 8)
+          {
+            distanceRobotMur1--;
+          }
+          sparx.orientation += detectionMur(distanceRobotMur1);
+        }
         else
           sparx.orientation += detectionMur(distanceRobotMur1);
-      }
+      
 
     }
     //Serial.print("Orientation: "), Serial.println(sparx.orientation);
@@ -230,23 +248,20 @@ void detectionVerre()
   int distanceDroite = irDroite.distance();
   if(distanceGauche < 10)
   {
-    while(getDistance() < 14.0);
+    
     SERVO_SetAngle(SERVO_1, 0);
-    while(retour_couleur() != 'W');
-      //Serial.println(getDistance());
-    SERVO_SetAngle(SERVO_1, 60);
+    if((temp < 10500) && (temp > 8200))
+      {
+        SERVO_SetAngle(SERVO_1, 60);
+      }
   }
   if(distanceDroite < 10)
   {
-    while(getDistance() < 14.0);
     SERVO_SetAngle(SERVO_1, 130);
-    while(retour_couleur() != 'W');
-
-    SERVO_SetAngle(SERVO_1, 60);
-  }
-  else
-  {
-    SERVO_SetAngle(SERVO_1, 60);
+    if((temp < 10500) && (temp > 8200))
+    {
+      SERVO_SetAngle(SERVO_1, 60);
+    }
   }
 }
 
