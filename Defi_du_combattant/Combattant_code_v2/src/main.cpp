@@ -25,12 +25,12 @@ SharpIR irGauche(IR_PIN[IR_GAUCHE], MODEL_IR);
 uint16_t sensorValues[SENSOR_COUNT];
 QTRSensors sensor; //classe QTR
 QTRReadMode mode = QTRReadMode::On;
-Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_4X);
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_60X);
 int nbTour = 1;
 char CouleurDebut; //Red, Green, Blue, Clear
 bool go = false;
 int distanceRobotMur = 0;
-
+int temp;
 void setup() {
   // put your setup code here, to run once:
   BoardInit();
@@ -45,7 +45,10 @@ void setup() {
   if (tcs.begin()) 
   {
     //Serial.println("Found sensor");
+    retour_couleur();
+    tcs.clearInterrupt();
     CouleurDebut = retour_couleur();
+    
     //Serial.print("R: "), Serial.print(valCouleurDebut[0]), Serial.print(", G: "), Serial.print(valCouleurDebut[1]),
     //Serial.print(", B: "), Serial.print(valCouleurDebut[2]), Serial.print(", Clear: "), Serial.println(valCouleurDebut[3]); 
   }
@@ -77,19 +80,21 @@ void loop() {
       }        
       else
       {
-        sparx.orientation += detectionMur(distanceRobotMur);
-        
+        //sparx.orientation += detectionMur(distanceRobotMur);
+       // Serial.print("couleur: "), Serial.println(couleur);
+        //Serial.print("couleurDebut: "), Serial.println(CouleurDebut);
+        //Serial.print("angle: "), Serial.println(sparx.orientation);
         sparx.moteurs.vitesse_voulue = 0.3;
         //code suivit parcours selon couleur
         if(CouleurDebut == 'J') //jaune
         {
           if(couleur == 'R')
           {
-            sparx.orientation -= 2.0;
+            sparx.orientation -= 1;
           }
           else if(couleur == 'V')
           {
-            sparx.orientation += 2.0;
+            sparx.orientation += 1;
           }
           else if(couleur == 'J' || couleur == 'T')
             sparx.orientation = 90.0;
@@ -102,11 +107,11 @@ void loop() {
         {
           if(couleur == 'J')
           {
-            sparx.orientation -= 2.0;
+            sparx.orientation -= 1;
           }
           else if(couleur == 'B')
           {
-            sparx.orientation += 2.0;
+            sparx.orientation += 1;
           }
           else if(couleur == 'V' || couleur == 'T')
             sparx.orientation = 90.0;
@@ -140,6 +145,7 @@ void getRawData_noDelay(uint16_t* r, uint16_t* g, uint16_t* b, uint16_t* c) {
     *r = tcs.read16(TCS34725_RDATAL);
     *g = tcs.read16(TCS34725_GDATAL);
     *b = tcs.read16(TCS34725_BDATAL);
+    //tcs.calculateColorTemperature
 }
 
 /*
@@ -297,6 +303,10 @@ char retour_couleur() {
    uint16_t r, g , b, c;
    char couleur;
    getRawData_noDelay(&r, &g, &b, &c);
+   Serial.print("rouge: "), Serial.println(r);
+   Serial.print("green: "), Serial.println(g);
+   Serial.print("bleu: "), Serial.println(b);
+   Serial.print("clear: "), Serial.println(c);
   if((r>60-10)&&(r<80+10)&&(g>50-10)&&(g<60+10)&&(b>55-10)&&(b<70+10)&&(c>190-10)&&(c<225+10)){
       couleur='R';
     }
@@ -318,28 +328,28 @@ char retour_couleur() {
   }
   else
     couleur = 'N';
-  Serial.print(r), Serial.print(' '), Serial.print(g), Serial.print(' '), Serial.print(b),Serial.print(' '), Serial.println(c);
+ // Serial.print(r), Serial.print(' '), Serial.print(g), Serial.print(' '), Serial.print(b),Serial.print(' '), Serial.println(c);
   return couleur;
 }
 
 void dropcup()// nous devons initialiser le servo
 {
   SERVO_SetAngle(SERVO_2, 25);//choisis l'angle du servo moteur
-  delay(500);
+  //delay(500);
   SERVO_SetAngle(SERVO_2, 69);//Remet l'angle de base du servo moteur
-  delay(500);
+  //delay(500);
   SERVO_SetAngle(SERVO_2, 25);//choisis l'angle du servo moteur
-  delay(500);
-  delay(1000);
+  //delay(500);
+  //delay(1000);
   MOTOR_SetSpeed(RIGHT, 0.4);
-  delay(800);
+  //delay(800);
   MOTOR_SetSpeed(RIGHT, 0);
-  delay(500);
+  //delay(500);
 
   MOTOR_SetSpeed(RIGHT, -0.4);
-  delay(800);
+  //delay(800);
   MOTOR_SetSpeed(RIGHT, 0);
-  delay(1000);
+  //delay(1000);
 }
 
 //ne marche pas
