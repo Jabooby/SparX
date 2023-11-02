@@ -29,7 +29,8 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS3472
 int nbTour = 1;
 char CouleurDebut; //Red, Green, Blue, Clear
 bool go = false;
-int distanceRobotMur = 0;
+int distanceRobotMur1 = 0;
+int distanceRobotMur2 = 8;
 
 void setup() {
   // put your setup code here, to run once:
@@ -38,7 +39,6 @@ void setup() {
   //start de timer
   sparx.startTimer = millis();
   sparx.timerRunning = true;
-  sparx.moteurs.vitesse_voulue = 0.3;
   SERVO_Enable(SERVO_1);
   //SERVO_SetAngle(SERVO_1, 60); //60 == 90 degré
   sparx.orientation = 90.0;
@@ -57,7 +57,17 @@ void setup() {
   sensor.setTypeRC();
   sensor.setSensorPins((const uint8_t[]){38, 39, 40, 41, 42, 43, 44, 45}, SENSOR_COUNT);
   sensor.setEmitterPin(37);
-  distanceRobotMur = irDroite.distance();
+  distanceRobotMur1 = irDroite.distance();
+  if (distanceRobotMur1 > 55) //jaune
+  {
+    distanceRobotMur1 = 60;
+    sparx.moteurs.vitesse_voulue = 0.44;
+  }
+  else //vert 
+  {
+    sparx.moteurs.vitesse_voulue = 0.3;
+    distanceRobotMur1 = 31;
+  }
   //while(start());
 }
 
@@ -70,11 +80,14 @@ void loop() {
     Serial.println(couleur);
     sparx.startTimer += TIMER_TIME; //toujours la premiere chose dans le IF
     if (nbTour >= 2)
-      sparx.orientation += detectionMur(8); //shortcut no touchy //8cm il fait le shortcut
+    {
+      sparx.moteurs.vitesse_voulue = 0.3;
+      if((distanceRobotMur1 > distanceRobotMur2) && (millis()%240 < 24))
+        distanceRobotMur1--;
+      sparx.orientation += detectionMur(distanceRobotMur1); //shortcut no touchy //8cm il fait le shortcut
+    }
     else
     {
-      if(couleur == CouleurDebut)
-        detectionVerre();
       if(couleur == 'W')
       {
         sparx.orientation += followV2();
@@ -82,46 +95,13 @@ void loop() {
       }        
       else
       {
-        sparx.orientation += detectionMur(distanceRobotMur);
-        
-        sparx.moteurs.vitesse_voulue = 0.3;
-        //code suivit parcours selon couleur
-        if(CouleurDebut == 'J') //jaune
+        detectionVerre();
+        if (millis() > 14000)
         {
-          if(couleur == 'R')
-          {
-            sparx.orientation -= 2.0;
-          }
-          else if(couleur == 'V')
-          {
-            sparx.orientation += 2.0;
-          }
-          else if(couleur == 'J' || couleur == 'T')
-            sparx.orientation = 90.0;
-          else
-          {
-            sparx.orientation = sparx.orientation;
-          }
+          sparx.orientation = 90.0;
         }
-        else //vert
-        {
-          if(couleur == 'J')
-          {
-            sparx.orientation -= 2.0;
-          }
-          else if(couleur == 'B')
-          {
-            sparx.orientation += 2.0;
-          }
-          else if(couleur == 'V' || couleur == 'T')
-            sparx.orientation = 90.0;
-          else
-          {
-            sparx.orientation = sparx.orientation;
-          }
-        }
-        
-
+        else
+          sparx.orientation += detectionMur(distanceRobotMur1);
       }
     }
     //Serial.print("Orientation: "), Serial.println(sparx.orientation);
@@ -181,8 +161,9 @@ float deplacer(float angle)
 
 float detectionMur(int distanceMur)
 {
-  int distanceGauche = irGauche.distance();
-  int distanceDroite = irDroite.distance();
+  //int distanceGauche = irGauche.distance();
+  int distanceDroite = irDroite.distance() + 1;
+  int buffer = distanceMur / 10;
   //Serial.print("Distance Gauche: "), Serial.println(distanceGauche);
   //Serial.print("Distance Droite: "), Serial.println(distanceDroite);
   if(distanceDroite < distanceMur)
@@ -192,7 +173,7 @@ float detectionMur(int distanceMur)
     else
       return 0.0;
   }
-  if (distanceDroite > (distanceMur + 1))
+  if (distanceDroite > (distanceMur + buffer + 1))
   {
     if(sparx.orientation >= 65.0)
       return -3.0;
