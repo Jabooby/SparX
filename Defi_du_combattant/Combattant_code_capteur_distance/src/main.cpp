@@ -33,6 +33,7 @@ char CouleurDebut; //Red, Green, Blue, Clear
 bool go = false;
 int distanceRobotMur1 = 0;
 int distanceRobotMur2 = 8;
+double depart = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -60,6 +61,7 @@ void setup() {
   sensor.setSensorPins((const uint8_t[]){38, 39, 40, 41, 42, 43, 44, 45}, SENSOR_COUNT);
   sensor.setEmitterPin(37);
   distanceRobotMur1 = irDroite.distance();
+  //Serial.println(distanceRobotMur1);
   if (distanceRobotMur1 > 55) //jaune
   {
     distanceRobotMur1 = 60;
@@ -68,9 +70,10 @@ void setup() {
   else //vert 
   {
     sparx.moteurs.vitesse_voulue = 0.3;
-    distanceRobotMur1 = 3;
+    distanceRobotMur1 = 30; // don't touch
   }
   //while(start());
+  depart = millis();
 }
 
 void loop() {
@@ -95,17 +98,18 @@ void loop() {
     else
     {
       //if(couleur == 'W')
-      if((temp < 11000) && (temp > 9500))
+      if((temp < 10000) && (temp > 8500))
       {
-        sparx.orientation += followV2();
-        sparx.moteurs.vitesse_voulue = 0.1;
+        distanceRobotMur1 = 54;
+        sparx.orientation += detectionMur(distanceRobotMur1);
+        sparx.moteurs.vitesse_voulue = 0.5;
       }        
       else
       {
         detectionVerre();
-        if (millis() > 14000)
+        if ((millis()-depart) > 12000 && (millis()-depart) < 16500)
         {
-          sparx.moteurs.vitesse_voulue = 0.3;
+          //sparx.moteurs.vitesse_voulue = 0.3;
           sparx.orientation = 90.0;
         }
         else
@@ -172,12 +176,13 @@ float detectionMur(int distanceMur)
 {
   //int distanceGauche = irGauche.distance();
   int distanceDroite = irDroite.distance() + 1;
+  //Serial.print("Distance: "), Serial.println(distanceDroite);
   int buffer = distanceMur / 10;
   //Serial.print("Distance Gauche: "), Serial.println(distanceGauche);
   //Serial.print("Distance Droite: "), Serial.println(distanceDroite);
   if(distanceDroite < distanceMur)
   {
-    if(sparx.orientation <= 115.0)
+    if(sparx.orientation <= 110.0)
       return 3.0;
     else
       return 0.0;
@@ -319,7 +324,7 @@ char retour_couleur() {
   }
   else
     couleur = 'N';
-  Serial.print(r), Serial.print(' '), Serial.print(g), Serial.print(' '), Serial.print(b),Serial.print(' '), Serial.println(c);
+  //Serial.print(r), Serial.print(' '), Serial.print(g), Serial.print(' '), Serial.print(b),Serial.print(' '), Serial.println(c);
   return couleur;
 }
 
