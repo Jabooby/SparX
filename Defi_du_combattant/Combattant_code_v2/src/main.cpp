@@ -34,7 +34,6 @@ int distanceRobotMur = 0;
 void setup() {
   // put your setup code here, to run once:
   BoardInit();
-
   //start de timer
   sparx.startTimer = millis();
   sparx.timerRunning = true;
@@ -58,7 +57,7 @@ void setup() {
   sensor.setSensorPins((const uint8_t[]){38, 39, 40, 41, 42, 43, 44, 45}, SENSOR_COUNT);
   sensor.setEmitterPin(37);
   distanceRobotMur = irDroite.distance();
-  //while(start());
+  while(start());
 }
 
 void loop() {
@@ -353,8 +352,8 @@ bool start() {
   int frequency = analogRead(A7);
   int ambiant = analogRead(A6);
   
-  Serial.println(frequency);
-  Serial.println(ambiant);
+  //Serial.println(frequency);
+  //Serial.println(ambiant);
 
   if (frequency > 800){
     go=true;
