@@ -19,14 +19,16 @@ void detectionVerre();
 float followV2();
 char retour_couleur();
 bool start();
+void getRawData_temp(uint16_t* r, uint16_t* g, uint16_t* b, uint16_t* c);
 
 SharpIR irDroite(IR_PIN[IR_DROITE], MODEL_IR);
 SharpIR irGauche(IR_PIN[IR_GAUCHE], MODEL_IR);
 uint16_t sensorValues[SENSOR_COUNT];
 QTRSensors sensor; //classe QTR
 QTRReadMode mode = QTRReadMode::On;
-Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_4X);
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS34725_GAIN_60X);
 int nbTour = 1;
+int temp = 0;
 char CouleurDebut; //Red, Green, Blue, Clear
 bool go = false;
 int distanceRobotMur1 = 0;
@@ -66,7 +68,7 @@ void setup() {
   else //vert 
   {
     sparx.moteurs.vitesse_voulue = 0.3;
-    distanceRobotMur1 = 31;
+    distanceRobotMur1 = 3;
   }
   //while(start());
 }
@@ -76,8 +78,12 @@ void loop() {
   // changer TIMER_TIMER dans robot_sparX.h pour changer le temps
   if (sparx.timerRunning && ((millis() - sparx.startTimer) > TIMER_TIME))
   {
-    char couleur = retour_couleur();
-    Serial.println(couleur);
+    //char couleur = retour_couleur();
+    //Serial.println(couleur);
+    uint16_t r, g , b, c;
+    getRawData_temp(&r ,&g, &b, &c);
+    temp = tcs.calculateColorTemperature(r,g,b);
+    Serial.println(temp);
     sparx.startTimer += TIMER_TIME; //toujours la premiere chose dans le IF
     if (nbTour >= 2)
     {
@@ -88,21 +94,24 @@ void loop() {
     }
     else
     {
-      if(couleur == 'W')
+      //if(couleur == 'W')
+      if((temp < 11000) && (temp > 9500))
       {
         sparx.orientation += followV2();
-        sparx.moteurs.vitesse_voulue = 0.18;
+        sparx.moteurs.vitesse_voulue = 0.1;
       }        
       else
       {
         detectionVerre();
         if (millis() > 14000)
         {
+          sparx.moteurs.vitesse_voulue = 0.3;
           sparx.orientation = 90.0;
         }
         else
           sparx.orientation += detectionMur(distanceRobotMur1);
       }
+
     }
     //Serial.print("Orientation: "), Serial.println(sparx.orientation);
     //sparx.orientation == 90 go straight
@@ -243,7 +252,8 @@ float followV2()
   sensor.read(sensorValues, mode);
   for (uint8_t i = 0; i < SENSOR_COUNT; i++)
   {
-    if(sensorValues[i] > 2000)
+    //Serial.print("Position "), Serial.print(i),Serial.print(" : "), Serial.println(sensorValues[i]);
+    if(sensorValues[i] > 2200)
     {
       position = 1000 * i;
       break;
@@ -254,19 +264,24 @@ float followV2()
     }
   }
   error = position - 3500; //si capteur 3 ou 4 on va tout droit
+  if((temp > 11000) || (temp < 9700))
+  {
+    //nbTour++;
+  }
+  //Serial.print("Position: "), Serial.println(position);
   if((error < 1000) && (error > -1000))
   {
     sparx.orientation = 90.0;
     return 0.0;
   }
-  else if (position == 8000 && CouleurDebut == 'J') //8000 == dans le blanc, aucune ligne
+  else if (position == 8000 && distanceRobotMur1 > 45 ) //8000 == dans le blanc, aucune ligne
   {
-    sparx.orientation = 75.0;
+    sparx.orientation = 80.0;
     return 0.0;
   }
-  else if (position == 8000 && CouleurDebut == 'V') //8000 == dans le blanc, aucune ligne
+  else if (position == 8000 && distanceRobotMur1 < 45) //8000 == dans le blanc, aucune ligne
   {
-    sparx.orientation = 115.0;
+    sparx.orientation = 100.0;
     return 0.0;
   }
   else
@@ -288,7 +303,7 @@ char retour_couleur() {
     }
   else if((r>35-10)&&(r<50+10)&&(g>60-10)&&(g<75+10)&&(b>60-10)&&(b<75+10)&&(c>190-10)&&(c<210+10)){
       couleur='G';
-  }
+  }               
   else if((r>30)&&(r<45+10)&&(g>55-10)&&(g<70+10)&&(b>75-10)&&(b<90+10)&&(c>190)&&(c<210+20)){
       couleur='B';
   }
@@ -342,4 +357,12 @@ bool start() {
   } 
   else go = false;
   return go;
+}
+
+void getRawData_temp(uint16_t* r, uint16_t* g, uint16_t* b, uint16_t* c) {
+   // *c = tcs.read16(TCS34725_CDATAL);
+   // *r = tcs.read16(TCS34725_RDATAL);
+   // *g = tcs.read16(TCS34725_GDATAL);
+   // *b = tcs.read16(TCS34725_BDATAH);
+    tcs.getRawData(r,g,b,c);
 }
