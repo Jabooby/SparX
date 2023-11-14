@@ -21,13 +21,12 @@ void loop()
   int lumiere_attendue;  // vient du rfid
   int lumiere_sans_rien; //ce que le detecteur de lumiere capte avant le test
   int lumiere_ambiante;
-
+  int LumiereCapteur;
     //stop;
 
-  if(//stop && Detecteur_lumiere!=lumiere_attendue)
-  {
   lumiere_sans_rien=DetecteurLumiere1();
-  lumiere_ambiante=lumiere_sans_rien+30; // pour que le robot detecte quelque chose, il faut qu'il detecte une valeur plus grande que la lumiere sans rien
+  if(lumiere_sans_rien < lumiere_ambiante && lumiere_sans_rien < lumiere_attendue)
+  lumiere_ambiante=lumiere_sans_rien; 
   }
     //bouge;
 
