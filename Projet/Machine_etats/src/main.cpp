@@ -111,7 +111,7 @@ void etat_machine_run(uint8_t sensors)
       }
       //voit un mur à gauche
       else if(sensors == IR_GAUCHE){
-        //Change état à tourne gauche
+        //Change état à tourne droite
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
