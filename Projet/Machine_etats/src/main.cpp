@@ -40,6 +40,7 @@ enum Etat_enum
 * voit un mur à 10cm du robot, la fonction pourra retourner "SENSOR_IR_DR".
 * Ça va être facile par la suite décire le restant du code pour gérer le robot selon ce qu'il "voit".
 */
+//FAITES JUSTE ÉCRIRE UN COMMENTAIRE POUR DÉCRIRE LE CAPTEUR
 enum Sensors_enum 
 {
   AUCUN = 0, //rien, on va probablement vouloir que le robot va dans l'état "RECHERCHE_LUMIERE"
