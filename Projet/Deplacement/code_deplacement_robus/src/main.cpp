@@ -26,20 +26,14 @@ void deplacement_lumiere() {
     int lumiere_attendue;  // vient du rfid
   int lumiere_moyenne; //ce que le detecteur de lumiere capte avant le test
   int lumiere_ambiante;
-  unsigned long currentMillis = millis();
-  unsigned int intervale = 100;
-  unsigned long previousMillis = 0;
+
 
   lumiere_moyenne=(DetecteurLumiere1() + DetecteurLumiere2() +DetecteurLumiere3() + DetecteurLumiere4())/4;
 
-  if(currentMillis - previousMillis >= intervale) 
-  {
-    previousMillis = currentMillis;
 
-    if(lumiere_moyenne < lumiere_attendue)
-    {
-      lumiere_ambiante=lumiere_moyenne;
-    }
+  if(lumiere_moyenne < lumiere_attendue)
+  {
+    lumiere_ambiante=lumiere_moyenne;
   }
 
     //stop;
