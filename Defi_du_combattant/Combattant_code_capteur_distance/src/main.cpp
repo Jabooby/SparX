@@ -30,7 +30,7 @@ Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_24MS, TCS3472
 int nbTour = 1;
 int temp = 0;
 char CouleurDebut; //Red, Green, Blue, Clear
-bool go = false;
+bool go = true;
 int distanceRobotMur1 = 0;
 int distanceRobotMur2 = 0;
 int distanceDepart = 0;
@@ -100,13 +100,14 @@ void loop() {
         {
           detectionVerre();
         }
+
        if ((millis()-depart) > 12200 && (millis()-depart) < 16500)
         {
           detectionVerre();
           //sparx.moteurs.vitesse_voulue = 0.3;
           sparx.orientation = 90.3;
         }
-        else if ((millis()-depart) > 16500 && (millis()-depart) < 17300)
+        if ((millis()-depart) > 16500 && (millis()-depart) < 17300)
         {
           sparx.orientation = 65.0;
           /*sparx.moteurs.vitesse_voulue = 0.4;
@@ -295,7 +296,7 @@ int myFunction(int x, int y) {
 
 void detectionVerre()
 {
-  int distanceGauche = irGauche.distance();
+  /*int distanceGauche = irGauche.distance();
   int distanceDroite = irDroite.distance();
   if(distanceGauche < 10)
   {
@@ -313,7 +314,8 @@ void detectionVerre()
     {
       SERVO_SetAngle(SERVO_1, 60);
     }
-  }
+  }*/
+  printf("aqqq");
 }
 
 float followV2()
@@ -417,17 +419,16 @@ void dropcup()// nous devons initialiser le servo
 //ne marche pas
 bool start() {
   //bool go = false;
-  int frequency = analogRead(A7);
-  int ambiant = analogRead(A6);
-  
-  Serial.println(frequency);
-  Serial.println(ambiant);
 
-  if (frequency > 500){
-    go=true;
+bool bumperArr = ROBUS_IsBumper(3);
+  int etat = 0;
+  if (bumperArr){
+    if (etat == 0){
+    go=false;
+    etat=1;
   } 
-  else go = false;
   return go;
+}
 }
 
 void getRawData_temp(uint16_t* r, uint16_t* g, uint16_t* b, uint16_t* c) {
