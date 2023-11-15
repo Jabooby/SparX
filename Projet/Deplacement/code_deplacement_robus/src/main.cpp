@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 // put function declarations here:
-int myFunction(int, int);
+void deplacement_lumiere();
 
 void setup() {
   // put your setup code here, to run once:
@@ -17,18 +17,33 @@ void setup() {
 void loop() 
 {
   // put your main code here, to run repeatedly:
+deplacement_lumiere();
 
-  int lumiere_attendue;  // vient du rfid
-  int lumiere_sans_rien; //ce que le detecteur de lumiere capte avant le test
+}
+
+// put function definitions here:
+void deplacement_lumiere() {
+    int lumiere_attendue;  // vient du rfid
+  int lumiere_moyenne; //ce que le detecteur de lumiere capte avant le test
   int lumiere_ambiante;
+  unsigned long currentMillis = millis();
+  unsigned int intervale = 100;
+  unsigned long previousMillis = 0;
+
+  lumiere_moyenne=(DetecteurLumiere1() + DetecteurLumiere2() +DetecteurLumiere3() + DetecteurLumiere4())/4;
+
+  if(currentMillis - previousMillis >= intervale) 
+  {
+    previousMillis = currentMillis;
+
+    if(lumiere_moyenne < lumiere_attendue)
+    {
+      lumiere_ambiante=lumiere_moyenne;
+    }
+  }
 
     //stop;
 
-  if(//stop && Detecteur_lumiere!=lumiere_attendue) // lumiere ambiante
-  {
-  lumiere_sans_rien=DetecteurLumiere1();  // 
-  lumiere_ambiante=lumiere_sans_rien+30; // pour que le robot detecte quelque chose, il faut qu'il detecte une valeur plus grande que la lumiere sans rien
-  }
   if(DetecteurLumiere1()!=lumiere_attendue || 
      DetecteurLumiere2()!=lumiere_attendue || 
      DetecteurLumiere3()!=lumiere_attendue || 
@@ -36,6 +51,8 @@ void loop()
   {
         //bouge;
   }
+
+
   if(DetecteurLumiere1()=lumiere_attendue && 
      DetecteurLumiere2()=lumiere_attendue && 
      DetecteurLumiere3()=lumiere_attendue && 
@@ -43,6 +60,8 @@ void loop()
   {
    // stop;
   }
+
+
   else if(DetecteurLumiere1()>lumiere_ambiante &&
           DetecteurLumiere2()>lumiere_ambiante && 
           DetecteurLumiere3()<lumiere_ambiante && 
@@ -51,6 +70,7 @@ void loop()
     //Bouge(distance pour ce mettre dessous la lumiere);
   }
   
+
   else if(DetecteurLumiere1()>lumiere_ambiante && 
           DetecteurLumiere3()>lumiere_ambiante && 
           DetecteurLumiere2()<lumiere_ambiante && 
@@ -59,6 +79,8 @@ void loop()
     //tourne gauche:
     //bouge(distance pour ce mettre dessous la lumiere)
   }
+
+
   else if(DetecteurLumiere2()>lumiere_ambiante && 
           DetecteurLumiere4()>lumiere_ambiante && 
           DetecteurLumiere1()<lumiere_ambiante && 
@@ -67,6 +89,8 @@ void loop()
    // tourne droite:
    // bouge(distance pour ce mettre dessous la lumiere)
   }
+
+
    else if(DetecteurLumiere4()>lumiere_ambiante &&
           DetecteurLumiere3()>lumiere_ambiante &&
           DetecteurLumiere1()<lumiere_ambiante && 
@@ -75,9 +99,5 @@ void loop()
     //tourne 180 degre;
    // bouge(distance pour ce mettre dessous la lumiere)
   }
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  
 }
