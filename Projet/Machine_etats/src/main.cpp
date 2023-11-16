@@ -361,7 +361,7 @@ void etat_machine_run(uint8_t sensors)
     case MAINTIENT_POSITION:
       //et le robot voit rien
       //Vérifie si sa roation est fini
-      if(sensors == ROTATION_LIFT){
+      if(sensors == 0/*ROTATION_LIFT*/){
         //Les autres se vérifie seulement au moment là
       if(sensors == AUCUN){
         //Change état à LIFT DOWN
@@ -484,6 +484,7 @@ void etat_machine_run(uint8_t sensors)
       }
     }
   }
+}
 
 void bougerAvant()
 {
