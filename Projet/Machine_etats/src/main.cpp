@@ -116,7 +116,6 @@ uint8_t gestionCapteurs() {
       emplacementMax=4;
     }
   }
-  p[emplacementMax];
  }
  switch(emplacementMax)
  {
