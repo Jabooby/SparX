@@ -502,9 +502,14 @@ void bougerGauche()
   MOTOR_SetSpeed(LEFT, -0.1);
 }
 
-int* LectureCaptLum() 
-{
-  int valeur_capteur[4];
+int* LectureCaptLum() {
+  int* valeur_capteur = (int*)malloc(4 * sizeof(int)); // Allouer de la mémoire
+
+  if (valeur_capteur == NULL)
+  {
+    return NULL;
+  }
+
   int pin_analogue[4] = {A0,A1,A2,A3};
   int i;
 
@@ -513,5 +518,5 @@ int* LectureCaptLum()
   { 
     valeur_capteur[i]=analogRead(pin_analogue[i]);
   }
-  return(valeur_capteur);
+  return valeur_capteur;
 }
