@@ -149,7 +149,7 @@ void etat_machine_run(uint8_t sensors)
     case TOURNE_DROITE:
       //et le robot voit rien
       if(sensors == AUCUN){
-        //Change état à recherche lumière
+        //Change état à STOP
       }
       //voit un mur à droite
       else if(sensors == IR_DROITE){
@@ -161,15 +161,15 @@ void etat_machine_run(uint8_t sensors)
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
-        //Change état à avance tout droit
+        //Change état à STOP
       }
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
-        //Garde son état à tourne droite
+        //Garde son état à STOP
       }
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
-        //Change état à tourne gauche
+        //Change état à STOP
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
@@ -190,11 +190,11 @@ void etat_machine_run(uint8_t sensors)
     case TOURNE_GAUCHE:
     //et le robot voit rien
       if(sensors == AUCUN){
-        //Change état à recherche lumière
+        //Change état à STOP
       }
       //voit un mur à droite
       else if(sensors == IR_DROITE){
-        //Garde état à tourne droite
+        //Garde état à tourne gauche
       }
       //voit un mur à gauche
       else if(sensors == IR_GAUCHE){
@@ -202,11 +202,11 @@ void etat_machine_run(uint8_t sensors)
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
-        //Change état à avance tout droit
+        //Change état à STOP
       }
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
-        //Change état à tourne à droite
+        //Change état à STOP
       }
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
@@ -227,140 +227,11 @@ void etat_machine_run(uint8_t sensors)
       else
         //ERROR
       break;
-    //Antoine
-    //si l'état est à recule
-    case RECULE:
-      //et le robot voit rien
-      if(sensors == AUCUN){
-        //Change état à recherche lumière
-      }
-      //voit un mur à droite
-      else if(sensors == IR_DROITE){
-        //Change état à STOP
-      }
-      //voit un mur à gauche
-      else if(sensors == IR_GAUCHE){
-        //change d'état à STOP
-      }
-      //voit de la lumière en avant
-      else if(sensors == SENSOR_LUM_AV){
-        //Change état à STOP
-      }
-      //voit de la lumière à droite
-      else if(sensors == SENSOR_LUM_DR){
-        //change d'état à STOP
-      }
-      //voit de la lumière à gauche
-      else if(sensors == SENSOR_LUM_GA){
-        //Change état à STOP
-      }
-      //voit de la lumière en arrière
-      else if(sensors == SENSOR_LUM_AR){
-        //Garde son état recule
-      }
-      //2 capteurs de lumière ont la même valeur
-      else if(sensors == DOUBLE_LUM){
-        //Change état à STOP
-      }
-      //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR){
-        //Garde son état de recule
-      break;
-    //si l'état est tourne 180
-    //Il faudrait rajouter une fonction qui regarde si le 180 du robot est complet...
-    case TOURNE_180:
-      //et le robot voit rien
-      if(sensors == AUCUN /*et 180 complété*/){
-        //Change état à recherche lumière
-      }
-      //voit un mur à droite
-      else if(sensors == IR_DROITE /*et 180 complété*/){
-        //Change état à tourne gauche
-      }
-      //voit un mur à gauche
-      else if(sensors == IR_GAUCHE/*et 180 complété*/){
-        //Change état à tourne gauche
-      }
-      //voit de la lumière en avant
-      else if(sensors == SENSOR_LUM_AV/*et 180 complété*/ ){
-        //Change état à avance tout droit
-      }
-      //voit de la lumière à droite
-      else if(sensors == SENSOR_LUM_DR/*et 180 complété*/){
-        //Change état à tourne droite
-      }
-      //voit de la lumière à gauche
-      else if(sensors == SENSOR_LUM_GA/*et 180 complété*/){
-        //Change état à tourne gauche
-      }
-      //voit de la lumière en arrière
-      else if(sensors == SENSOR_LUM_AR){
-        //refait un 180????? Ou bien continue son 180
-      }
-      //2 capteurs de lumière ont la même valeur
-      else if(sensors == DOUBLE_LUM){
-        //refait un 180????? ou bien continue son 180??stop?
-      }
-      //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR){
-        ///refait un 180????? ou bien continue son 180??Stop?
-      }
-      else
-        //ERROR
-      break;
-      //si l'état et à LIFT UP
-    case LIFT_UP:
-      //et le robot voit rien
-      if(sensors == AUCUN){
-        //Change état à LIFT DOWN
-      }
-      //voit un mur à droite
-      else if(sensors == IR_DROITE){
-        //Change état à LIFT DOWN
-      }
-      //voit un mur à gauche
-      else if(sensors == IR_GAUCHE){
-        //Change état à LIFT DOWN
-      }
-      //voit de la lumière en avant
-      else if(sensors == SENSOR_LUM_AV){
-        //Change état à LIFT DOWN
-      }
-      //voit de la lumière à droite
-      else if(sensors == SENSOR_LUM_DR){
-        //Change état à LIFT DOWN
-      }
-      //voit de la lumière à gauche
-      else if(sensors == SENSOR_LUM_GA){
-        //Change état à LIFT DOWN
-      }
-      //voit de la lumière en arrière
-      else if(sensors == SENSOR_LUM_AR){
-        //Change état à LIFT DOWN
-      }
-      //2 capteurs de lumière ont la même valeur
-      else if(sensors == DOUBLE_LUM /*ET le lift up est terminer*/){
-        //Change état à MAINTIENT POSITION
-      }
-      //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR ){
-        //Change état à LIFT DOWN,
-      }
-      else
-        //ERROR
-      break;
+    
       //si l'état est à MAINTIENT Position
     case MAINTIENT_POSITION:
       //et le robot voit rien
       if(sensors == AUCUN){
-        //Change état à LIFT DOWN
-      }
-      //voit un mur à droite
-      else if(sensors == IR_DROITE){
-        //Change état à LIFT DOWN
-      }
-      //voit un mur à gauche
-      else if(sensors == IR_GAUCHE){
         //Change état à LIFT DOWN
       }
       //voit de la lumière en avant
@@ -383,10 +254,6 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == DOUBLE_LUM){
         //Garde son état actuel
       }
-      //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR){
-        ////Change état à LIFT DOWN
-      }
       else
         //ERROR
       break;
@@ -394,14 +261,6 @@ void etat_machine_run(uint8_t sensors)
     case LIFT_DOWN:
     //et le robot voit rien
       if(sensors == AUCUN){
-        //Garde état à LIFT DOWN
-      }
-      //voit un mur à droite
-      else if(sensors == IR_DROITE){
-        //Garde état à LIFT DOWN
-      }
-      //voit un mur à gauche
-      else if(sensors == IR_GAUCHE){
         //Garde état à LIFT DOWN
       }
       //voit de la lumière en avant
@@ -421,12 +280,8 @@ void etat_machine_run(uint8_t sensors)
         //Garde état à LIFT DOWN
       }
       //2 capteurs de lumière ont la même valeur
-      else if(sensors == DOUBLE_LUM /*ET le lift down est terminer*/){
-        //Change état à MAINTIENT POSITION ou à LIFT UP
-      }
-      //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR ){
-        //Garde état à LIFT DOWN,
+      else if(sensors == DOUBLE_LUM ){
+        //Change état à MAINTIENT POSITION
       }
       else
         //ERROR
