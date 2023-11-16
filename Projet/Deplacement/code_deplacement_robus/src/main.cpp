@@ -47,10 +47,10 @@ void deplacement_lumiere() {
   }
 
 
-  if(DetecteurLumiere1()=lumiere_attendue && 
-     DetecteurLumiere2()=lumiere_attendue && 
-     DetecteurLumiere3()=lumiere_attendue && 
-     DetecteurLumiere4()=lumiere_attendue) 
+  if(DetecteurLumiere1()==lumiere_attendue && 
+     DetecteurLumiere2()==lumiere_attendue && 
+     DetecteurLumiere3()==lumiere_attendue && 
+     DetecteurLumiere4()==lumiere_attendue) 
   {
    // stop;
   }

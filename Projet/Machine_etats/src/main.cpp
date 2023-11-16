@@ -57,9 +57,13 @@ enum Sensors_enum
 /************************* DÉCLARATIONS DE FONCTIONS. *************************/
 void etat_machine_run(uint8_t sensors);
 uint8_t gestionCapteurs();
+<<<<<<< HEAD
 void bougerAvance();
 void bougerDroite();
 void bougerGauche();
+=======
+int* LectureCaptLum();
+>>>>>>> 75abf9732fde5ce8c27e1cc30ca3f2a0960bdadd
 /************************* VALEURS GLOBALS. *************************/
 //struct robot sparx;
 
@@ -94,6 +98,46 @@ void loop() {
  */
 uint8_t gestionCapteurs() {
   /* code pour appeler les différent capteurs ça va tout aller icite*/
+   int*p=LectureCaptLum();
+ int capMaxLu=0;
+ int emplacement;
+ int emplacementMax;
+ int lum_pref=1000;
+ for(emplacement=0;emplacement<4;emplacement++)
+ {
+  if(p[emplacement]>capMaxLu)
+  {
+    capMaxLu=p[emplacement];
+    emplacementMax=emplacement;
+  }
+
+  if(capMaxLu==lum_pref)
+  {
+    for(emplacement=0; emplacement<4; emplacement++)
+    {
+      if(p[emplacement]>capMaxLu-70)
+      emplacementMax=4;
+    }
+  }
+  p[emplacementMax];
+ }
+ switch(emplacementMax)
+ {
+  case 0:
+  return(SENSOR_LUM_AV);
+
+  case 1:
+  return(SENSOR_LUM_DR);
+
+  case 2:
+  return(SENSOR_LUM_GA);
+
+  case 3:
+  return(SENSOR_LUM_AR);
+
+  case 4:
+  return(DOUBLE_LUM);
+ }
   return AUCUN;
 }
 
@@ -147,7 +191,49 @@ void etat_machine_run(uint8_t sensors)
     //Henri
     case AVANCE:
       break;
- 
+
+ //si l'état est à tourne 180
+    case TOURNE_180:
+      //et le robot voit rien
+      if(sensors == AUCUN){
+        //Garde état à tourne 180
+      }
+      //voit un mur à droite
+      else if(sensors == IR_DROITE){
+        //Garde état à tourne 180
+      }
+      //voit un mur à gauche
+      else if(sensors == IR_GAUCHE){
+        //Garde état à tourne 180
+      }
+      //voit de la lumière en avant
+      else if(sensors == SENSOR_LUM_AV){
+        //Garde état à tourne 180
+      }
+      //voit de la lumière à droite
+      else if(sensors == SENSOR_LUM_DR){
+        //Garde état à tourne 180
+      }
+      //voit de la lumière à gauche
+      else if(sensors == SENSOR_LUM_GA){
+        //Garde état à tourne 180
+      }
+      //voit de la lumière en arrière
+      else if(sensors == SENSOR_LUM_AR){
+        //Garde état à tourne 180
+      }
+      //2 capteurs de lumière ont la même valeur
+      else if(sensors == DOUBLE_LUM){
+        //Change état à STOP
+      }
+      //2 capteurs IR voient quelque chose
+      else if(sensors == BOTH_IR){
+        //Garde état à tourne 180
+      }
+      else
+        //ERROR
+      break;
+
     //si l'état est à tourne à droite
     case TOURNE_DROITE:
       //et le robot voit rien
@@ -189,7 +275,8 @@ void etat_machine_run(uint8_t sensors)
       else
         //ERROR
       break;
-    //Édouard
+
+    //si l'état est à tourne gauche
     case TOURNE_GAUCHE:
     //et le robot voit rien
       if(sensors == AUCUN){
@@ -230,12 +317,65 @@ void etat_machine_run(uint8_t sensors)
       else
         //ERROR
       break;
+
+       //si l'état est LIFT UP
+    case LIFT_UP:
+    //et le robot voit rien
+      if(sensors == AUCUN){
+        //Garde état à LIFT UP
+      }
+       //voit un mur à droite
+      else if(sensors == IR_DROITE){
+        //Garde état à LIFT UP
+      }
+      //voit un mur à gauche
+      else if(sensors == IR_GAUCHE){
+        //Garde état à  LIFT UP
+      }
+      //voit de la lumière en avant
+      else if(sensors == SENSOR_LUM_AV){
+        //Garde état à LIFT UP
+      }
+      //voit de la lumière à droite
+      else if(sensors == SENSOR_LUM_DR){
+        //Garde état à LIFT UP
+      }
+      //voit de la lumière à gauche
+      else if(sensors == SENSOR_LUM_GA){
+        //Garde état à LIFT UP
+      }
+      //voit de la lumière en arrière
+      else if(sensors == SENSOR_LUM_AR){
+        //Garde état à LIFT UP
+      }
+      //2 capteurs de lumière ont la même valeur
+      else if(sensors == DOUBLE_LUM ){
+        //Garde état à LIFT UP
+      }
+       //2 capteurs IR voient quelque chose
+      else if(sensors == BOTH_IR){
+        //Garde état à LIFT UP
+      }
+      else
+        //ERROR
+      break;
     
       //si l'état est à MAINTIENT Position
     case MAINTIENT_POSITION:
       //et le robot voit rien
+      //Vérifie si sa roation est fini
+      if(sensors == ROTATION_LIFT){
+        //Les autres se vérifie seulement au moment là
       if(sensors == AUCUN){
         //Change état à LIFT DOWN
+      }
+      //voit un mur à droite
+      else if(sensors == IR_DROITE){
+        //Change état à LIFT DOWN
+      }
+      //voit un mur à gauche
+      else if(sensors == IR_GAUCHE){
+        //CHANGE état à  LIFT DOWN
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
@@ -255,16 +395,26 @@ void etat_machine_run(uint8_t sensors)
       }
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM){
-        //Garde son état actuel
+        //Garde son état MAINTIENT Position
       }
-      else
+      
+      else{
         //ERROR
+      }
       break;
     //si l'état est LIFT DOWN
     case LIFT_DOWN:
     //et le robot voit rien
       if(sensors == AUCUN){
         //Garde état à LIFT DOWN
+      }
+       //voit un mur à droite
+      else if(sensors == IR_DROITE){
+        //Garde état à LIFT DOWN
+      }
+      //voit un mur à gauche
+      else if(sensors == IR_GAUCHE){
+        //Garde état à  LIFT DOWN
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
@@ -285,6 +435,10 @@ void etat_machine_run(uint8_t sensors)
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM ){
         //Change état à MAINTIENT POSITION
+      }
+       //2 capteurs IR voient quelque chose
+      else if(sensors == BOTH_IR){
+        //Garde état à LIFT DOWN
       }
       else
         //ERROR
@@ -332,6 +486,7 @@ void etat_machine_run(uint8_t sensors)
       break;
       }
     }
+<<<<<<< HEAD
   }
 
 void bougerAvant()
@@ -348,4 +503,20 @@ void bougerGauche()
 {
   MOTOR_SetSpeed(RIGHT, 0.1);
   MOTOR_SetSpeed(LEFT, -0.1);
+=======
+}
+
+int* LectureCaptLum() 
+{
+  int valeur_capteur[4];
+  int pin_analogue[4] = {A0,A1,A2,A3};
+  int i;
+
+
+  for(i=0; i<4 ;i++)
+  { 
+    valeur_capteur[i]=analogRead(pin_analogue[i]);
+  }
+  return(valeur_capteur);
+>>>>>>> 75abf9732fde5ce8c27e1cc30ca3f2a0960bdadd
 }
