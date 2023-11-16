@@ -57,6 +57,9 @@ enum Sensors_enum
 /************************* DÉCLARATIONS DE FONCTIONS. *************************/
 void etat_machine_run(uint8_t sensors);
 uint8_t gestionCapteurs();
+void bougerAvance();
+void bougerDroite();
+void bougerGauche();
 /************************* VALEURS GLOBALS. *************************/
 //struct robot sparx;
 
@@ -330,3 +333,19 @@ void etat_machine_run(uint8_t sensors)
       }
     }
   }
+
+void bougerAvant()
+{
+  MOTOR_SetSpeed(RIGHT, 0.1);
+  MOTOR_SetSpeed(LEFT, 0.1);
+}
+void bougerDroite()
+{
+  MOTOR_SetSpeed(RIGHT, -0.1);
+  MOTOR_SetSpeed(LEFT, 0.1);
+}
+void bougerGauche()
+{
+  MOTOR_SetSpeed(RIGHT, 0.1);
+  MOTOR_SetSpeed(LEFT, -0.1);
+}
