@@ -228,7 +228,43 @@ void etat_machine_run(uint8_t sensors)
         //ERROR
       break;
     //Antoine
+    //si l'état est à recule
     case RECULE:
+      //et le robot voit rien
+      if(sensors == AUCUN){
+        //Change état à recherche lumière
+      }
+      //voit un mur à droite
+      else if(sensors == IR_DROITE){
+        //Change état à STOP
+      }
+      //voit un mur à gauche
+      else if(sensors == IR_GAUCHE){
+        //change d'état à STOP
+      }
+      //voit de la lumière en avant
+      else if(sensors == SENSOR_LUM_AV){
+        //Change état à STOP
+      }
+      //voit de la lumière à droite
+      else if(sensors == SENSOR_LUM_DR){
+        //change d'état à STOP
+      }
+      //voit de la lumière à gauche
+      else if(sensors == SENSOR_LUM_GA){
+        //Change état à STOP
+      }
+      //voit de la lumière en arrière
+      else if(sensors == SENSOR_LUM_AR){
+        //Garde son état recule
+      }
+      //2 capteurs de lumière ont la même valeur
+      else if(sensors == DOUBLE_LUM){
+        //Change état à STOP
+      }
+      //2 capteurs IR voient quelque chose
+      else if(sensors == BOTH_IR){
+        //Garde son état de recule
       break;
     //si l'état est tourne 180
     //Il faudrait rajouter une fonction qui regarde si le 180 du robot est complet...
@@ -400,6 +436,42 @@ void etat_machine_run(uint8_t sensors)
       break;
     //Antoine
     case RECHERCHE_LUMIERE:
+    //et le robot voit rien
+      if(sensors == AUCUN){
+        //Change état à recherche lumière
+      }
+      //voit un mur à droite
+      else if(sensors == IR_DROITE){
+        //Change état à STOP
+      }
+      //voit un mur à gauche
+      else if(sensors == IR_GAUCHE){
+        //Change d'état à STOP
+      }
+      //voit de la lumière en avant
+      else if(sensors == SENSOR_LUM_AV){
+        //Change état à STOP
+      }
+      //voit de la lumière à droite
+      else if(sensors == SENSOR_LUM_DR){
+        //change d'état à STOP
+      }
+      //voit de la lumière à gauche
+      else if(sensors == SENSOR_LUM_GA){
+        //Change état à STOP
+      }
+      //voit de la lumière en arrière
+      else if(sensors == SENSOR_LUM_AR){
+        //Change soon état à STOP
+      }
+      //2 capteurs de lumière ont la même valeur
+      else if(sensors == DOUBLE_LUM){
+        //Change état à stop
+      }
+      //2 capteurs IR voient quelque chose
+      else if(sensors == BOTH_IR){
+        //Change son état à STOP
       break;
+      }
+    }
   }
-}
