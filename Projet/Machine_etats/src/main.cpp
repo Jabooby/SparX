@@ -57,13 +57,10 @@ enum Sensors_enum
 /************************* DÉCLARATIONS DE FONCTIONS. *************************/
 void etat_machine_run(uint8_t sensors);
 uint8_t gestionCapteurs();
-<<<<<<< HEAD
 void bougerAvance();
 void bougerDroite();
 void bougerGauche();
-=======
 int* LectureCaptLum();
->>>>>>> 75abf9732fde5ce8c27e1cc30ca3f2a0960bdadd
 /************************* VALEURS GLOBALS. *************************/
 //struct robot sparx;
 
@@ -486,7 +483,6 @@ void etat_machine_run(uint8_t sensors)
       break;
       }
     }
-<<<<<<< HEAD
   }
 
 void bougerAvant()
@@ -503,7 +499,6 @@ void bougerGauche()
 {
   MOTOR_SetSpeed(RIGHT, 0.1);
   MOTOR_SetSpeed(LEFT, -0.1);
-=======
 }
 
 int* LectureCaptLum() 
@@ -518,5 +513,4 @@ int* LectureCaptLum()
     valeur_capteur[i]=analogRead(pin_analogue[i]);
   }
   return(valeur_capteur);
->>>>>>> 75abf9732fde5ce8c27e1cc30ca3f2a0960bdadd
 }
