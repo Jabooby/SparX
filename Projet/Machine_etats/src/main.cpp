@@ -109,7 +109,7 @@ uint8_t gestionCapteurs() {
   {
     for(emplacement=0; emplacement<4; emplacement++)
     {
-      if(p[emplacement]-70<capMaxLu)
+      if(p[emplacement]>capMaxLu-70)
       emplacementMax=4;
     }
   }
@@ -392,7 +392,7 @@ void etat_machine_run(uint8_t sensors)
         //Garde son état MAINTIENT Position
       }
       
-      else
+      else{
         //ERROR
       }
       break;
