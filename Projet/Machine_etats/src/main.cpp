@@ -57,6 +57,7 @@ enum Sensors_enum
 /************************* DÉCLARATIONS DE FONCTIONS. *************************/
 void etat_machine_run(uint8_t sensors);
 uint8_t gestionCapteurs();
+int* LectureCaptLum();
 /************************* VALEURS GLOBALS. *************************/
 //struct robot sparx;
 
@@ -91,6 +92,46 @@ void loop() {
  */
 uint8_t gestionCapteurs() {
   /* code pour appeler les différent capteurs ça va tout aller icite*/
+   int*p=LectureCaptLum();
+ int capMaxLu=0;
+ int emplacement;
+ int emplacementMax;
+ int lum_pref=1000;
+ for(emplacement=0;emplacement<4;emplacement++)
+ {
+  if(p[emplacement]>capMaxLu)
+  {
+    capMaxLu=p[emplacement];
+    emplacementMax=emplacement;
+  }
+
+  if(capMaxLu==lum_pref)
+  {
+    for(emplacement=0; emplacement<4; emplacement++)
+    {
+      if(p[emplacement]-70<capMaxLu)
+      emplacementMax=4;
+    }
+  }
+  p[emplacementMax];
+ }
+ switch(emplacementMax)
+ {
+  case 0:
+  return(SENSOR_LUM_AV);
+
+  case 1:
+  return(SENSOR_LUM_DR);
+
+  case 2:
+  return(SENSOR_LUM_GA);
+
+  case 3:
+  return(SENSOR_LUM_AR);
+
+  case 4:
+  return(DOUBLE_LUM);
+ }
   return AUCUN;
 }
 
@@ -329,4 +370,18 @@ void etat_machine_run(uint8_t sensors)
       break;
       }
     }
+}
+
+int* LectureCaptLum() 
+{
+  int valeur_capteur[4];
+  int pin_analogue[4] = {A0,A1,A2,A3};
+  int i;
+
+
+  for(i=0; i<4 ;i++)
+  { 
+    valeur_capteur[i]=analogRead(pin_analogue[i]);
   }
+  return(valeur_capteur);
+}
