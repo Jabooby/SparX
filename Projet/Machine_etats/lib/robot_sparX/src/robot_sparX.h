@@ -26,10 +26,6 @@
 #define TIMER_TIME          24 //en ms 
 #define COS_45_RAD          cos(45*DEG_TO_RAD)
 #define distance_entre_roues_m 0.19
-#define IR_GAUCHE           0
-#define IR_ROUGE            1
-#define IR_VERT             2
-#define IR_DROITE           3
 /************************* DECLARATION DES ÉTATS MACHINE *************************/
 
 /************************* DÉCLARATION DE STRUCTURE *************************/

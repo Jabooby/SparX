@@ -60,10 +60,14 @@ uint8_t gestionCapteurs();
 void bougerAvance();
 void bougerDroite();
 void bougerGauche();
-int* LectureCaptLum();
-/************************* VALEURS GLOBALS. *************************/
-//struct robot sparx;
+void LectureCaptLum(int* valeur);
 
+/************************* VALEURS GLOBALS. *************************/
+struct robot sparx;
+int avantpin = A5;
+int arrierepin = A6;
+int gauchepin = A7;
+int droitepin = A8;
 /************************* SETUP. *************************/
 
 void setup() {
@@ -80,6 +84,7 @@ void loop() {
   if (sparx.timerRunning && ((millis() - sparx.startTimer) > TIMER_TIME))
   {
     etat_machine_run(gestionCapteurs());
+    //Serial.println(gestionCapteurs());
   }
 }
 
@@ -93,27 +98,29 @@ void loop() {
  * @return uint8_t: la fonction retourne quels capteurs sont présentement actif selon un ordre de priorité. Pas besoin de retourner SENSOR_LUM_AV si
  * le robot détecte aussi un mu en avant
  */
-uint8_t gestionCapteurs() {
-  /* code pour appeler les différent capteurs ça va tout aller icite*/
-   int*p=LectureCaptLum();
+uint8_t gestionCapteurs() 
+{
+  /* code pour appeler les différent capteurs ça va tout aller ici*/
  int capMaxLu=0;
  int emplacement;
  int emplacementMax;
  int lum_pref=1000;
+ int valeur_capteur[4];
+ LectureCaptLum(valeur_capteur);
  for(emplacement=0;emplacement<4;emplacement++)
  {
-  if(p[emplacement]>capMaxLu)
+  if(valeur_capteur[emplacement]>capMaxLu)
   {
-    capMaxLu=p[emplacement];
+    capMaxLu=valeur_capteur[emplacement];
     emplacementMax=emplacement;
   }
 
-  if(capMaxLu==lum_pref)
+  if(capMaxLu>lum_pref)
   {
     for(emplacement=0; emplacement<4; emplacement++)
     {
-      if(p[emplacement]>=capMaxLu-70 && emplacement!=emplacementMax)
-      emplacementMax=4;
+      if(valeur_capteur[emplacement]>=capMaxLu-70 && emplacement!=emplacementMax)
+      emplacementMax=4;  
     }
   }
  }
@@ -135,46 +142,48 @@ uint8_t gestionCapteurs() {
   return(DOUBLE_LUM);
  }
   return AUCUN;
-}
+  }
 
 void etat_machine_run(uint8_t sensors) 
 {
   //selon l'état du robot
+   //Serial.print("État robot: "), Serial.println(sparx.etat);
+   //Serial.print("Sensors robot: "), Serial.println(sensors);
   switch(sparx.etat)
   {
     //si l'état est à STOP
     case STOP:
       //et le robot voit rien
       if(sensors == AUCUN){
-        //Change état à recherche lumière
+        Serial.println("Je recherche la lumière");
       }
       //voit un mur à droite
-      else if(sensors == IR_DROITE){
+      else if(sensors == SENSOR_IR_DR){
         //Change état à tourne gauche
       }
       //voit un mur à gauche
-      else if(sensors == IR_GAUCHE){
+      else if(sensors == SENSOR_IR_GA){
         //Change état à tourne droite
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
-        //Change état à avance tout droit
+        Serial.println("je vais tout droit");
       }
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
-        //Change état à tourne droite
+        Serial.println("Je vais à droite");
       }
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
-        //Change état à tourne gauche
+        Serial.println("Je vais à gauche");
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
-        //Change état à recule ou 180
+        Serial.println("180");
       }
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM){
-        //Change état à LIFT UP
+        Serial.println("Je lift up");
       }
       //2 capteurs IR voient quelque chose
       else if(sensors == BOTH_IR){
@@ -195,11 +204,11 @@ void etat_machine_run(uint8_t sensors)
         //Garde état à tourne 180
       }
       //voit un mur à droite
-      else if(sensors == IR_DROITE){
+      else if(sensors == SENSOR_IR_DR){
         //Garde état à tourne 180
       }
       //voit un mur à gauche
-      else if(sensors == IR_GAUCHE){
+      else if(sensors == SENSOR_IR_GA){
         //Garde état à tourne 180
       }
       //voit de la lumière en avant
@@ -237,11 +246,11 @@ void etat_machine_run(uint8_t sensors)
         //Change état à STOP
       }
       //voit un mur à droite
-      else if(sensors == IR_DROITE){
+      else if(sensors == SENSOR_IR_DR){
         //Change état à STOP
       }
       //voit un mur à gauche
-      else if(sensors == IR_GAUCHE){
+      else if(sensors == SENSOR_IR_GA){
         //Garde état à tourne droite
       }
       //voit de la lumière en avant
@@ -279,11 +288,11 @@ void etat_machine_run(uint8_t sensors)
         //Change état à STOP
       }
       //voit un mur à droite
-      else if(sensors == IR_DROITE){
+      else if(sensors == SENSOR_IR_DR){
         //Garde état à tourne gauche
       }
       //voit un mur à gauche
-      else if(sensors == IR_GAUCHE){
+      else if(sensors == SENSOR_IR_GA){
         //Change état à STOP
       }
       //voit de la lumière en avant
@@ -321,11 +330,11 @@ void etat_machine_run(uint8_t sensors)
         //Garde état à LIFT UP
       }
        //voit un mur à droite
-      else if(sensors == IR_DROITE){
+      else if(sensors == SENSOR_IR_DR){
         //Garde état à LIFT UP
       }
       //voit un mur à gauche
-      else if(sensors == IR_GAUCHE){
+      else if(sensors == SENSOR_IR_GA){
         //Garde état à  LIFT UP
       }
       //voit de la lumière en avant
@@ -366,11 +375,11 @@ void etat_machine_run(uint8_t sensors)
         //Change état à LIFT DOWN
       }
       //voit un mur à droite
-      else if(sensors == IR_DROITE){
+      else if(sensors == SENSOR_IR_DR){
         //Change état à LIFT DOWN
       }
       //voit un mur à gauche
-      else if(sensors == IR_GAUCHE){
+      else if(sensors == SENSOR_IR_GA){
         //CHANGE état à  LIFT DOWN
       }
       //voit de la lumière en avant
@@ -405,11 +414,11 @@ void etat_machine_run(uint8_t sensors)
         //Garde état à LIFT DOWN
       }
        //voit un mur à droite
-      else if(sensors == IR_DROITE){
+      else if(sensors == SENSOR_IR_DR){
         //Garde état à LIFT DOWN
       }
       //voit un mur à gauche
-      else if(sensors == IR_GAUCHE){
+      else if(sensors == SENSOR_IR_GA){
         //Garde état à  LIFT DOWN
       }
       //voit de la lumière en avant
@@ -449,11 +458,11 @@ void etat_machine_run(uint8_t sensors)
         //Change état à recherche lumière
       }
       //voit un mur à droite
-      else if(sensors == IR_DROITE){
+      else if(sensors == SENSOR_IR_DR){
         //Change état à STOP
       }
       //voit un mur à gauche
-      else if(sensors == IR_GAUCHE){
+      else if(sensors == SENSOR_IR_GA){
         //Change d'état à STOP
       }
       //voit de la lumière en avant
@@ -501,21 +510,15 @@ void bougerGauche()
   MOTOR_SetSpeed(LEFT, -0.1);
 }
 
-int* LectureCaptLum() {
-  int* valeur_capteur = (int*)malloc(4 * sizeof(int)); // Allouer de la mémoire
+void LectureCaptLum(int* valeur) {
 
-  if (valeur_capteur == NULL)
-  {
-    return NULL;
-  }
-
-  int pin_analogue[4] = {A0,A1,A2,A3};
+  int pin_analogue[4] = {A5,A8,A7,A6}; //A5 = Avant,  A6 = Arrière, A7 = Gauche, A8 = Droite
   int i;
 
 
   for(i=0; i<4 ;i++)
   { 
-    valeur_capteur[i]=analogRead(pin_analogue[i]);//valeurs pour les 4 capteurs
+    valeur[i]=analogRead(pin_analogue[i]); //valeurs pour les 4 capteurs
+    //Serial.println(valeur_capteur[i]);
   }
-  return valeur_capteur;
 }
