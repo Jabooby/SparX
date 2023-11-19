@@ -112,7 +112,7 @@ uint8_t gestionCapteurs() {
   {
     for(emplacement=0; emplacement<4; emplacement++)
     {
-      if(p[emplacement]>capMaxLu-70)
+      if(p[emplacement]>=capMaxLu-70 && emplacement!=emplacementMax)
       emplacementMax=4;
     }
   }
@@ -515,7 +515,7 @@ int* LectureCaptLum() {
 
   for(i=0; i<4 ;i++)
   { 
-    valeur_capteur[i]=analogRead(pin_analogue[i]);
+    valeur_capteur[i]=analogRead(pin_analogue[i]);//valeurs pour les 4 capteurs
   }
   return valeur_capteur;
 }
