@@ -424,6 +424,7 @@ void etat_machine_run(uint8_t sensors)
       //Vérifie si sa roation est fini
       if(sensors == 0/*ROTATION_LIFT*/){
         //Les autres se vérifie seulement au moment là
+      }
       if(sensors == AUCUN){
         //Change état à LIFT DOWN
       }
@@ -502,8 +503,8 @@ void etat_machine_run(uint8_t sensors)
         //ERROR
       break;
     //Henri
-    case MANUEL:
-      /*if (fct_BT == 'F'){
+    /*case MANUEL:
+      if (fct_BT == 'F'){
           bougerAvance();
         } 
         else if (fct_BT == 'L'){
@@ -518,8 +519,7 @@ void etat_machine_run(uint8_t sensors)
 
 
       break;
-    //Antoine
-    /*case RECHERCHE_LUMIERE:
+    case RECHERCHE_LUMIERE:
     //et le robot voit rien
       if(sensors == AUCUN){
         //Change état à recherche lumière
@@ -557,10 +557,9 @@ void etat_machine_run(uint8_t sensors)
         //Change son état à STOP
       break;
       }
-      */
-    }
+    }*/
   }
-}
+  }
 
 void bougerAvance()
 {
