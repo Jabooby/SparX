@@ -21,7 +21,7 @@ float gethumid() //Permet d'avoir le "Raw Data" du détecteur d'humidité
 float calcul() //Transforme le "Raw Data en pourcentage"
 {
   float val2;
-  val2 = (((gethumid()-781.0)/-422.0)*100);
+  val2 = (((gethumid()-440.0)/-334.0)*100);
   return val2;
 
 }

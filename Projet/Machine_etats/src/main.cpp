@@ -155,7 +155,8 @@ void etat_machine_run(uint8_t sensors)
     case STOP:
       //et le robot voit rien
       if(sensors == AUCUN){
-        Serial.println("Je recherche la lumière");
+        
+        //Serial.println("Je recherche la lumière");
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
@@ -167,23 +168,31 @@ void etat_machine_run(uint8_t sensors)
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
-        Serial.println("je vais tout droit");
+        bougerAvance();
+        sparx.etat = AVANCE;
+        //Serial.println("je vais tout droit");
       }
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
-        Serial.println("Je vais à droite");
+        bougerDroite();
+        sparx.etat = TOURNE_DROITE;
+        //Serial.println("Je vais à droite");
       }
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
-        Serial.println("Je vais à gauche");
+        bougerGauche();
+        sparx.etat = TOURNE_GAUCHE;
+        //Serial.println("Je vais à gauche");
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
+        
         Serial.println("180");
       }
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM){
-        Serial.println("Je lift up");
+        sparx.etat = LIFT_UP;
+        //Serial.println("Je lift up");
       }
       //2 capteurs IR voient quelque chose
       else if(sensors == BOTH_IR){
@@ -494,7 +503,7 @@ void etat_machine_run(uint8_t sensors)
   }
 }
 
-void bougerAvant()
+void bougerAvance()
 {
   MOTOR_SetSpeed(RIGHT, 0.1);
   MOTOR_SetSpeed(LEFT, 0.1);
