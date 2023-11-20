@@ -155,8 +155,7 @@ void etat_machine_run(uint8_t sensors)
     case STOP:
       //et le robot voit rien
       if(sensors == AUCUN){
-        
-        //Serial.println("Je recherche la lumière");
+        sparx.etat = AVANCE;
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
@@ -206,40 +205,40 @@ void etat_machine_run(uint8_t sensors)
     case AVANCE:
     if(sensors == AUCUN){ 
         //Serial.println("Je recherche la lumière");
+        bougerAvance();
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
-        //Change état à STOP
-        
+        sparx.etat = STOP;
       }
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM){
-       
-        
+        sparx.etat = STOP;
       }
       //2 capteurs IR voient quelque chose
       else if(sensors == BOTH_IR){
         //Change état à recule ou 180
+        sparx.etat = STOP;
       }
       else
         //ERROR
@@ -500,7 +499,7 @@ void etat_machine_run(uint8_t sensors)
     case MANUEL:
       break;
     //Antoine
-    case RECHERCHE_LUMIERE:
+    /*case RECHERCHE_LUMIERE:
     //et le robot voit rien
       if(sensors == AUCUN){
         //Change état à recherche lumière
@@ -538,6 +537,7 @@ void etat_machine_run(uint8_t sensors)
         //Change son état à STOP
       break;
       }
+      */
     }
   }
 }
