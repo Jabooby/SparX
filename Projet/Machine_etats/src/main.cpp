@@ -61,6 +61,9 @@ void bougerAvance();
 void bougerDroite();
 void bougerGauche();
 void LectureCaptLum(int* valeur);
+void Demitour();
+void getangle(float angle);
+void stop();
 
 /************************* VALEURS GLOBALES. *************************/
 struct robot sparx;
@@ -68,6 +71,7 @@ int avantpin = A5;
 int arrierepin = A6;
 int gauchepin = A7;
 int droitepin = A8;
+bool demitour = false;
 /************************* SETUP. *************************/
 
 void setup() {
@@ -159,10 +163,17 @@ void etat_machine_run(uint8_t sensors)
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
+<<<<<<< Updated upstream
         //Change état à tourne gauche
+=======
+        bougerGauche();
+        sparx.etat = TOURNE_GAUCHE;
+>>>>>>> Stashed changes
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
+        bougerDroite();
+        sparx.etat = TOURNE_DROITE;
         //Change état à tourne droite
       }
       //voit de la lumière en avant
@@ -185,8 +196,12 @@ void etat_machine_run(uint8_t sensors)
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
+<<<<<<< Updated upstream
         
         Serial.println("180");
+=======
+        Demitour();
+>>>>>>> Stashed changes
         sparx.etat = TOURNE_180;
       }
       //2 capteurs de lumière ont la même valeur
@@ -571,6 +586,42 @@ void bougerGauche()
 {
   MOTOR_SetSpeed(RIGHT, 0.1);
   MOTOR_SetSpeed(LEFT, -0.1);
+}
+void stop()
+{
+  MOTOR_SetSpeed(RIGHT, 0);
+  MOTOR_SetSpeed(LEFT, 0);
+}
+void Demitour()
+{
+  
+  while(!demitour)
+  {
+    bougerDroite();
+    getangle(180.0);
+  }
+  stop();
+  ENCODER_ReadReset(0);
+  ENCODER_ReadReset(1);
+  demitour = false;
+}
+
+  void getangle(float angle)
+  {
+  float coefficient = 360.0 /angle ;
+  float circonference = (22.0*PI);
+  float distance = (circonference/coefficient);
+  float nbtours = (distance/23.93);
+  float nbpulses = (nbtours*3200.0);
+  Serial.println((int)nbpulses);
+  int moteur_droit = ENCODER_Read(1);
+
+  if (abs(moteur_droit) > (nbpulses-10))
+  {
+    Serial.println("fin de 180");
+    demitour = true;
+  }
+
 }
 
 void LectureCaptLum(int* valeur) {
