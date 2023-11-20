@@ -204,6 +204,45 @@ void etat_machine_run(uint8_t sensors)
        
     //Henri
     case AVANCE:
+    if(sensors == AUCUN){ 
+        //Serial.println("Je recherche la lumière");
+      }
+      //voit un mur à droite
+      else if(sensors == SENSOR_IR_DR){
+        //Change état à STOP
+      }
+      //voit un mur à gauche
+      else if(sensors == SENSOR_IR_GA){
+        //Change état à STOP
+      }
+      //voit de la lumière en avant
+      else if(sensors == SENSOR_LUM_AV){
+        //Change état à STOP
+      }
+      //voit de la lumière à droite
+      else if(sensors == SENSOR_LUM_DR){
+        //Change état à STOP
+      }
+      //voit de la lumière à gauche
+      else if(sensors == SENSOR_LUM_GA){
+        //Change état à STOP
+      }
+      //voit de la lumière en arrière
+      else if(sensors == SENSOR_LUM_AR){
+        //Change état à STOP
+        
+      }
+      //2 capteurs de lumière ont la même valeur
+      else if(sensors == DOUBLE_LUM){
+       
+        
+      }
+      //2 capteurs IR voient quelque chose
+      else if(sensors == BOTH_IR){
+        //Change état à recule ou 180
+      }
+      else
+        //ERROR
       break;
 
  //si l'état est à tourne 180
