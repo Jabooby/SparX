@@ -163,12 +163,7 @@ void etat_machine_run(uint8_t sensors)
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
-<<<<<<< Updated upstream
         //Change état à tourne gauche
-=======
-        bougerGauche();
-        sparx.etat = TOURNE_GAUCHE;
->>>>>>> Stashed changes
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
@@ -196,12 +191,7 @@ void etat_machine_run(uint8_t sensors)
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
-<<<<<<< Updated upstream
-        
-        Serial.println("180");
-=======
         Demitour();
->>>>>>> Stashed changes
         sparx.etat = TOURNE_180;
       }
       //2 capteurs de lumière ont la même valeur
