@@ -159,7 +159,8 @@ void etat_machine_run(uint8_t sensors)
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
-        //Change état à tourne gauche
+        bougerDroite();
+        sparx.etat = TOURNE_DROITE;
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
