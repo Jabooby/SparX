@@ -62,7 +62,7 @@ void bougerDroite();
 void bougerGauche();
 void LectureCaptLum(int* valeur);
 
-/************************* VALEURS GLOBALS. *************************/
+/************************* VALEURS GLOBALES. *************************/
 struct robot sparx;
 int avantpin = A5;
 int arrierepin = A6;
@@ -93,10 +93,10 @@ void loop() {
 /*
  * @brief Fonction qui va gérer toutes les intéractions avec les capteurs. On parle ici
  * de lecture de capteurs, stockage de données (aux besoins), gestion de priorité. 
- * ** Les capteurs IR de distances ont toujours priorités aux restants**
+ * ** Les capteurs IR de distances ont toujours priorités par rapport au restant**
  * @param rien
- * @return uint8_t: la fonction retourne quels capteurs sont présentement actif selon un ordre de priorité. Pas besoin de retourner SENSOR_LUM_AV si
- * le robot détecte aussi un mu en avant
+ * @return uint8_t: la fonction retourne quels capteurs sont présentement actifs selon un ordre de priorité. Pas besoin de retourner SENSOR_LUM_AV si
+ * le robot détecte aussi un mur en avant
  */
 uint8_t gestionCapteurs() 
 {
@@ -159,8 +159,7 @@ void etat_machine_run(uint8_t sensors)
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
-        bougerDroite();
-        sparx.etat = TOURNE_DROITE;
+        //Change état à tourne gauche
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
@@ -188,6 +187,7 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == SENSOR_LUM_AR){
         
         Serial.println("180");
+        sparx.etat = TOURNE_180;
       }
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM){
@@ -253,35 +253,35 @@ void etat_machine_run(uint8_t sensors)
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
-        //Garde état à tourne 180
+        sparx.etat = STOP;
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
-        //Garde état à tourne 180
+        sparx.etat = STOP;
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
-        //Garde état à tourne 180
+        sparx.etat = STOP;
       }
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
-        //Garde état à tourne 180
+        sparx.etat = STOP;
       }
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
-        //Garde état à tourne 180
+        sparx.etat = STOP;//pp
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
-        //Garde état à tourne 180
+        sparx.etat = STOP;
       }
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //2 capteurs IR voient quelque chose
       else if(sensors == BOTH_IR){
-        //Garde état à tourne 180
+        sparx.etat = STOP;
       }
       else
         //ERROR
@@ -291,39 +291,39 @@ void etat_machine_run(uint8_t sensors)
     case TOURNE_DROITE:
       //et le robot voit rien
       if(sensors == AUCUN){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
-        //Garde état à tourne droite
+        sparx.etat = STOP;
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
-        //Garde son état à STOP
+        sparx.etat = STOP;
       }
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //2 capteurs IR voient quelque chose
       else if(sensors == BOTH_IR){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       else
         //ERROR
@@ -333,39 +333,39 @@ void etat_machine_run(uint8_t sensors)
     case TOURNE_GAUCHE:
     //et le robot voit rien
       if(sensors == AUCUN){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
-        //Garde état à tourne gauche
+        sparx.etat = STOP;
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
-        //Garde son état tourne à gauche
+        sparx.etat = STOP;
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       //2 capteurs IR voient quelque chose
       else if(sensors == BOTH_IR){
-        //Change état à STOP
+        sparx.etat = STOP;
       }
       else
         //ERROR
@@ -498,6 +498,20 @@ void etat_machine_run(uint8_t sensors)
       break;
     //Henri
     case MANUEL:
+      /*if (fct_BT == 'F'){
+          bougerAvance();
+        } 
+        else if (fct_BT == 'L'){
+          bougerGauche();
+        }
+        else if (fct_BT == 'R'){
+          bougerDroite();
+        }
+        else
+          //ERROR
+        break;
+
+
       break;
     //Antoine
     /*case RECHERCHE_LUMIERE:
