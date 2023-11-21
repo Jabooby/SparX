@@ -210,7 +210,7 @@ void etat_machine_run(uint8_t sensors)
 {
   //selon l'état du robot
    //Serial.print("État robot: "), Serial.println(sparx.etat);
-   //Serial.print("Sensors robot: "), Serial.println(sensors);
+   Serial.print("Sensors robot: "), Serial.println(sensors);
   switch(sparx.etat)
   {
     //si l'état est à STOP
@@ -621,18 +621,18 @@ void etat_machine_run(uint8_t sensors)
 
 void bougerAvance()
 {
-  MOTOR_SetSpeed(RIGHT, 0.1);
-  MOTOR_SetSpeed(LEFT, 0.1);
+  MOTOR_SetSpeed(RIGHT, 0.15);
+  MOTOR_SetSpeed(LEFT, 0.15);
 }
 void bougerDroite()
 {
-  MOTOR_SetSpeed(RIGHT, -0.1);
-  MOTOR_SetSpeed(LEFT, 0.1);
+  MOTOR_SetSpeed(RIGHT, -0.15);
+  MOTOR_SetSpeed(LEFT, 0.15);
 }
 void bougerGauche()
 {
-  MOTOR_SetSpeed(RIGHT, 0.1);
-  MOTOR_SetSpeed(LEFT, -0.1);
+  MOTOR_SetSpeed(RIGHT, 0.15);
+  MOTOR_SetSpeed(LEFT, -0.15);
 }
 void stop()
 {
@@ -665,7 +665,7 @@ void Demitour()
 
   if (abs(moteur_droit) > (nbpulses-10))
   {
-    Serial.println("fin de 180");
+    //Serial.println("fin de 180");
     demitour = true;
   }
 
