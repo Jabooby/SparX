@@ -104,7 +104,12 @@ void loop() {
  */
 uint8_t gestionCapteurs() 
 {
-  /* code pour appeler les différent capteurs ça va tout aller ici*/
+ 
+}
+
+uint8_t gestionLumiere()
+{
+   /* code pour appeler les différent capteurs ça va tout aller ici*/
  int capMaxLu=0;
  int emplacement;
  int emplacementMax;
@@ -146,7 +151,8 @@ uint8_t gestionCapteurs()
   return(DOUBLE_LUM);
  }
   return AUCUN;
-  }
+}
+
 
 void etat_machine_run(uint8_t sensors) 
 {
