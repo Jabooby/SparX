@@ -64,6 +64,7 @@ void LectureCaptLum(int* valeur);
 void Demitour();
 void getangle(float angle);
 void stop();
+uint8_t gestionLumiere();
 
 /************************* VALEURS GLOBALES. *************************/
 struct robot sparx;
@@ -104,31 +105,88 @@ void loop() {
  */
 uint8_t gestionCapteurs() 
 {
-  /* code pour appeler les différent capteurs ça va tout aller ici*/
- int capMaxLu=0;
- int emplacement;
- int emplacementMax;
- int lum_pref=1000;
- int valeur_capteur[4];
- LectureCaptLum(valeur_capteur);
- for(emplacement=0;emplacement<4;emplacement++)
- {
-  if(valeur_capteur[emplacement]>capMaxLu)
+  uint8_t retourLum = gestionLumiere();
+  uint8_t retourIR = AUCUN;
+  if(retourIR != AUCUN)
   {
-    capMaxLu=valeur_capteur[emplacement];
-    emplacementMax=emplacement;
+    return(retourIR);
   }
+  else
+    return(retourLum);
+}
 
-  if(capMaxLu>lum_pref)
+uint8_t gestionLumiere()
+{
+   /* code pour appeler les différent capteurs ça va tout aller ici*/
+  int capMaxLu=0;
+  int emplacement;
+  int emplacementMax;
+  int lum_pref=1000; // valeur préféré de la plante
+  int valeur_capteur[4];
+  LectureCaptLum(valeur_capteur);
+  for(emplacement=0;emplacement<4;emplacement++)
   {
-    for(emplacement=0; emplacement<4; emplacement++)
+    if(valeur_capteur[emplacement]>capMaxLu)
     {
-      if(valeur_capteur[emplacement]>=capMaxLu-70 && emplacement!=emplacementMax)
-      emplacementMax=4;  
+      capMaxLu=valeur_capteur[emplacement];
+      emplacementMax=emplacement;
+    }
+
+    if(capMaxLu>lum_pref)
+    {
+      for(emplacement=0; emplacement<4; emplacement++)
+      {
+        if(valeur_capteur[emplacement]>=capMaxLu-70 && emplacement!=emplacementMax) //possibilité de changer le 70
+        emplacementMax=4;  
+      }
     }
   }
+  switch(emplacementMax)
+  {
+    case 0:
+      return(SENSOR_LUM_AV);
+      break;
+
+    case 1:
+      return(SENSOR_LUM_DR);
+      break;
+
+    case 2:
+      return(SENSOR_LUM_GA);
+      break;
+
+    case 3:
+      return(SENSOR_LUM_AR);
+      break;
+
+    case 4:
+      return(DOUBLE_LUM);
+      break;
+
+    default:
+      return AUCUN;
+      break;
+  }
+}
+
+uint8_t gestionIR()
+{
+   /* code pour appeler les 3 capteurs IR */
+ int distanceIR = 10;
+ int emplacement;
+ int emplacementCRIT;
+ int ValeursIR;
+ int valeur_capteur[3];
+ LectureCaptLum(valeur_capteur);
+ for(emplacement=0;emplacement<3;emplacement++)
+ {
+  if(valeur_capteur[emplacement]<=distanceIR)
+  {
+    ValeursIR=valeur_capteur[emplacement];
+    emplacementCRIT=emplacement; //capteur avant = 180 possibilité de rajouter droite ou gauche plus tard
+  }
  }
- switch(emplacementMax)
+ switch(emplacementCRIT)
  {
   case 0:
   return(SENSOR_LUM_AV);
@@ -146,7 +204,7 @@ uint8_t gestionCapteurs()
   return(DOUBLE_LUM);
  }
   return AUCUN;
-  }
+}
 
 void etat_machine_run(uint8_t sensors) 
 {
