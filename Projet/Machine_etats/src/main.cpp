@@ -153,6 +153,42 @@ uint8_t gestionLumiere()
   return AUCUN;
 }
 
+uint8_t gestionIR()
+{
+   /* code pour appeler les 3 capteurs IR */
+ int distanceIR = 10;
+ int emplacement;
+ int emplacementCRIT;
+ int ValeursIR;
+ int valeur_capteur[3];
+ LectureCaptLum(valeur_capteur);
+ for(emplacement=0;emplacement<3;emplacement++)
+ {
+  if(valeur_capteur[emplacement]<=distanceIR)
+  {
+    ValeursIR=valeur_capteur[emplacement];
+    emplacementCRIT=emplacement; //capteur avant = 180 possibilité de rajouter droite ou gauche plus tard
+  }
+ }
+ switch(emplacementCRIT)
+ {
+  case 0:
+  return(SENSOR_LUM_AV);
+
+  case 1:
+  return(SENSOR_LUM_DR);
+
+  case 2:
+  return(SENSOR_LUM_GA);
+
+  case 3:
+  return(SENSOR_LUM_AR);
+
+  case 4:
+  return(DOUBLE_LUM);
+ }
+  return AUCUN;
+}
 
 void etat_machine_run(uint8_t sensors) 
 {
