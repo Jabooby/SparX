@@ -105,14 +105,14 @@ void loop() {
  */
 uint8_t gestionCapteurs() 
 {
-  uint8_t retourLum = AUCUN;
+  uint8_t retourLum = gestionLumiere();
   uint8_t retourIR = AUCUN;
   if(retourIR != AUCUN)
   {
     return(retourIR);
   }
   else
-    return(gestionLumiere());
+    return(retourLum);
 }
 
 uint8_t gestionLumiere()
