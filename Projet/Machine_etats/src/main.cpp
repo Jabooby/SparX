@@ -121,7 +121,7 @@ uint8_t gestionLumiere()
   int capMaxLu=0;
   int emplacement;
   int emplacementMax;
-  int lum_pref=1000;
+  int lum_pref=1000; // valeur préféré de la plante
   int valeur_capteur[4];
   LectureCaptLum(valeur_capteur);
   for(emplacement=0;emplacement<4;emplacement++)
@@ -136,7 +136,7 @@ uint8_t gestionLumiere()
     {
       for(emplacement=0; emplacement<4; emplacement++)
       {
-        if(valeur_capteur[emplacement]>=capMaxLu-70 && emplacement!=emplacementMax)
+        if(valeur_capteur[emplacement]>=capMaxLu-70 && emplacement!=emplacementMax) //possibilité de changer le 70
         emplacementMax=4;  
       }
     }
