@@ -186,24 +186,32 @@ uint8_t gestionIR()
     emplacementCRIT=emplacement; //capteur avant = 180 possibilité de rajouter droite ou gauche plus tard
   }
  }
- switch(emplacementCRIT)
- {
+  switch(emplacementCRIT)
+  {
   case 0:
-  return(SENSOR_LUM_AV);
+    return(SENSOR_LUM_AV);
+    break;
 
   case 1:
-  return(SENSOR_LUM_DR);
+    return(SENSOR_LUM_DR);
+    break;
 
   case 2:
-  return(SENSOR_LUM_GA);
+    return(SENSOR_LUM_GA);
+    break;
 
   case 3:
-  return(SENSOR_LUM_AR);
+    return(SENSOR_LUM_AR);
+    break;
 
   case 4:
-  return(DOUBLE_LUM);
- }
-  return AUCUN;
+    return(DOUBLE_LUM);
+    break;
+
+  default:
+    return AUCUN;
+    break;
+  }
 }
 
 void etat_machine_run(uint8_t sensors) 
