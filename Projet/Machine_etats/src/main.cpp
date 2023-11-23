@@ -217,15 +217,19 @@ uint8_t gestionIR()
   {
   case 0:
     return (SENSOR_IR_AV);
+    break;
 
   case 1:
     return (SENSOR_IR_DR);
+    break;
 
   case 2:
     return (SENSOR_IR_GA);
+    break;
 
   default: 
     return AUCUN;
+    break;
   }
 }
 
@@ -280,8 +284,8 @@ void etat_machine_run(uint8_t sensors)
         sparx.etat = LIFT_UP;
         //Serial.println("Je lift up");
       }
-      //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR){
+      //sensor IR avant détecte un mur
+      else if(sensors == SENSOR_IR_AV){
         //Change état à recule ou 180
       }
       //Bluetooth manuel
@@ -323,8 +327,8 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == SENSOR_LUM_AR){
         sparx.etat = STOP;
       }
-      //2 capteurs de lumière ont la même valeur
-      else if(sensors == DOUBLE_LUM){
+      //sensor IR avant détecte un mur
+      else if(sensors == SENSOR_IR_AV){
         sparx.etat = STOP;
       }
       //2 capteurs IR voient quelque chose
@@ -375,8 +379,8 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == DOUBLE_LUM){
         sparx.etat = STOP;
       }
-      //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR){
+      //sensor IR avant détecte un mur
+      else if(sensors == SENSOR_IR_AV){
         sparx.etat = STOP;
       }
       //Bluetooth manuel
@@ -422,8 +426,8 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == DOUBLE_LUM){
         sparx.etat = STOP;
       }
-      //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR){
+      //le capteur IR avant détecte quelque chose
+      else if(sensors == SENSOR_IR_AV){
         sparx.etat = STOP;
       }
       //Bluetooth manuel
@@ -469,8 +473,8 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == DOUBLE_LUM){
         sparx.etat = STOP;
       }
-      //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR){
+      //sensor IR avant détecte un mur
+      else if(sensors == SENSOR_IR_AV){
         sparx.etat = STOP;
       }
       //Bluetooth manuel
@@ -516,8 +520,8 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == DOUBLE_LUM ){
         //Garde état à LIFT UP
       }
-       //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR){
+       //
+      else if(sensors == SENSOR_IR_AV){
         //Garde état à LIFT UP
       }
       //Bluetooth manuel
@@ -610,8 +614,8 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == DOUBLE_LUM ){
         //Change état à MAINTIENT POSITION
       }
-       //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR){
+       //sensor IR avant détecte un mur
+      else if(sensors == SENSOR_IR_AV){
         //Garde état à LIFT DOWN
       }
       //Bluetooth manuel
