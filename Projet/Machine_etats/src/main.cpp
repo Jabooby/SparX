@@ -11,6 +11,7 @@
 /************************* INCLUDES *************************/
 #include <Arduino.h>
 #include <robot_sparX.h>
+#include <SoftwareSerial.h>
 /************************* DÉCLARATIONS DE VARIABLES *************************/
 /*
 * Voici le enum de la machine état du robot.
@@ -51,7 +52,8 @@ enum Sensors_enum
   SENSOR_IR_DR, //Henri
   SENSOR_IR_GA, //Antoine
   BOTH_IR, //Si les 2 capteurs IR détecte de quoi, c'est parce qu le robot fait face à un mur ou bien est dans un coin
-  DOUBLE_LUM //Deux capteurs de lumière ont la même valeur, arrêt du robot et monte le lift.
+  DOUBLE_LUM, //Deux capteurs de lumière ont la même valeur, arrêt du robot et monte le lift.
+  BLUETOOTH
 };
 
 /************************* DÉCLARATIONS DE FONCTIONS. *************************/
@@ -65,6 +67,9 @@ void Demitour();
 void getangle(float angle);
 void stop();
 uint8_t gestionLumiere();
+int BTReceive();
+int BTWrite(String data);
+void bougerRecule();
 
 /************************* VALEURS GLOBALES. *************************/
 struct robot sparx;
@@ -73,6 +78,8 @@ int arrierepin = A6;
 int gauchepin = A7;
 int droitepin = A8;
 bool demitour = false;
+SoftwareSerial BTSerial(11, 10); 
+char receiveChar = 0;
 /************************* SETUP. *************************/
 
 void setup() {
@@ -82,6 +89,7 @@ void setup() {
   sparx.startTimer = millis();
   sparx.timerRunning = true;
   sparx.etat = STOP;
+  BTSerial.begin(9600); 
 }
 /************************* MAIN/LOOP. *************************/
 
@@ -107,7 +115,23 @@ uint8_t gestionCapteurs()
 {
   uint8_t retourLum = gestionLumiere();
   uint8_t retourIR = AUCUN;
-  if(retourIR != AUCUN)
+  BTReceive();
+  //Serial.println(receiveChar);
+  if(receiveChar == 'M' || sparx.etat == MANUEL)
+  {
+    if(receiveChar == 'O')
+    {
+      sparx.etat = STOP;
+      return(AUCUN);
+    }
+
+    else
+    {
+      Serial.println("BLUETOOTH");
+      return(BLUETOOTH);
+    }
+  }
+  else if(retourIR != AUCUN)
   {
     return(retourIR);
   }
@@ -218,7 +242,7 @@ void etat_machine_run(uint8_t sensors)
 {
   //selon l'état du robot
    //Serial.print("État robot: "), Serial.println(sparx.etat);
-   Serial.print("Sensors robot: "), Serial.println(sensors);
+  Serial.print("Sensors robot: "), Serial.println(sensors);
   switch(sparx.etat)
   {
     //si l'état est à STOP
@@ -269,6 +293,11 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == BOTH_IR){
         //Change état à recule ou 180
       }
+      //Bluetooth manuel
+      else if(sensors == BLUETOOTH){
+        stop();
+        sparx.etat = MANUEL;
+      }
       else
         //ERROR
       break;
@@ -312,6 +341,11 @@ void etat_machine_run(uint8_t sensors)
         //Change état à recule ou 180
         sparx.etat = STOP;
       }
+      //Bluetooth manuel
+      else if(sensors == BLUETOOTH){
+        stop();
+        sparx.etat = MANUEL;
+      }
       else
         //ERROR
       break;
@@ -353,6 +387,11 @@ void etat_machine_run(uint8_t sensors)
       //2 capteurs IR voient quelque chose
       else if(sensors == BOTH_IR){
         sparx.etat = STOP;
+      }
+      //Bluetooth manuel
+      else if(sensors == BLUETOOTH){
+        stop();
+        sparx.etat = MANUEL;
       }
       else
         //ERROR
@@ -396,6 +435,11 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == BOTH_IR){
         sparx.etat = STOP;
       }
+      //Bluetooth manuel
+      else if(sensors == BLUETOOTH){
+        stop();
+        sparx.etat = MANUEL;
+      }
       else
         //ERROR
       break;
@@ -437,6 +481,11 @@ void etat_machine_run(uint8_t sensors)
       //2 capteurs IR voient quelque chose
       else if(sensors == BOTH_IR){
         sparx.etat = STOP;
+      }
+      //Bluetooth manuel
+      else if(sensors == BLUETOOTH){
+        stop();
+        sparx.etat = MANUEL;
       }
       else
         //ERROR
@@ -480,6 +529,11 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == BOTH_IR){
         //Garde état à LIFT UP
       }
+      //Bluetooth manuel
+      else if(sensors == BLUETOOTH){
+        stop();
+        sparx.etat = MANUEL;
+      }
       else
         //ERROR
       break;
@@ -522,7 +576,11 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == DOUBLE_LUM){
         //Garde son état MAINTIENT Position
       }
-      
+      //Bluetooth manuel
+      else if(sensors == BLUETOOTH){
+        stop();
+        sparx.etat = MANUEL;
+      }
       else{
         //ERROR
       }
@@ -565,26 +623,42 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == BOTH_IR){
         //Garde état à LIFT DOWN
       }
+      //Bluetooth manuel
+      else if(sensors == BLUETOOTH){
+        stop();
+        sparx.etat = MANUEL;
+      }
       else
         //ERROR
       break;
-    //Henri
-    /*case MANUEL:
-      if (fct_BT == 'F'){
+    //Henri 
+    case MANUEL:
+      Serial.println("Manuel");
+      switch(receiveChar)
+      {
+        case('W'):
           bougerAvance();
-        } 
-        else if (fct_BT == 'L'){
+          break;
+        case('A'):
           bougerGauche();
-        }
-        else if (fct_BT == 'R'){
+          break;
+        case('S'):
+          bougerRecule();
+          break;
+        case('D'):
           bougerDroite();
-        }
-        else
-          //ERROR
+          break;
+        case('Q'):
+          stop();
+          break;
+        default:
+          stop();
+          break;
+      }
         break;
 
 
-      break;
+    /*  break;
     case RECHERCHE_LUMIERE:
     //et le robot voit rien
       if(sensors == AUCUN){
@@ -625,12 +699,17 @@ void etat_machine_run(uint8_t sensors)
       }
     }*/
   }
-  }
+}
 
 void bougerAvance()
 {
   MOTOR_SetSpeed(RIGHT, 0.15);
   MOTOR_SetSpeed(LEFT, 0.15);
+}
+void bougerRecule()
+{
+  MOTOR_SetSpeed(RIGHT, -0.15);
+  MOTOR_SetSpeed(LEFT, -0.15);
 }
 void bougerDroite()
 {
@@ -690,4 +769,28 @@ void LectureCaptLum(int* valeur) {
     valeur[i]=analogRead(pin_analogue[i]); //valeurs pour les 4 capteurs
     //Serial.println(valeur_capteur[i]);
   }
+}
+//version qui retourne la connexion: 1-Connected 0-!Connected
+int BTReceive(){
+   if (BTSerial.available()) {
+    receiveChar = BTSerial.read();
+    UDR0 = receiveChar; //Synonyme a Serial.print();
+    return 1;
+  }
+  else return 0; // pas de connexion
+}
+
+//version qui retourne la valeure lu. Retourne 0 quand rien est recu
+
+/*char BTReceive() {
+  if (BTSerial.available()) {
+    return BTSerial.read();
+  } else {
+    return '0'; // Sentinel value indicating no data
+  }
+}*/
+
+int BTWrite(String data){
+  BTSerial.println(data);
+  return 1;
 }
