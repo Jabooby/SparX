@@ -767,7 +767,7 @@ void LectureCaptIr(int *valeur)
 
   int pin_analogue[3] = {A0, A1, A2}; // A0 = Avant A1 = droite A2 = gauche
 
-  for (int i = 0; i < 2; i++)
+  for (int i = 0; i < 3; i++)
   {
     valeur[i] = analogRead(pin_analogue[i]); // valeurs pour les trois capteurs IR
   }
