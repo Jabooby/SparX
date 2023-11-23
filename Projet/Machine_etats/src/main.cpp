@@ -51,7 +51,8 @@ enum Sensors_enum
   SENSOR_LUM_AR, //Antoine
   SENSOR_IR_DR, //Henri
   SENSOR_IR_GA, //Antoine
-  BOTH_IR, //Si les 2 capteurs IR détecte de quoi, c'est parce qu le robot fait face à un mur ou bien est dans un coin
+  SENSOR_IR_AV,
+  BOTH_IR,
   DOUBLE_LUM, //Deux capteurs de lumière ont la même valeur, arrêt du robot et monte le lift.
   BLUETOOTH
 };
@@ -59,10 +60,12 @@ enum Sensors_enum
 /************************* DÉCLARATIONS DE FONCTIONS. *************************/
 void etat_machine_run(uint8_t sensors);
 uint8_t gestionCapteurs();
+uint8_t gestionIR();
 void bougerAvance();
 void bougerDroite();
 void bougerGauche();
 void LectureCaptLum(int* valeur);
+void LectureCaptIr(int* valeur);
 void Demitour();
 void getangle(float angle);
 void stop();
@@ -114,7 +117,7 @@ void loop() {
 uint8_t gestionCapteurs() 
 {
   uint8_t retourLum = gestionLumiere();
-  uint8_t retourIR = AUCUN;
+  uint8_t retourIR = gestionIR();
   BTReceive();
   //Serial.println(receiveChar);
   if(receiveChar == 'M' || sparx.etat == MANUEL)
@@ -195,46 +198,34 @@ uint8_t gestionLumiere()
 
 uint8_t gestionIR()
 {
-   /* code pour appeler les 3 capteurs IR */
- int distanceIR = 10;
- int emplacement;
- int emplacementCRIT;
- int ValeursIR;
- int valeur_capteur[3];
- LectureCaptLum(valeur_capteur);
- for(emplacement=0;emplacement<3;emplacement++)
- {
-  if(valeur_capteur[emplacement]<=distanceIR)
+ /* code pour appeler les 3 capteurs IR */
+  int distanceIR = 10;
+  int emplacement;
+  int emplacementIR;
+  int valeur_capteur[3];
+
+  LectureCaptIr(valeur_capteur);
+  for (emplacement = 0; emplacement < 3; emplacement++)
   {
-    ValeursIR=valeur_capteur[emplacement];
-    emplacementCRIT=emplacement; //capteur avant = 180 possibilité de rajouter droite ou gauche plus tard
+    if (valeur_capteur[emplacement] <= distanceIR)
+    {
+      distanceIR = valeur_capteur[emplacement];
+      emplacementIR = emplacement;
+    }
   }
- }
-  switch(emplacementCRIT)
+  switch (emplacementIR)
   {
   case 0:
-    return(SENSOR_LUM_AV);
-    break;
+    return (SENSOR_IR_AV);
 
   case 1:
-    return(SENSOR_LUM_DR);
-    break;
+    return (SENSOR_IR_DR);
 
   case 2:
-    return(SENSOR_LUM_GA);
-    break;
+    return (SENSOR_IR_GA);
 
-  case 3:
-    return(SENSOR_LUM_AR);
-    break;
-
-  case 4:
-    return(DOUBLE_LUM);
-    break;
-
-  default:
+  default: 
     return AUCUN;
-    break;
   }
 }
 
@@ -770,6 +761,18 @@ void LectureCaptLum(int* valeur) {
     //Serial.println(valeur_capteur[i]);
   }
 }
+
+void LectureCaptIr(int *valeur)
+{
+
+  int pin_analogue[3] = {A0, A1, A2}; // A0 = Avant A1 = droite A2 = gauche
+
+  for (int i = 0; i < 2; i++)
+  {
+    valeur[i] = analogRead(pin_analogue[i]); // valeurs pour les trois capteurs IR
+  }
+}
+
 //version qui retourne la connexion: 1-Connected 0-!Connected
 int BTReceive(){
    if (BTSerial.available()) {
