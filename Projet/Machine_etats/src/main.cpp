@@ -132,7 +132,7 @@ uint8_t gestionLumiere()
       emplacementMax=emplacement;
     }
 
-    if(capMaxLu>lum_pref)
+    if(capMaxLu>=lum_pref)
     {
       for(emplacement=0; emplacement<4; emplacement++)
       {
