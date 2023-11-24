@@ -15,7 +15,7 @@ void loop()
 float gethumid() //Permet d'avoir le "Raw Data" du détecteur d'humidité
 {
   float val;
-  val = analogRead(0); //connect sensor to Analog 0
+  val = analogRead(A9); //connect sensor to Analog 0
   return val;
 }
 float calcul() //Transforme le "Raw Data en pourcentage"
