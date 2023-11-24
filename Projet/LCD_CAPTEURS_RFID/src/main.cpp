@@ -1,77 +1,43 @@
 /**************************************************************************/
 /*!
-    @file     readMifare.pde
-    @author   Adafruit Industries
-	@license  BSD (see license.txt)
-
-    This example will wait for any ISO14443A card or tag, and
-    depending on the size of the UID will attempt to read from it.
-
-    If the card has a 4-byte UID it is probably a Mifare
-    Classic card, and the following steps are taken:
-
-    - Authenticate block 4 (the first block of Sector 1) using
-      the default KEYA of 0XFF 0XFF 0XFF 0XFF 0XFF 0XFF
-    - If authentication succeeds, we can then read any of the
-      4 blocks in that sector (though only block 4 is read here)
-
-    If the card has a 7-byte UID it is probably a Mifare
-    Ultralight card, and the 4 byte pages can be read directly.
-    Page 4 is read by default since this is the first 'general-
-    purpose' page on the tags.
-
-
-This is an example sketch for the Adafruit PN532 NFC/RFID breakout boards
-This library works with the Adafruit NFC breakout
-  ----> https://www.adafruit.com/products/364
-
-Check out the links above for our tutorials and wiring diagrams
-These chips use SPI or I2C to communicate.
-
-Adafruit invests time and resources providing this open source code,
-please support Adafruit and open-source hardware by purchasing
-products from Adafruit!
-
+    @file     main.cpp
 */
 /**************************************************************************/
 #include <Wire.h>
-//#include <SPI.h>
 #include <Adafruit_PN532.h>
 #include <LiquidCrystal_I2C.h>
+#include <Adafruit_AM2320.h>
+#include <Adafruit_Sensor.h>
 
 // If using the breakout or shield with I2C, define just the pins connected
 // to the IRQ and reset lines.  Use the values below (2, 3) for the shield!
 #define PN532_IRQ   (20)
 #define PN532_RESET (21)  // Not connected by default on the NFC Shield
 
-// Uncomment just _one_ line below depending on how your breakout or shield
-// is connected to the Arduino:
-
-// Use this line for a breakout with a software SPI connection (recommended):
-//Adafruit_PN532 nfc(PN532_SCK, PN532_MISO, PN532_MOSI, PN532_SS);
-
-// Use this line for a breakout with a hardware SPI connection.  Note that
-// the PN532 SCK, MOSI, and MISO pins need to be connected to the Arduino's
-// hardware SPI SCK, MOSI, and MISO pins.  On an Arduino Uno these are
-// SCK = 13, MOSI = 11, MISO = 12.  The SS line can be any digital IO pin.
-//Adafruit_PN532 nfc(PN532_SS);
 
 // Or use this line for a breakout or shield with an I2C connection:
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
 LiquidCrystal_I2C lcd(0x27,16,2);
+Adafruit_AM2320 am2320 = Adafruit_AM2320();
 
-// Or use hardware Serial:
-//Adafruit_PN532 nfc(PN532_RESET, &Serial1);
+// Décalartionde fonction
 void lecture_nfc(uint8_t page, uint8_t count, uint8_t* data);
 void ecriture_nfc (uint8_t page, uint8_t count, uint8_t* message);
 void lecture_NFC_NbByte(uint8_t pageInit, uint8_t nbByte, uint8_t* data);
 void ecriture_NFC_NbByte(uint8_t pageInit, uint8_t nbByte, char* message);
 void LCDWrite(int column, int row, uint8_t* data);
+int getTempAmbiant();
+int getHumidityAmbiant();
+int getHumidityDirt();
+int calculHumidityDirt();
+void LCDRFID(uint8_t* donnee);
+void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs);
 
+//valeur global
 double timer;
 
 void setup(void) {
-  Serial.begin(115200);
+  Serial.begin(9600);
   while (!Serial) delay(10); // for Leonardo/Micro/Zero
 
   Serial.println("Hello!");
@@ -96,30 +62,92 @@ void setup(void) {
 void loop(void) {
   uint8_t nbByte = 32;
   uint8_t donneeNFC[nbByte];
-  uint8_t donneeNFCLCD[20];
-  uint8_t donneeNOM[12];
-  uint8_t donneeEspace[]= {32, 32, 32, 32};
-  uint8_t messageNFC[] = "Cactus      T05 H10 h07 L87   F"; //https://tools.word-counter.com/character-count/result.html
+  uint8_t donneeCapteurs[nbByte];
+  //uint8_t messageNFC[] = "Cactus      T05 H10 h07 L87   F"; //https://tools.word-counter.com/character-count/result.html
   if((millis() - timer)> 24)
   {
     //lecture_nfc(4, nbByte, donneeNFC);
     //ecriture_nfc(5, nbByte, messageNFC);
     lecture_NFC_NbByte(69, nbByte, donneeNFC);
+    //LCDRFID(donneeNFC);
+    LCDCapteurs(donneeNFC, donneeCapteurs);
+    timer = millis();
     //ecriture_NFC_NbByte(69, nbByte, messageNFC);
-    for(int i = 12; i<32; i++)
-    {
-      donneeNFCLCD[i-12] = donneeNFC[i];
-    }
-    for(int i = 0; i<12; i++)
-    {
-      donneeNOM[i] = donneeNFC[i];
-    }
-    LCDWrite(0,0, donneeNOM);
-    LCDWrite(12,1, donneeEspace);
-    LCDWrite(0,1, donneeNFCLCD);
-    
   }
 }
+
+void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
+{
+  uint8_t donneeLCDCapteurs[20];
+  uint8_t humidityAmbiant[3];
+  uint8_t tempAmbiant[3];
+  uint8_t humidityDirt[3];
+  uint8_t donneeNOM[12];
+  uint8_t donneeEspace[]= {32, 32, 32, 32};
+  for(int i = 0; i<12; i++)
+  {
+    donneeNOM[i] = donneeNFC[i];
+    donneeCapteurs[i] = donneeNFC[i];
+  }
+  itoa(getHumidityAmbiant(), (char*)humidityAmbiant, 10);
+  itoa(getTempAmbiant(), (char*)tempAmbiant, 10);
+  itoa(calculHumidityDirt(), (char*)humidityDirt, 10);
+  donneeLCDCapteurs[0] = 'T', donneeLCDCapteurs[1] = tempAmbiant[0], donneeLCDCapteurs[2] = tempAmbiant[1], donneeLCDCapteurs[3] = 32; //temp
+  donneeLCDCapteurs[4] = 'H', donneeLCDCapteurs[5] = humidityAmbiant[0], donneeLCDCapteurs[6] = humidityAmbiant[1], donneeLCDCapteurs[7] = 32;
+  donneeLCDCapteurs[8] = 'h', donneeLCDCapteurs[9] = humidityDirt[0], donneeLCDCapteurs[10] = humidityDirt[1], donneeLCDCapteurs[11] = 32;
+  donneeLCDCapteurs[12] = 'L', donneeLCDCapteurs[13] = '7', donneeLCDCapteurs[14] = '7', donneeLCDCapteurs[15] = 32;
+  donneeLCDCapteurs[16] = 32, donneeLCDCapteurs[17] = 32, donneeLCDCapteurs[18] = 32, donneeLCDCapteurs[19] = 'F';
+  
+  LCDWrite(0,0, donneeNOM);
+  LCDWrite(12,0, donneeEspace);
+  LCDWrite(0,1, donneeLCDCapteurs);
+}
+
+void LCDRFID(uint8_t* donnee)
+{
+  uint8_t donneeNFCLCD[20];
+  uint8_t donneeNOM[12];
+  uint8_t donneeEspace[]= {32, 32, 32, 32};
+  for(int i = 12; i<32; i++)
+  {
+    donneeNFCLCD[i-12] = donnee[i];
+  }
+  for(int i = 0; i<12; i++)
+  {
+    donneeNOM[i] = donnee[i];
+  }
+  LCDWrite(0,0, donneeNOM);
+  LCDWrite(12,1, donneeEspace);
+  LCDWrite(0,1, donneeNFCLCD);
+}
+int getTempAmbiant() 
+{
+  int temp = am2320.readTemperature();
+  Serial.print("Température: "); Serial.println(temp);
+  return (temp);
+  
+}
+
+int getHumidityAmbiant() 
+{
+  int humidity = am2320.readHumidity();
+  Serial.print("Humidité: "); Serial.println(humidity);
+  return (humidity);
+}
+
+int getHumidityDirt() //Permet d'avoir le "Raw Data" du détecteur d'humidité
+{
+  int val;
+  val = analogRead(A9); //connect sensor to Analog 0
+  return val;
+}
+int calculHumidityDirt() //Transforme le "Raw Data en pourcentage"
+{
+  float val2;
+  val2 = (((getHumidityDirt()-440.0)/-334.0)*100);
+  return (int)val2;
+}
+
 void LCDWrite(int column, int row, uint8_t* data){
  // 
   //Écrire sur la colonne et la rangée spécifié. (Commence par 0)
@@ -138,7 +166,8 @@ void lecture_NFC_NbByte(uint8_t pageInit, uint8_t nbByte, uint8_t* data)
   uint8_t nbPage = nbByte / 4;
   uint8_t lectureData[nbPage][4];
   //Serial.println(nbPage);
-  success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength);
+  success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, uid, &uidLength, 30);
+  Serial.println(success);
   //Serial.print("  UID Value: ");
   nfc.PrintHex(uid, uidLength);
   if (success) 
