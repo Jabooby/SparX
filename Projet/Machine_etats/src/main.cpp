@@ -12,6 +12,7 @@
 #include <Arduino.h>
 #include <robot_sparX.h>
 #include <SoftwareSerial.h>
+#include <SharpIR.h>
 /************************* DÉCLARATIONS DE VARIABLES *************************/
 /*
 * Voici le enum de la machine état du robot.
@@ -75,6 +76,7 @@ int BTWrite(String data);
 void bougerRecule();
 
 /************************* VALEURS GLOBALES. *************************/
+#define MODEL_IR 1080
 struct robot sparx;
 int avantpin = A5;
 int arrierepin = A6;
@@ -83,6 +85,11 @@ int droitepin = A8;
 bool demitour = false;
 SoftwareSerial BTSerial(11, 10); 
 char receiveChar = 0;
+SharpIR irAvant(IR_PIN[0], MODEL_IR);
+SharpIR irDroite(IR_PIN[1], MODEL_IR);
+SharpIR irGauche(IR_PIN[2], MODEL_IR);
+SharpIR capteursIR[3] = {irAvant, irDroite, irGauche}; 
+
 /************************* SETUP. *************************/
 
 void setup() {
@@ -93,6 +100,7 @@ void setup() {
   sparx.timerRunning = true;
   sparx.etat = STOP;
   BTSerial.begin(9600); 
+
 }
 /************************* MAIN/LOOP. *************************/
 
@@ -116,7 +124,7 @@ void loop() {
  */
 uint8_t gestionCapteurs() 
 {
-  uint8_t retourLum = gestionLumiere();
+  //uint8_t retourLum = gestionLumiere();
   uint8_t retourIR = gestionIR();
   BTReceive();
   //Serial.println(receiveChar);
@@ -138,8 +146,9 @@ uint8_t gestionCapteurs()
   {
     return(retourIR);
   }
+  /*
   else
-    return(retourLum);
+    return(retourLum);*/
 }
 
 uint8_t gestionLumiere()
@@ -201,7 +210,7 @@ uint8_t gestionIR()
  /* code pour appeler les 3 capteurs IR */
   int distanceIR = 10;
   int emplacement;
-  int emplacementIR;
+  int emplacementIR = 4;
   int valeur_capteur[3];
 
   LectureCaptIr(valeur_capteur);
@@ -213,22 +222,34 @@ uint8_t gestionIR()
       emplacementIR = emplacement;
     }
   }
+  Serial.print(emplacementIR);
   switch (emplacementIR)
   {
   case 0:
     return (SENSOR_IR_AV);
+    //Serial.print(valeur_capteur[0]);
+    Serial.print("\n");
     break;
 
   case 1:
     return (SENSOR_IR_DR);
+    //Serial.print(valeur_capteur[1]);
+    Serial.print("\n");
     break;
 
   case 2:
     return (SENSOR_IR_GA);
+    //Serial.print(valeur_capteur[2]);
+    Serial.print("\n");
+    break;
+
+  case 4:
+
+    return (AUCUN);
     break;
 
   default: 
-    return AUCUN;
+    return (AUCUN);
     break;
   }
 }
@@ -236,7 +257,7 @@ uint8_t gestionIR()
 void etat_machine_run(uint8_t sensors) 
 {
   //selon l'état du robot
-   //Serial.print("État robot: "), Serial.println(sparx.etat);
+   Serial.print("État robot: "), Serial.println(sparx.etat);
   Serial.print("Sensors robot: "), Serial.println(sensors);
   switch(sparx.etat)
   {
@@ -244,11 +265,13 @@ void etat_machine_run(uint8_t sensors)
     case STOP:
       //et le robot voit rien
       if(sensors == AUCUN){
+        Serial.print("AVANCE TBNK");
         sparx.etat = AVANCE;
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
-        //Change état à tourne gauche
+        bougerGauche();
+        sparx.etat = TOURNE_GAUCHE;
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
@@ -299,6 +322,7 @@ void etat_machine_run(uint8_t sensors)
        
     //Henri
     case AVANCE:
+
     if(sensors == AUCUN){ 
         //Serial.println("Je recherche la lumière");
         bougerAvance();
@@ -394,7 +418,7 @@ void etat_machine_run(uint8_t sensors)
 
     //si l'état est à tourne à droite
     case TOURNE_DROITE:
-      //et le robot voit rien
+    
       if(sensors == AUCUN){
         sparx.etat = STOP;
       }
@@ -441,7 +465,7 @@ void etat_machine_run(uint8_t sensors)
 
     //si l'état est à tourne gauche
     case TOURNE_GAUCHE:
-    //et le robot voit rien
+    
       if(sensors == AUCUN){
         sparx.etat = STOP;
       }
@@ -766,15 +790,14 @@ void LectureCaptLum(int* valeur) {
   }
 }
 
-void LectureCaptIr(int *valeur)
+void LectureCaptIr(int* valeur)
 {
-
-  int pin_analogue[3] = {A0, A1, A2}; // A0 = Avant A1 = droite A2 = gauche
-
   for (int i = 0; i < 3; i++)
   {
-    valeur[i] = analogRead(pin_analogue[i]); // valeurs pour les trois capteurs IR
+    valeur[i] = capteursIR[i].distance(); // valeurs pour les trois capteurs IR
   }
+  
+  Serial.print("\n");
 }
 
 //version qui retourne la connexion: 1-Connected 0-!Connected
