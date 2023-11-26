@@ -278,7 +278,10 @@ uint32_t Adafruit_PN532::getFirmwareVersion(void) {
   uint32_t response;
 
   pn532_packetbuffer[0] = PN532_COMMAND_GETFIRMWAREVERSION;
-
+  for(int i = 0; i < 64; i++)
+  {
+    Serial.print(pn532_packetbuffer[i]);
+  }
   if (!sendCommandCheckAck(pn532_packetbuffer, 1)) {
     return 0;
   }

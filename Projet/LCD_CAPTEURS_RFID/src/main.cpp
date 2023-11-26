@@ -32,17 +32,19 @@ int getHumidityDirt();
 int calculHumidityDirt();
 void LCDRFID(uint8_t* donnee);
 void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs);
+void gestionTXBT(uint8_t* donneeCapteurs);
 
 //valeur global
 double timer;
+double timerCapteurs;
 
 void setup(void) {
   Serial.begin(9600);
   while (!Serial) delay(10); // for Leonardo/Micro/Zero
 
   Serial.println("Hello!");
-  lcd.init();
-  lcd.backlight(); // ativer lumière arrière
+  //lcd.init();
+  //lcd.backlight(); // ativer lumière arrière
   nfc.begin();
   uint32_t versiondata = nfc.getFirmwareVersion();
   if (! versiondata) {
@@ -56,6 +58,7 @@ void setup(void) {
 
   Serial.println("Waiting for an ISO14443A Card ...");
   timer = millis();
+  timerCapteurs = millis();
 }
 
 
@@ -66,41 +69,64 @@ void loop(void) {
   //uint8_t messageNFC[] = "Cactus      T05 H10 h07 L87   F"; //https://tools.word-counter.com/character-count/result.html
   if((millis() - timer)> 24)
   {
+    timer = millis();
     //lecture_nfc(4, nbByte, donneeNFC);
     //ecriture_nfc(5, nbByte, messageNFC);
-    lecture_NFC_NbByte(69, nbByte, donneeNFC);
     //LCDRFID(donneeNFC);
     LCDCapteurs(donneeNFC, donneeCapteurs);
-    timer = millis();
     //ecriture_NFC_NbByte(69, nbByte, messageNFC);
   }
 }
 
 void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
 {
-  uint8_t donneeLCDCapteurs[20];
-  uint8_t humidityAmbiant[3];
-  uint8_t tempAmbiant[3];
-  uint8_t humidityDirt[3];
-  uint8_t donneeNOM[12];
-  uint8_t donneeEspace[]= {32, 32, 32, 32};
-  for(int i = 0; i<12; i++)
+  if((millis() - timerCapteurs)> 24)
   {
-    donneeNOM[i] = donneeNFC[i];
-    donneeCapteurs[i] = donneeNFC[i];
+    timerCapteurs = millis();
+    uint8_t donneeLCDCapteurs[20];
+    uint8_t humidityAmbiant[3];
+    uint8_t tempAmbiant[3];
+    uint8_t humidityDirt[3];
+    uint8_t donneeNOM[12];
+    uint8_t donneeEspace[]= {32, 32, 32, 32};
+     uint8_t nbByte = 32;
+    lecture_NFC_NbByte(69, nbByte, donneeNFC);
+    for(int i = 0; i<12; i++)
+    {
+      
+      donneeNOM[i] = donneeNFC[i];
+      if(i < 4)
+        donneeCapteurs[i] = donneeNFC[i];
+      else
+        donneeCapteurs[i] = 32;
+    }
+    itoa(getHumidityAmbiant(), (char*)humidityAmbiant, 10);
+    itoa(getTempAmbiant(), (char*)tempAmbiant, 10);
+    itoa(calculHumidityDirt(), (char*)humidityDirt, 10);
+    donneeLCDCapteurs[0] = 'T', donneeLCDCapteurs[1] = tempAmbiant[0], donneeLCDCapteurs[2] = tempAmbiant[1], donneeLCDCapteurs[3] = 32; //temp
+    donneeLCDCapteurs[4] = 'H', donneeLCDCapteurs[5] = humidityAmbiant[0], donneeLCDCapteurs[6] = humidityAmbiant[1], donneeLCDCapteurs[7] = 32;
+    donneeLCDCapteurs[8] = 'h', donneeLCDCapteurs[9] = humidityDirt[0], donneeLCDCapteurs[10] = humidityDirt[1], donneeLCDCapteurs[11] = 32;
+    donneeLCDCapteurs[12] = 'L', donneeLCDCapteurs[13] = '7', donneeLCDCapteurs[14] = '7', donneeLCDCapteurs[15] = 32;
+    donneeLCDCapteurs[16] = 32, donneeLCDCapteurs[17] = 32, donneeLCDCapteurs[18] = 32, donneeLCDCapteurs[19] = 'F'; //F ou \n(valeur ascii 10)
+    
+    LCDWrite(0,0, donneeNOM);
+    LCDWrite(12,0, donneeEspace);
+    LCDWrite(0,1, donneeLCDCapteurs);
+    for(int i = 12; i < 32; i++)
+    {
+      donneeCapteurs[i] = donneeLCDCapteurs[i-12];
+    }
+    gestionTXBT(donneeCapteurs);
   }
-  itoa(getHumidityAmbiant(), (char*)humidityAmbiant, 10);
-  itoa(getTempAmbiant(), (char*)tempAmbiant, 10);
-  itoa(calculHumidityDirt(), (char*)humidityDirt, 10);
-  donneeLCDCapteurs[0] = 'T', donneeLCDCapteurs[1] = tempAmbiant[0], donneeLCDCapteurs[2] = tempAmbiant[1], donneeLCDCapteurs[3] = 32; //temp
-  donneeLCDCapteurs[4] = 'H', donneeLCDCapteurs[5] = humidityAmbiant[0], donneeLCDCapteurs[6] = humidityAmbiant[1], donneeLCDCapteurs[7] = 32;
-  donneeLCDCapteurs[8] = 'h', donneeLCDCapteurs[9] = humidityDirt[0], donneeLCDCapteurs[10] = humidityDirt[1], donneeLCDCapteurs[11] = 32;
-  donneeLCDCapteurs[12] = 'L', donneeLCDCapteurs[13] = '7', donneeLCDCapteurs[14] = '7', donneeLCDCapteurs[15] = 32;
-  donneeLCDCapteurs[16] = 32, donneeLCDCapteurs[17] = 32, donneeLCDCapteurs[18] = 32, donneeLCDCapteurs[19] = 'F';
-  
-  LCDWrite(0,0, donneeNOM);
-  LCDWrite(12,0, donneeEspace);
-  LCDWrite(0,1, donneeLCDCapteurs);
+}
+
+void gestionTXBT(uint8_t* donneeCapteurs)
+{
+  for(int i = 0; i < 32; i ++)
+  {
+    Serial.print(donneeCapteurs[i]);
+  }
+  Serial.println(' ');
 }
 
 void LCDRFID(uint8_t* donnee)

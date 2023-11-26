@@ -53,7 +53,6 @@ enum Sensors_enum
   SENSOR_IR_DR, //Henri
   SENSOR_IR_GA, //Antoine
   SENSOR_IR_AV,
-  BOTH_IR,
   DOUBLE_LUM, //Deux capteurs de lumière ont la même valeur, arrêt du robot et monte le lift.
   BLUETOOTH
 };
@@ -85,7 +84,7 @@ int droitepin = A8;
 bool demitour = false;
 SoftwareSerial BTSerial(11, 10); 
 char receiveChar = 0;
-SharpIR irAvant(IR_PIN[0], MODEL_IR);
+SharpIR irAvant(IR_PIN[3], MODEL_IR);
 SharpIR irDroite(IR_PIN[1], MODEL_IR);
 SharpIR irGauche(IR_PIN[2], MODEL_IR);
 SharpIR capteursIR[3] = {irAvant, irDroite, irGauche}; 
@@ -107,8 +106,8 @@ void setup() {
 void loop() {
   if (sparx.timerRunning && ((millis() - sparx.startTimer) > TIMER_TIME))
   {
+    //Serial.print("Sensors :"), Serial.println(gestionCapteurs());
     etat_machine_run(gestionCapteurs());
-    //Serial.println(gestionCapteurs());
   }
 }
 
@@ -147,8 +146,10 @@ uint8_t gestionCapteurs()
     return(retourIR);
   }
   /*
-  else
+  else if(retourLum != AUCUN)
     return(retourLum);*/
+  else
+    return(AUCUN);
 }
 
 uint8_t gestionLumiere()
@@ -216,31 +217,28 @@ uint8_t gestionIR()
   LectureCaptIr(valeur_capteur);
   for (emplacement = 0; emplacement < 3; emplacement++)
   {
+    //Serial.print("Capteur: "), Serial.print(emplacement), Serial.print(" Valeur: "), Serial.println(valeur_capteur[emplacement]);
     if (valeur_capteur[emplacement] <= distanceIR)
     {
       distanceIR = valeur_capteur[emplacement];
       emplacementIR = emplacement;
     }
   }
-  Serial.print(emplacementIR);
   switch (emplacementIR)
   {
   case 0:
     return (SENSOR_IR_AV);
     //Serial.print(valeur_capteur[0]);
-    Serial.print("\n");
     break;
 
   case 1:
     return (SENSOR_IR_DR);
     //Serial.print(valeur_capteur[1]);
-    Serial.print("\n");
     break;
 
   case 2:
     return (SENSOR_IR_GA);
     //Serial.print(valeur_capteur[2]);
-    Serial.print("\n");
     break;
 
   case 4:
@@ -308,7 +306,9 @@ void etat_machine_run(uint8_t sensors)
         //Serial.println("Je lift up");
       }
       //sensor IR avant détecte un mur
-      else if(sensors == SENSOR_IR_AV){
+      else if(sensors == SENSOR_IR_AV){ //ICI
+        Demitour();
+        sparx.etat = TOURNE_180;
         //Change état à recule ou 180
       }
       //Bluetooth manuel
@@ -356,9 +356,10 @@ void etat_machine_run(uint8_t sensors)
         sparx.etat = STOP;
       }
       //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR){
+      else if(sensors == SENSOR_IR_AV){
         //Change état à recule ou 180
-        sparx.etat = STOP;
+        sparx.etat = AVANCE;
+        bougerAvance(); //ICI
       }
       //Bluetooth manuel
       else if(sensors == BLUETOOTH){
@@ -375,37 +376,13 @@ void etat_machine_run(uint8_t sensors)
       if(sensors == AUCUN){
         //Garde état à tourne 180
       }
-      //voit un mur à droite
-      else if(sensors == SENSOR_IR_DR){
+      else if(demitour) // fin du demi tour
+      {
+        stop();
         sparx.etat = STOP;
-      }
-      //voit un mur à gauche
-      else if(sensors == SENSOR_IR_GA){
-        sparx.etat = STOP;
-      }
-      //voit de la lumière en avant
-      else if(sensors == SENSOR_LUM_AV){
-        sparx.etat = STOP;
-      }
-      //voit de la lumière à droite
-      else if(sensors == SENSOR_LUM_DR){
-        sparx.etat = STOP;
-      }
-      //voit de la lumière à gauche
-      else if(sensors == SENSOR_LUM_GA){
-        sparx.etat = STOP;//pp
-      }
-      //voit de la lumière en arrière
-      else if(sensors == SENSOR_LUM_AR){
-        sparx.etat = STOP;
-      }
-      //2 capteurs de lumière ont la même valeur
-      else if(sensors == DOUBLE_LUM){
-        sparx.etat = STOP;
-      }
-      //sensor IR avant détecte un mur
-      else if(sensors == SENSOR_IR_AV){
-        sparx.etat = STOP;
+        ENCODER_ReadReset(0);
+        ENCODER_ReadReset(1);
+        demitour = false;
       }
       //Bluetooth manuel
       else if(sensors == BLUETOOTH){
@@ -722,23 +699,23 @@ void etat_machine_run(uint8_t sensors)
 
 void bougerAvance()
 {
-  MOTOR_SetSpeed(RIGHT, 0.15);
-  MOTOR_SetSpeed(LEFT, 0.15);
+  MOTOR_SetSpeed(RIGHT, 0.1);
+  MOTOR_SetSpeed(LEFT, 0.1);
 }
 void bougerRecule()
 {
-  MOTOR_SetSpeed(RIGHT, -0.15);
-  MOTOR_SetSpeed(LEFT, -0.15);
+  MOTOR_SetSpeed(RIGHT, -0.1);
+  MOTOR_SetSpeed(LEFT, -0.1);
 }
 void bougerDroite()
 {
-  MOTOR_SetSpeed(RIGHT, -0.15);
-  MOTOR_SetSpeed(LEFT, 0.15);
+  MOTOR_SetSpeed(RIGHT, -0.1);
+  MOTOR_SetSpeed(LEFT, 0.1);
 }
 void bougerGauche()
 {
-  MOTOR_SetSpeed(RIGHT, 0.15);
-  MOTOR_SetSpeed(LEFT, -0.15);
+  MOTOR_SetSpeed(RIGHT, 0.1);
+  MOTOR_SetSpeed(LEFT, -0.1);
 }
 void stop()
 {
@@ -747,16 +724,8 @@ void stop()
 }
 void Demitour()
 {
-  
-  while(!demitour)
-  {
-    bougerDroite();
-    getangle(180.0);
-  }
-  stop();
-  ENCODER_ReadReset(0);
-  ENCODER_ReadReset(1);
-  demitour = false;
+  bougerDroite();
+  getangle(180.0);
 }
 
   void getangle(float angle)
@@ -766,7 +735,7 @@ void Demitour()
   float distance = (circonference/coefficient);
   float nbtours = (distance/23.93);
   float nbpulses = (nbtours*3200.0);
-  Serial.println((int)nbpulses);
+  //Serial.println((int)nbpulses);
   int moteur_droit = ENCODER_Read(1);
 
   if (abs(moteur_droit) > (nbpulses-10))
@@ -796,8 +765,6 @@ void LectureCaptIr(int* valeur)
   {
     valeur[i] = capteursIR[i].distance(); // valeurs pour les trois capteurs IR
   }
-  
-  Serial.print("\n");
 }
 
 //version qui retourne la connexion: 1-Connected 0-!Connected
