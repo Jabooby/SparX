@@ -175,6 +175,7 @@ uint8_t gestionCapteurs()
 
 void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
 {
+  //tester ici. Timer trop élevé, seulement les methodes dans le millis se font. Ajouter fonctions.
   if((millis() - timerCapteurs)> TIMER_TIME*10)
   {
     timerCapteurs = millis();
