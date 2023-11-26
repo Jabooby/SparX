@@ -8,6 +8,7 @@
 #include <LiquidCrystal_I2C.h>
 #include <Adafruit_AM2320.h>
 #include <Adafruit_Sensor.h>
+#include <SoftwareSerial.h>
 
 // If using the breakout or shield with I2C, define just the pins connected
 // to the IRQ and reset lines.  Use the values below (2, 3) for the shield!
@@ -19,6 +20,7 @@
 Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
 LiquidCrystal_I2C lcd(0x27,16,2);
 Adafruit_AM2320 am2320 = Adafruit_AM2320();
+SoftwareSerial BTSerial(11, 10); 
 
 // Décalartionde fonction
 void lecture_nfc(uint8_t page, uint8_t count, uint8_t* data);
@@ -33,30 +35,34 @@ int calculHumidityDirt();
 void LCDRFID(uint8_t* donnee);
 void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs);
 void gestionTXBT(uint8_t* donneeCapteurs);
+int BTReceive();
 
 //valeur global
 double timer;
 double timerCapteurs;
+char receiveChar= 0;
+
 
 void setup(void) {
   Serial.begin(9600);
   while (!Serial) delay(10); // for Leonardo/Micro/Zero
 
   Serial.println("Hello!");
-  //lcd.init();
-  //lcd.backlight(); // ativer lumière arrière
+  lcd.init();
+  lcd.backlight(); // ativer lumière arrière
   nfc.begin();
-  uint32_t versiondata = nfc.getFirmwareVersion();
-  if (! versiondata) {
+  BTSerial.begin(9600); 
+  //uint32_t versiondata = nfc.getFirmwareVersion();
+  /*if (! versiondata) {
     Serial.print("Didn't find PN53x board");
     while (1); // halt
-  }
+  }*/
   // Got ok data, print it out!
-  Serial.print("Found chip PN5"); Serial.println((versiondata>>24) & 0xFF, HEX);
+  /*Serial.print("Found chip PN5"); Serial.println((versiondata>>24) & 0xFF, HEX);
   Serial.print("Firmware ver. "); Serial.print((versiondata>>16) & 0xFF, DEC);
   Serial.print('.'); Serial.println((versiondata>>8) & 0xFF, DEC);
 
-  Serial.println("Waiting for an ISO14443A Card ...");
+  Serial.println("Waiting for an ISO14443A Card ...");*/
   timer = millis();
   timerCapteurs = millis();
 }
@@ -64,19 +70,31 @@ void setup(void) {
 
 void loop(void) {
   uint8_t nbByte = 32;
-  uint8_t donneeNFC[nbByte];
+  //uint8_t donneeNFC[nbByte];
   uint8_t donneeCapteurs[nbByte];
-  //uint8_t messageNFC[] = "Cactus      T05 H10 h07 L87   F"; //https://tools.word-counter.com/character-count/result.html
+  uint8_t donneeNFC[] = "cactus      T05 H10 h07 L87   F"; //https://tools.word-counter.com/character-count/result.html
   if((millis() - timer)> 24)
   {
     timer = millis();
     //lecture_nfc(4, nbByte, donneeNFC);
     //ecriture_nfc(5, nbByte, messageNFC);
     //LCDRFID(donneeNFC);
+    BTReceive();
     LCDCapteurs(donneeNFC, donneeCapteurs);
     //ecriture_NFC_NbByte(69, nbByte, messageNFC);
   }
 }
+
+//version qui retourne la connexion: 1-Connected 0-!Connected
+int BTReceive(){
+   if (BTSerial.available()) {
+    receiveChar = BTSerial.read();
+    UDR0 = receiveChar; //Synonyme a Serial.print();
+    return 1;
+  }
+  else return 0; // pas de connexion
+}
+
 
 void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
 {
@@ -90,12 +108,12 @@ void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
     uint8_t donneeNOM[12];
     uint8_t donneeEspace[]= {32, 32, 32, 32};
      uint8_t nbByte = 32;
-    lecture_NFC_NbByte(69, nbByte, donneeNFC);
+    //lecture_NFC_NbByte(69, nbByte, donneeNFC); //NFC PP POOPOO
     for(int i = 0; i<12; i++)
     {
       
       donneeNOM[i] = donneeNFC[i];
-      if(i < 4)
+      if(i < 5)
         donneeCapteurs[i] = donneeNFC[i];
       else
         donneeCapteurs[i] = 32;
@@ -103,9 +121,18 @@ void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
     itoa(getHumidityAmbiant(), (char*)humidityAmbiant, 10);
     itoa(getTempAmbiant(), (char*)tempAmbiant, 10);
     itoa(calculHumidityDirt(), (char*)humidityDirt, 10);
-    donneeLCDCapteurs[0] = 'T', donneeLCDCapteurs[1] = tempAmbiant[0], donneeLCDCapteurs[2] = tempAmbiant[1], donneeLCDCapteurs[3] = 32; //temp
-    donneeLCDCapteurs[4] = 'H', donneeLCDCapteurs[5] = humidityAmbiant[0], donneeLCDCapteurs[6] = humidityAmbiant[1], donneeLCDCapteurs[7] = 32;
-    donneeLCDCapteurs[8] = 'h', donneeLCDCapteurs[9] = humidityDirt[0], donneeLCDCapteurs[10] = humidityDirt[1], donneeLCDCapteurs[11] = 32;
+    donneeLCDCapteurs[0] = 'T', donneeLCDCapteurs[1] = tempAmbiant[0];
+    if(tempAmbiant[1] < '0')
+      tempAmbiant[1] = '0';
+    donneeLCDCapteurs[2] = tempAmbiant[1], donneeLCDCapteurs[3] = 32; //temp
+    donneeLCDCapteurs[4] = 'H', donneeLCDCapteurs[5] = humidityAmbiant[0];
+    if(humidityAmbiant[1] < '0')
+      humidityAmbiant[1] = '0';
+    donneeLCDCapteurs[6] = humidityAmbiant[1], donneeLCDCapteurs[7] = 32;
+    donneeLCDCapteurs[8] = 'h', donneeLCDCapteurs[9] = humidityDirt[0];
+    if(humidityDirt[1] < '0')
+      humidityDirt[1] = '0';
+    donneeLCDCapteurs[10] = humidityDirt[1], donneeLCDCapteurs[11] = 32;
     donneeLCDCapteurs[12] = 'L', donneeLCDCapteurs[13] = '7', donneeLCDCapteurs[14] = '7', donneeLCDCapteurs[15] = 32;
     donneeLCDCapteurs[16] = 32, donneeLCDCapteurs[17] = 32, donneeLCDCapteurs[18] = 32, donneeLCDCapteurs[19] = 'F'; //F ou \n(valeur ascii 10)
     
@@ -122,11 +149,30 @@ void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
 
 void gestionTXBT(uint8_t* donneeCapteurs)
 {
+  char donneeBT[17];
+  uint8_t j = 0;
   for(int i = 0; i < 32; i ++)
   {
-    Serial.print(donneeCapteurs[i]);
+    if(donneeCapteurs[i]!= 32)
+    {
+      donneeBT[j] = (char)donneeCapteurs[i];
+      j++;
+    }
   }
-  Serial.println(' ');
+  donneeBT[14] = 'F';
+  donneeBT[15] = '\n';
+  donneeBT[16] = '\0';
+  //for(int i = 0; i < 32; i++)
+    //Serial.print((char)donneeCapteurs[i]);
+  //for(int i = 0; i < 19; i++)
+  //  Serial.print(donneeBT);
+  
+  if(receiveChar == 'i')
+  {
+    Serial.print(donneeBT);
+    BTSerial.println(donneeBT);
+    receiveChar = '\0';
+  }
 }
 
 void LCDRFID(uint8_t* donnee)
@@ -149,7 +195,7 @@ void LCDRFID(uint8_t* donnee)
 int getTempAmbiant() 
 {
   int temp = am2320.readTemperature();
-  Serial.print("Température: "); Serial.println(temp);
+  //Serial.print("Température: "); Serial.println(temp);
   return (temp);
   
 }
@@ -157,7 +203,7 @@ int getTempAmbiant()
 int getHumidityAmbiant() 
 {
   int humidity = am2320.readHumidity();
-  Serial.print("Humidité: "); Serial.println(humidity);
+ //Serial.print("Humidité: "); Serial.println(humidity);
   return (humidity);
 }
 

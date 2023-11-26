@@ -99,6 +99,7 @@ void setup() {
   sparx.timerRunning = true;
   sparx.etat = STOP;
   BTSerial.begin(9600); 
+  Serial.print("Hello World");
 
 }
 /************************* MAIN/LOOP. *************************/
@@ -106,7 +107,7 @@ void setup() {
 void loop() {
   if (sparx.timerRunning && ((millis() - sparx.startTimer) > TIMER_TIME))
   {
-    //Serial.print("Sensors :"), Serial.println(gestionCapteurs());
+    Serial.print("Sensors :"), Serial.println(gestionCapteurs());
     etat_machine_run(gestionCapteurs());
   }
 }
@@ -123,7 +124,7 @@ void loop() {
  */
 uint8_t gestionCapteurs() 
 {
-  //uint8_t retourLum = gestionLumiere();
+  uint8_t retourLum = gestionLumiere();
   uint8_t retourIR = gestionIR();
   BTReceive();
   //Serial.println(receiveChar);
@@ -145,9 +146,9 @@ uint8_t gestionCapteurs()
   {
     return(retourIR);
   }
-  /*
+  
   else if(retourLum != AUCUN)
-    return(retourLum);*/
+    return(retourLum);
   else
     return(AUCUN);
 }
