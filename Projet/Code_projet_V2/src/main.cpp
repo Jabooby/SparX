@@ -683,10 +683,10 @@ void etat_machine_run(uint8_t sensors)
         }
         else
         {
+          timerlift=millis();
+          LiftDown();
           sparx.etat = LIFT_DOWN;
         }
-      }
-      if(sensors != DOUBLE_LUM){
       }
       //Bluetooth manuel
       else if(sensors == BLUETOOTH){
