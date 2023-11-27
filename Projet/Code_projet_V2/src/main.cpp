@@ -84,6 +84,7 @@ int getHumidityAmbiant();
 int getHumidityDirt();
 int calculHumidityDirt();
 void LCDWrite(int column, int row, uint8_t* data);
+void liftup();
 
 /************************* VALEURS GLOBALES. *************************/
 #define MODEL_IR 1080
@@ -102,6 +103,14 @@ SharpIR irAvant(IR_PIN[3], MODEL_IR);
 SharpIR irGauche(IR_PIN[1], MODEL_IR);
 SharpIR irDroite(IR_PIN[2], MODEL_IR);
 SharpIR capteursIR[3] = {irAvant, irDroite, irGauche}; 
+//Moteur Rotation
+int enA = 36;
+int in1 = 38;
+int in2 = 39;
+//Moteur Lift
+int enB = 37;
+int in3 = 31;
+int in4 = 35;
 
 /************************* SETUP. *************************/
 
@@ -436,9 +445,11 @@ void etat_machine_run(uint8_t sensors)
       }
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM){
-        sparx.etat = STOP;
-        stop();
-        //sparx.etat = LIFT_UP;
+        //sparx.etat = STOP;
+        //stop();
+        int timerlift= millis();
+        liftup();
+        sparx.etat = LIFT_UP;
         //Serial.println("Je lift up");
       }
       //sensor IR avant détecte un mur
@@ -785,48 +796,6 @@ void etat_machine_run(uint8_t sensors)
           break;
       }
         break;
-
-
-    /*  break;
-    case RECHERCHE_LUMIERE:
-    //et le robot voit rien
-      if(sensors == AUCUN){
-        //Change état à recherche lumière
-      }
-      //voit un mur à droite
-      else if(sensors == SENSOR_IR_DR){
-        //Change état à STOP
-      }
-      //voit un mur à gauche
-      else if(sensors == SENSOR_IR_GA){
-        //Change d'état à STOP
-      }
-      //voit de la lumière en avant
-      else if(sensors == SENSOR_LUM_AV){
-        //Change état à STOP
-      }
-      //voit de la lumière à droite
-      else if(sensors == SENSOR_LUM_DR){
-        //change d'état à STOP
-      }
-      //voit de la lumière à gauche
-      else if(sensors == SENSOR_LUM_GA){
-        //Change état à STOP
-      }
-      //voit de la lumière en arrière
-      else if(sensors == SENSOR_LUM_AR){
-        //Change soon état à STOP
-      }
-      //2 capteurs de lumière ont la même valeur
-      else if(sensors == DOUBLE_LUM){
-        //Change état à stop
-      }
-      //2 capteurs IR voient quelque chose
-      else if(sensors == BOTH_IR){
-        //Change son état à STOP
-      break;
-      }
-    }*/
   }
 }
 
@@ -859,6 +828,12 @@ void Demitour()
 {
   bougerDroite();
   getangle(180.0);
+}
+void liftup()
+{
+  analogWrite (enB,255);
+  digitalWrite(in3,HIGH);
+  digitalWrite(in4,LOW);
 }
 
   void getangle(float angle)
