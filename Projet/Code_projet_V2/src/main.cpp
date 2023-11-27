@@ -85,6 +85,11 @@ int getHumidityDirt();
 int calculHumidityDirt();
 void LCDWrite(int column, int row, uint8_t* data);
 void liftup();
+void LiftDown();
+void LiftStop();
+void RotationDroite();
+void RotationGauche();
+void RotationStop();
 
 /************************* VALEURS GLOBALES. *************************/
 #define MODEL_IR 1080
@@ -308,6 +313,8 @@ void LCDWrite(int column, int row, uint8_t* data){
   lcd.print((char*)data);
 
 }
+
+
 uint8_t gestionLumiere()
 {
    /* code pour appeler les différent capteurs ça va tout aller ici*/
@@ -462,7 +469,6 @@ void etat_machine_run(uint8_t sensors)
         int timerlift= millis();
         liftup();
         sparx.etat = LIFT_UP;
-        //Serial.println("Je lift up");
       }
       //sensor IR avant détecte un mur
       else if(sensors == SENSOR_IR_AV){ //ICI
@@ -645,88 +651,24 @@ void etat_machine_run(uint8_t sensors)
 
        //si l'état est LIFT UP
     case LIFT_UP:
-    //et le robot voit rien
-      if(sensors == AUCUN){
-        //Garde état à LIFT UP
-      }
-       //voit un mur à droite
-      else if(sensors == SENSOR_IR_DR){
-        //Garde état à LIFT UP
-      }
-      //voit un mur à gauche
-      else if(sensors == SENSOR_IR_GA){
-        //Garde état à  LIFT UP
-      }
-      //voit de la lumière en avant
-      else if(sensors == SENSOR_LUM_AV){
-        //Garde état à LIFT UP
-      }
-      //voit de la lumière à droite
-      else if(sensors == SENSOR_LUM_DR){
-        //Garde état à LIFT UP
-      }
-      //voit de la lumière à gauche
-      else if(sensors == SENSOR_LUM_GA){
-        //Garde état à LIFT UP
-      }
-      //voit de la lumière en arrière
-      else if(sensors == SENSOR_LUM_AR){
-        //Garde état à LIFT UP
-      }
-      //2 capteurs de lumière ont la même valeur
-      else if(sensors == DOUBLE_LUM ){
-        //Garde état à LIFT UP
-      }
-       //
-      else if(sensors == SENSOR_IR_AV){
-        //Garde état à LIFT UP
-      }
-      //Bluetooth manuel
-      else if(sensors == BLUETOOTH){
+      if(millis()-timerlift>2000){
+      LiftStop();
+      sparx.etat = MAINTIENT_POSITION;
+        if(sensors == BLUETOOTH){
         stop();
         sparx.etat = MANUEL;
+        }
       }
-      else
         //ERROR
       break;
     
       //si l'état est à MAINTIENT Position
     case MAINTIENT_POSITION:
-      //et le robot voit rien
-      //Vérifie si sa roation est fini
-      if(sensors == 0/*ROTATION_LIFT*/){
-        //Les autres se vérifie seulement au moment là
-      }
-      if(sensors == AUCUN){
-        //Change état à LIFT DOWN
-      }
-      //voit un mur à droite
-      else if(sensors == SENSOR_IR_DR){
-        //Change état à LIFT DOWN
-      }
-      //voit un mur à gauche
-      else if(sensors == SENSOR_IR_GA){
-        //CHANGE état à  LIFT DOWN
-      }
-      //voit de la lumière en avant
-      else if(sensors == SENSOR_LUM_AV){
-        //Change état à LIFT DOWN
-      }
-      //voit de la lumière à droite
-      else if(sensors == SENSOR_LUM_DR){
-        //Change état à LIFT DOWN
-      }
-      //voit de la lumière à gauche
-      else if(sensors == SENSOR_LUM_GA){
-        //Change état à LIFT DOWN
-      }
-      //voit de la lumière en arrière
-      else if(sensors == SENSOR_LUM_AR){
-        //Change état à LIFT DOWN
-      }
       //2 capteurs de lumière ont la même valeur
-      else if(sensors == DOUBLE_LUM){
-        //Garde son état MAINTIENT Position
+
+      if(sensors != DOUBLE_LUM){
+
+        
       }
       //Bluetooth manuel
       else if(sensors == BLUETOOTH){
@@ -739,43 +681,14 @@ void etat_machine_run(uint8_t sensors)
       break;
     //si l'état est LIFT DOWN
     case LIFT_DOWN:
-    //et le robot voit rien
-      if(sensors == AUCUN){
-        //Garde état à LIFT DOWN
+      if(millis()-timerlift>2000){
+      LiftStop();
+      sparx.etat = STOP;
+      if(sensors == BLUETOOTH){
+        stop();
+        sparx.etat = MANUEL;
+        }
       }
-       //voit un mur à droite
-      else if(sensors == SENSOR_IR_DR){
-        //Garde état à LIFT DOWN
-      }
-      //voit un mur à gauche
-      else if(sensors == SENSOR_IR_GA){
-        //Garde état à  LIFT DOWN
-      }
-      //voit de la lumière en avant
-      else if(sensors == SENSOR_LUM_AV){
-        //Garde état à LIFT DOWN
-      }
-      //voit de la lumière à droite
-      else if(sensors == SENSOR_LUM_DR){
-        //Garde état à LIFT DOWN
-      }
-      //voit de la lumière à gauche
-      else if(sensors == SENSOR_LUM_GA){
-        //Garde état à LIFT DOWN
-      }
-      //voit de la lumière en arrière
-      else if(sensors == SENSOR_LUM_AR){
-        //Garde état à LIFT DOWN
-      }
-      //2 capteurs de lumière ont la même valeur
-      else if(sensors == DOUBLE_LUM ){
-        //Change état à MAINTIENT POSITION
-      }
-       //sensor IR avant détecte un mur
-      else if(sensors == SENSOR_IR_AV){
-        //Garde état à LIFT DOWN
-      }
-      //Bluetooth manuel
       else if(sensors == BLUETOOTH){
         stop();
         sparx.etat = MANUEL;
@@ -783,7 +696,7 @@ void etat_machine_run(uint8_t sensors)
       else
         //ERROR
       break;
-    //Henri 
+    
     case MANUEL:
       Serial.println("Manuel");
       switch(receiveChar)
@@ -846,6 +759,39 @@ void liftup()
   analogWrite (enB,255);
   digitalWrite(in3,HIGH);
   digitalWrite(in4,LOW);
+}
+
+void LiftDown (){
+  //vitesse lift
+  //analogWrite(enB, 255);
+  	//active la descente
+  digitalWrite(in3, LOW);
+	digitalWrite(in4, HIGH);
+}
+
+void LiftStop (){
+    //arrete le lift
+  digitalWrite(in3, LOW);
+	digitalWrite(in4, LOW);
+}
+
+void RotationDroite (){
+  //vitesse rotation
+  //analogWrite(enB, 255);
+  	//Rotation droite
+  digitalWrite(in1, LOW);
+	digitalWrite(in2, HIGH);
+}
+
+void RotationGauche(){
+  digitalWrite(in1, HIGH);
+	digitalWrite(in2, LOW);
+}
+
+void RotationStop (){
+
+  digitalWrite(in1, LOW);
+	digitalWrite(in2, LOW);
 }
 
   void getangle(float angle)
