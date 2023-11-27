@@ -667,17 +667,15 @@ void etat_machine_run(uint8_t sensors)
       //2 capteurs de lumière ont la même valeur
 
       if(sensors != DOUBLE_LUM){
-
-        
-      }
-      //Bluetooth manuel
-      else if(sensors == BLUETOOTH){
+        timerlift = millis();
+        LiftDown();
+        sparx.etat = LIFT_DOWN;
+      }  
+        if(sensors == BLUETOOTH){
         stop();
         sparx.etat = MANUEL;
       }
-      else{
-        //ERROR
-      }
+      
       break;
     //si l'état est LIFT DOWN
     case LIFT_DOWN:
@@ -689,11 +687,6 @@ void etat_machine_run(uint8_t sensors)
         sparx.etat = MANUEL;
         }
       }
-      else if(sensors == BLUETOOTH){
-        stop();
-        sparx.etat = MANUEL;
-      }
-      else
         //ERROR
       break;
     
