@@ -116,7 +116,8 @@ int in2 = 39;
 int enB = 37;
 int in3 = 31;
 int in4 = 35;
-
+int timerlift;
+int timerrotation;
 /************************* SETUP. *************************/
 
 void setup() {
@@ -202,19 +203,20 @@ uint8_t gestionCapteurs()
 void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
 {
   //tester ici. Timer trop élevé, seulement les methodes dans le millis se font. Ajouter fonctions.
-  if((millis() - timerCapteurs) > 30000)
+  if((millis() - timerCapteurs)> TIMER_TIME*10)
   {
     timerCapteurs = millis();
-    //Serial.println(millis());
     uint8_t donneeLCDCapteurs[20];
     uint8_t humidityAmbiant[3];
     uint8_t tempAmbiant[3];
     uint8_t humidityDirt[3];
     uint8_t donneeNOM[12];
     uint8_t donneeEspace[]= {32, 32, 32, 32};
+     uint8_t nbByte = 32;
     //lecture_NFC_NbByte(69, nbByte, donneeNFC); //NFC PP POOPOO
     for(int i = 0; i<12; i++)
     {
+      
       donneeNOM[i] = donneeNFC[i];
       if(i < 5)
         donneeCapteurs[i] = donneeNFC[i];
@@ -246,7 +248,7 @@ void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
     {
       donneeCapteurs[i] = donneeLCDCapteurs[i-12];
     }
-    //Serial.println(millis());
+    
   }
   gestionTXBT(donneeCapteurs);
 }
@@ -417,7 +419,7 @@ uint8_t gestionIR()
 void etat_machine_run(uint8_t sensors) 
 {
   //selon l'état du robot
-  Serial.print("État robot: "), Serial.println(sparx.etat);
+   Serial.print("État robot: "), Serial.println(sparx.etat);
   Serial.print("Sensors robot: "), Serial.println(sensors);
   switch(sparx.etat)
   {
@@ -652,6 +654,7 @@ void etat_machine_run(uint8_t sensors)
     case LIFT_UP:
       if(millis()-timerlift>2000){
       LiftStop();
+      timerrotation=millis();
       sparx.etat = MAINTIENT_POSITION;
         if(sensors == BLUETOOTH){
         stop();
@@ -664,17 +667,35 @@ void etat_machine_run(uint8_t sensors)
       //si l'état est à MAINTIENT Position
     case MAINTIENT_POSITION:
       //2 capteurs de lumière ont la même valeur
-
+      if(millis()-timerrotation<5000)
+      {
+        RotationDroite();
+      }
+      else if (millis()-timerrotation>5000&&millis()-timerrotation<10000)
+      {
+        RotationGauche();
+      }
+      else if(millis()-timerrotation>10000)
+      {
+        if (sensors == DOUBLE_LUM)
+        {
+          timerrotation=millis();
+        }
+        else
+        {
+          sparx.etat = LIFT_DOWN;
+        }
+      }
       if(sensors != DOUBLE_LUM){
-        timerlift = millis();
-        LiftDown();
-        sparx.etat = LIFT_DOWN;
-      }  
-        if(sensors == BLUETOOTH){
+      }
+      //Bluetooth manuel
+      else if(sensors == BLUETOOTH){
         stop();
         sparx.etat = MANUEL;
       }
-      
+      else{
+        //ERROR
+      }
       break;
     //si l'état est LIFT DOWN
     case LIFT_DOWN:
@@ -686,6 +707,11 @@ void etat_machine_run(uint8_t sensors)
         sparx.etat = MANUEL;
         }
       }
+      else if(sensors == BLUETOOTH){
+        stop();
+        sparx.etat = MANUEL;
+      }
+      else
         //ERROR
       break;
     
@@ -718,23 +744,23 @@ void etat_machine_run(uint8_t sensors)
 
 void bougerAvance()
 {
-  MOTOR_SetSpeed(RIGHT, 0.0);
-  MOTOR_SetSpeed(LEFT, 0.0);
+  MOTOR_SetSpeed(RIGHT, 0.1);
+  MOTOR_SetSpeed(LEFT, 0.1);
 }
 void bougerRecule()
 {
-  MOTOR_SetSpeed(RIGHT, -0.0);
-  MOTOR_SetSpeed(LEFT, -0.0);
+  MOTOR_SetSpeed(RIGHT, -0.1);
+  MOTOR_SetSpeed(LEFT, -0.1);
 }
 void bougerDroite()
 {
-  MOTOR_SetSpeed(RIGHT, -0.0);
-  MOTOR_SetSpeed(LEFT, 0.0);
+  MOTOR_SetSpeed(RIGHT, -0.1);
+  MOTOR_SetSpeed(LEFT, 0.1);
 }
 void bougerGauche()
 {
-  MOTOR_SetSpeed(RIGHT, 0.0);
-  MOTOR_SetSpeed(LEFT, -0.0);
+  MOTOR_SetSpeed(RIGHT, 0.1);
+  MOTOR_SetSpeed(LEFT, -0.1);
 }
 void stop()
 {
@@ -827,7 +853,7 @@ void LectureCaptIr(int* valeur)
 
 //version qui retourne la connexion: 1-Connected 0-!Connected
 int BTReceive(){
-  //Serial.println(millis());
+  Serial.println(millis());
    if (BTSerial.available()) {
     receiveChar = BTSerial.read();
     UDR0 = receiveChar; //Synonyme a Serial.print();
