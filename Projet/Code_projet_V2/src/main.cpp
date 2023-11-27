@@ -176,20 +176,19 @@ uint8_t gestionCapteurs()
 void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
 {
   //tester ici. Timer trop élevé, seulement les methodes dans le millis se font. Ajouter fonctions.
-  if((millis() - timerCapteurs)> TIMER_TIME*10)
+  if((millis() - timerCapteurs) > 30000)
   {
     timerCapteurs = millis();
+    //Serial.println(millis());
     uint8_t donneeLCDCapteurs[20];
     uint8_t humidityAmbiant[3];
     uint8_t tempAmbiant[3];
     uint8_t humidityDirt[3];
     uint8_t donneeNOM[12];
     uint8_t donneeEspace[]= {32, 32, 32, 32};
-     uint8_t nbByte = 32;
     //lecture_NFC_NbByte(69, nbByte, donneeNFC); //NFC PP POOPOO
     for(int i = 0; i<12; i++)
     {
-      
       donneeNOM[i] = donneeNFC[i];
       if(i < 5)
         donneeCapteurs[i] = donneeNFC[i];
@@ -221,7 +220,7 @@ void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
     {
       donneeCapteurs[i] = donneeLCDCapteurs[i-12];
     }
-    
+    //Serial.println(millis());
   }
   gestionTXBT(donneeCapteurs);
 }
@@ -390,7 +389,7 @@ uint8_t gestionIR()
 void etat_machine_run(uint8_t sensors) 
 {
   //selon l'état du robot
-   Serial.print("État robot: "), Serial.println(sparx.etat);
+  Serial.print("État robot: "), Serial.println(sparx.etat);
   Serial.print("Sensors robot: "), Serial.println(sensors);
   switch(sparx.etat)
   {
@@ -832,23 +831,23 @@ void etat_machine_run(uint8_t sensors)
 
 void bougerAvance()
 {
-  MOTOR_SetSpeed(RIGHT, 0.1);
-  MOTOR_SetSpeed(LEFT, 0.1);
+  MOTOR_SetSpeed(RIGHT, 0.0);
+  MOTOR_SetSpeed(LEFT, 0.0);
 }
 void bougerRecule()
 {
-  MOTOR_SetSpeed(RIGHT, -0.1);
-  MOTOR_SetSpeed(LEFT, -0.1);
+  MOTOR_SetSpeed(RIGHT, -0.0);
+  MOTOR_SetSpeed(LEFT, -0.0);
 }
 void bougerDroite()
 {
-  MOTOR_SetSpeed(RIGHT, -0.1);
-  MOTOR_SetSpeed(LEFT, 0.1);
+  MOTOR_SetSpeed(RIGHT, -0.0);
+  MOTOR_SetSpeed(LEFT, 0.0);
 }
 void bougerGauche()
 {
-  MOTOR_SetSpeed(RIGHT, 0.1);
-  MOTOR_SetSpeed(LEFT, -0.1);
+  MOTOR_SetSpeed(RIGHT, 0.0);
+  MOTOR_SetSpeed(LEFT, -0.0);
 }
 void stop()
 {
@@ -902,7 +901,7 @@ void LectureCaptIr(int* valeur)
 
 //version qui retourne la connexion: 1-Connected 0-!Connected
 int BTReceive(){
-  Serial.println(millis());
+  //Serial.println(millis());
    if (BTSerial.available()) {
     receiveChar = BTSerial.read();
     UDR0 = receiveChar; //Synonyme a Serial.print();
