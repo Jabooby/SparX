@@ -125,6 +125,18 @@ void setup() {
   BTSerial.begin(9600); 
   lcd.init();
   lcd.backlight(); // ativer lumière arrière
+  // Set all the motor control pins to outputs
+	pinMode(enA, OUTPUT);
+	pinMode(enB, OUTPUT);
+	pinMode(in1, OUTPUT);
+	pinMode(in2, OUTPUT);
+	pinMode(in3, OUTPUT);
+	pinMode(in4, OUTPUT);
+	// Turn off motors lift - Initial state
+	digitalWrite(in1, LOW);
+	digitalWrite(in2, LOW);
+	digitalWrite(in3, LOW);
+	digitalWrite(in4, LOW);
 
 }
 /************************* MAIN/LOOP. *************************/
