@@ -514,7 +514,7 @@ void etat_machine_run(uint8_t sensors)
       else if(sensors == DOUBLE_LUM){
         //sparx.etat = STOP;
         //stop();
-        int timerlift= millis();
+        timerlift= millis();
         liftup();
         sparx.etat = LIFT_UP;
       }
@@ -699,6 +699,7 @@ void etat_machine_run(uint8_t sensors)
 
        //si l'état est LIFT UP
     case LIFT_UP:
+      Serial.println("LIFTUP");
       if(millis()-timerlift>2000){
       LiftStop();
       timerrotation=millis();
@@ -821,7 +822,7 @@ void Demitour()
 }
 void liftup()
 {
-  analogWrite (enB,255);
+  //analogWrite (enB,255);
   digitalWrite(in3,HIGH);
   digitalWrite(in4,LOW);
 }
