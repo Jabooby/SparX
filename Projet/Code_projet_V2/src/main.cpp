@@ -510,6 +510,8 @@ void etat_machine_run(uint8_t sensors)
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
+        ENCODER_ReadReset(0);
+        ENCODER_ReadReset(1);
         Demitour();
         sparx.etat = TOURNE_180;
         break;
@@ -600,21 +602,24 @@ void etat_machine_run(uint8_t sensors)
  //si l'état est à tourne 180
     case TOURNE_180:
       //et le robot voit rien
+      getangle(180.0);
       if(sensors == AUCUN){
         //Garde état à tourne 180
       }
       else if(demitour) // fin du demi tour
       {
         stop();
-        sparx.etat = STOP;
         ENCODER_ReadReset(0);
         ENCODER_ReadReset(1);
         demitour = false;
+        sparx.etat = STOP;
+        break;
       }
       //Bluetooth manuel
       else if(sensors == BLUETOOTH){
         stop();
         sparx.etat = MANUEL;
+        break;
       }
       else
         //ERROR
@@ -796,7 +801,7 @@ void etat_machine_run(uint8_t sensors)
       break;
     //si l'état est LIFT DOWN
     case LIFT_DOWN:
-      if(millis()-timerlift>1000){
+      if(millis()-timerlift>900){
         LiftStop();
         sparx.etat = STOP;
         break;
@@ -911,9 +916,10 @@ void RotationStop (){
   float distance = (circonference/coefficient);
   float nbtours = (distance/23.93);
   float nbpulses = (nbtours*3200.0);
-  //Serial.println((int)nbpulses);
+  //Serial.print("Nb bulses"),Serial.println((int)nbpulses);
+  
   int moteur_droit = ENCODER_Read(1);
-
+  //Serial.print("Moteur droit"), Serial.println(moteur_droit);
   if (abs(moteur_droit) > (nbpulses-10))
   {
     //Serial.println("fin de 180");

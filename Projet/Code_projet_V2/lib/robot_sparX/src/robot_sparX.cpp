@@ -25,7 +25,7 @@ struct robot sparx;
  * @param angle: si l'angle est positif on tourne à droite , sinon à gauche. Angle définie l'angle que le robot doit tourner;
  * @return void
  */
-void tourner(float angle)
+/*void tourner(float angle)
 {
   //si angle plus grand que 0
   if (angle > 0.0)
@@ -53,7 +53,7 @@ void tourner(float angle)
     ENCODER_ReadReset(RIGHT); //reset encodeur du moteur droit
     arret(); //force le robot à faire un stop 
   }
-}
+}*/
 
 /*
  * @brief Fonction permet de changer la vitesse des moteurs selon la méthode PID (mettre lien ici plus tard avec explication).

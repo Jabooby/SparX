@@ -85,7 +85,7 @@ const uint8_t IR_PIN[4] =  {A0, A1, A2, A3};
  * @param angle: si l'angle est positif on tourne à droite , sinon à gauche. Angle définie l'angle que le robot doit tourner;
  * @return void
  */
-void tourner(float angle);
+//void tourner(float angle);
 /*
  * @brief Fonction permet de changer la vitesse des moteurs selon la méthode PID (mettre lien ici plus tard avec explication).
  * La fonction change juste la vitesse du moteur gauche, la vitesse du moteur droit reste stable. Autrement dit, 
@@ -132,7 +132,7 @@ bool lectureInfrarouge();
  * @param angle: l'angle que l'on désire savoir si notre robot l'a atteint;
  * @return bool: retourne true si l'angle est atteint, flase si non
  */
-bool getAngle(float angle);
+//bool getAngle(float angle);
 /*
  * @brief Fonction permet de retourner la distance lu par l'encodeur de la roue gauche
  * @param rien
