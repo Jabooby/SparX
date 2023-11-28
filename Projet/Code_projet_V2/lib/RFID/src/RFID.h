@@ -103,8 +103,8 @@
 #define Reserved32 0x3D             //±£ÁôÓÃÓÚ²úÆ·²âÊÔ
 #define Reserved33 0x3E             //±£ÁôÓÃÓÚ²úÆ·²âÊÔ
 #define Reserved34 0x3F                //±£ÁôÓÃÓÚ²úÆ·²âÊÔ
-const int chipSelectPin = 53;    //SDAÒý½ÅÆ¬Ñ¡Òý½Å
-const int NRSTPD = 5;            //RSTÒý½Å
+const int chipSelectPin = 48;    //SDAÒý½ÅÆ¬Ñ¡Òý½Å
+const int NRSTPD = 49; 
 
 void ShowCardID(uchar *id);
 void ShowCardType(uchar* type);

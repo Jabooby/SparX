@@ -13,7 +13,7 @@
 #include <robot_sparX.h>
 #include <SoftwareSerial.h>
 #include <SharpIR.h>
-//#include <RFID.h>
+#include <RFID.h>
 #include <Adafruit_AM2320.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
@@ -90,6 +90,7 @@ void LiftStop();
 void RotationDroite();
 void RotationGauche();
 void RotationStop();
+uchar* CardRead();
 
 /************************* VALEURS GLOBALES. *************************/
 #define MODEL_IR 1080
@@ -117,7 +118,8 @@ int in3 = 46;
 int in4 = 40;
 double timerlift;
 double timerrotation;
-//uchar serNum[5];
+uchar serNum[5];
+uint8_t donneeNFC[] = "cactus      T05 H10 h07 L87   F"; //https://tools.word-counter.com/character-count/result.html
 //uchar* CardRead();
 /************************* SETUP. *************************/
 
@@ -134,10 +136,10 @@ void setup() {
   lcd.init();
   lcd.backlight(); // ativer lumière arrière
   //Pinmode for MFRC522
-  //pinMode(chipSelectPin, OUTPUT);       
-  //digitalWrite(chipSelectPin, LOW);    
-  //pinMode(NRSTPD, OUTPUT);               
-  //MFRC522_Init();
+  pinMode(chipSelectPin, OUTPUT);       
+  digitalWrite(chipSelectPin, LOW);    
+  pinMode(NRSTPD, OUTPUT);               
+  MFRC522_Init();
   // Set all the motor control pins to outputs
 	pinMode(in1, OUTPUT);
 	pinMode(in2, OUTPUT);
@@ -174,53 +176,49 @@ uint8_t gestionCapteurs()
 {
   uint8_t nbByte = 32;
   uint8_t donneeCapteurs[nbByte];
-  uint8_t donneeNFC[] = "cactus      T05 H10 h07 L87   F"; //https://tools.word-counter.com/character-count/result.html
+  CardRead();
   uint8_t msgErreur[] = "ERREUR";
   uint8_t msgCactus[] = "cactus";
-  uint8_t msgChampignon[] = "Champignon";
-  uint8_t msgSunflower[] = "Sunflower";
+  uint8_t msgChampignon[] = "champignon";
+  uint8_t msgSunflower[] = "tournesol";
   uint8_t retourLum = gestionLumiere();
   uint8_t retourIR = gestionIR();
-  //uint8_t idNFC = (int)CardRead();
+  uint8_t idNFC = ((int)serNum[0])+((int)serNum[1])+((int)serNum[2])+((int)serNum[3]);
   BTReceive();
   LCDCapteurs(donneeNFC, donneeCapteurs);
-  //Serial.println(receiveChar);
- /* if(idNFC != 1121)
+  //Serial.println(idNFC);
+  if(idNFC != 0)
   {
     switch(idNFC)
     {
-      case(1234): //Cactus
-        for(int i = 0; i < 5; i++)
+      case(6): //Cactus
+        //Serial.println("cactus");
+        for(int i = 0; i < 6; i++)
         {
           donneeNFC[i] = msgCactus[i];
         }
+        for(int i = 6; i < 10; i++)
+        {
+          donneeNFC[i] = ' ';
+        }
         break;
-      case(2345): //champignon
+      case(214): //champignon
+        //Serial.println("champignon");
         for(int i = 0; i < 10; i++)
         {
           donneeNFC[i] = msgChampignon[i];
         }
         break;
-      case(3456): //Sunflower
+      case(194): //Sunflower
+        //Serial.println("tournesol");
         for(int i = 0; i < 9; i++)
         {
           donneeNFC[i] = msgSunflower[i];
         }
-        break;
-      case(4567): //Extra pour whatever
-        for(int i = 0; i < 5; i++)
-        {
-          donneeNFC[i] = msgErreur[i];
-        }
-        break;
-      default: //erreur tag non utilisé
-        for(int i = 0; i < 5; i++)
-        {
-          donneeNFC[i] = msgErreur[i];
-        }
+        donneeNFC[9] = ' ';
         break;
     }
-  }*/
+  }
   if(receiveChar == 'M' || sparx.etat == MANUEL)
   {
     if(receiveChar == 'O')
@@ -247,7 +245,7 @@ uint8_t gestionCapteurs()
 void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
 {
   //tester ici. Timer trop élevé, seulement les methodes dans le millis se font. Ajouter fonctions.
-  if((millis() - timerCapteurs)> 60000)
+  if((millis() - timerCapteurs)> 10000)
   {
     timerCapteurs = millis();
     uint8_t donneeLCDCapteurs[20];
@@ -260,7 +258,6 @@ void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
     //lecture_NFC_NbByte(69, nbByte, donneeNFC); //NFC PP POOPOO
     for(int i = 0; i<12; i++)
     {
-      
       donneeNOM[i] = donneeNFC[i];
       if(i < 5)
         donneeCapteurs[i] = donneeNFC[i];
@@ -268,9 +265,13 @@ void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
         donneeCapteurs[i] = 32;
     }
     itoa(getHumidityAmbiant(), (char*)humidityAmbiant, 10);
+    Serial.println((char*) humidityAmbiant);
     itoa(getTempAmbiant(), (char*)tempAmbiant, 10);
+    Serial.println((char*) tempAmbiant);
     itoa(calculHumidityDirt(), (char*)humidityDirt, 10);
-    donneeLCDCapteurs[0] = 'T', donneeLCDCapteurs[1] = tempAmbiant[0];
+    Serial.println((char*) humidityDirt);
+    donneeLCDCapteurs[0] = 'T';
+    donneeLCDCapteurs[1] = '2';
     if(tempAmbiant[1] < '0')
       tempAmbiant[1] = '0';
     donneeLCDCapteurs[2] = tempAmbiant[1], donneeLCDCapteurs[3] = 32; //temp
@@ -282,11 +283,12 @@ void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
     if(humidityDirt[1] < '0')
       humidityDirt[1] = '0';
     donneeLCDCapteurs[10] = humidityDirt[1], donneeLCDCapteurs[11] = 32;
-    donneeLCDCapteurs[12] = 'L', donneeLCDCapteurs[13] = '7', donneeLCDCapteurs[14] = '7', donneeLCDCapteurs[15] = 32;
+    donneeLCDCapteurs[12] = ' ', donneeLCDCapteurs[13] = ' ', donneeLCDCapteurs[14] = ' ', donneeLCDCapteurs[15] = 32;
     donneeLCDCapteurs[16] = 32, donneeLCDCapteurs[17] = 32, donneeLCDCapteurs[18] = 32, donneeLCDCapteurs[19] = 'F'; //F ou \n(valeur ascii 10)
     
     LCDWrite(0,0, donneeNOM);
     LCDWrite(12,0, donneeEspace);
+    Serial.println((char*) donneeLCDCapteurs);
     LCDWrite(0,1, donneeLCDCapteurs);
     for(int i = 12; i < 32; i++)
     {
@@ -312,11 +314,11 @@ void gestionTXBT(uint8_t* donneeCapteurs)
   donneeBT[14] = 'F';
   donneeBT[15] = '\n';
   donneeBT[16] = '\0';
-  //for(int i = 0; i < 32; i++)
-    //Serial.print((char)donneeCapteurs[i]);
-  //for(int i = 0; i < 19; i++)
-  //  Serial.print(donneeBT);
-  
+  /*for(int i = 0; i < 32; i++)
+    Serial.print((char)donneeCapteurs[i]);
+  for(int i = 0; i < 19; i++)
+    Serial.print(donneeBT);
+  */
   if(receiveChar == 'i')
   {
     Serial.print(donneeBT);
@@ -327,14 +329,14 @@ void gestionTXBT(uint8_t* donneeCapteurs)
 int getTempAmbiant() 
 {
   int temp = am2320.readTemperature();
-  //Serial.print("Température: "); Serial.println(temp);
+  Serial.print("Température A: "); Serial.println(temp);
   return (temp);
   
 }
 int getHumidityAmbiant() 
 {
   int humidity = am2320.readHumidity();
- //Serial.print("Humidité: "); Serial.println(humidity);
+ Serial.print("Humidité A: "); Serial.println(humidity);
   return (humidity);
 }
 
@@ -348,6 +350,7 @@ int calculHumidityDirt() //Transforme le "Raw Data en pourcentage"
 {
   float val2;
   val2 = (((getHumidityDirt()-440.0)/-334.0)*100);
+  Serial.print("Humidité T: "); Serial.println((int)val2);
   return (int)val2;
 }
 
@@ -463,8 +466,8 @@ uint8_t gestionIR()
 void etat_machine_run(uint8_t sensors) 
 {
   //selon l'état du robot
-   Serial.print("État robot: "), Serial.println(sparx.etat);
-  Serial.print("Sensors robot: "), Serial.println(sensors);
+  //Serial.print("État robot: "), Serial.println(sparx.etat);
+  //Serial.print("Sensors robot: "), Serial.println(sensors);
   switch(sparx.etat)
   {
     //si l'état est à STOP
@@ -738,8 +741,8 @@ void etat_machine_run(uint8_t sensors)
 
        //si l'état est LIFT UP
     case LIFT_UP:
-      Serial.println(sparx.etat);
-      Serial.println("LIFTUP");
+      //Serial.println(sparx.etat);
+      //Serial.println("LIFTUP");
       if(millis()-timerlift>800)
       {
         LiftStop();
@@ -760,7 +763,7 @@ void etat_machine_run(uint8_t sensors)
       //si l'état est à MAINTIENT Position
     case MAINTIENT_POSITION:
       //2 capteurs de lumière ont la même valeur
-      Serial.println("MAINTIENT");
+      //Serial.println("MAINTIENT");
       if(millis()-timerrotation<16000)
       {
         RotationDroite();
@@ -773,10 +776,10 @@ void etat_machine_run(uint8_t sensors)
       {
         if (sensors == DOUBLE_LUM)
         {
-          Serial.println(millis());
+          //Serial.println(millis());
           RotationStop();
           timerrotation=millis();
-          Serial.print("Rotation millis(): "),Serial.println(timerrotation);
+          //Serial.print("Rotation millis(): "),Serial.println(timerrotation);
           break;
           //delay(10000);
         }
@@ -951,7 +954,7 @@ void LectureCaptIr(int* valeur)
 
 //version qui retourne la connexion: 1-Connected 0-!Connected
 int BTReceive(){
-  Serial.println(millis());
+  //Serial.println(millis());
    if (BTSerial.available()) {
     receiveChar = BTSerial.read();
     UDR0 = receiveChar; //Synonyme a Serial.print();
@@ -974,7 +977,7 @@ int BTWrite(String data){
   BTSerial.println(data);
   return 1;
 }
-/*uchar* CardRead(){
+uchar* CardRead(){
   uchar status;
   uchar str[MAX_LEN];
   status = MFRC522_Request(PICC_REQIDL, str);
@@ -987,9 +990,9 @@ int BTWrite(String data){
   {
    // Serial.print("The card's number is: ");
     memcpy(serNum, str, 5);
-    ShowCardID(serNum);
+    //ShowCardID(serNum);
     return serNum;
   }
   return 0;
   MFRC522_Halt(); 
-}*/
+}
