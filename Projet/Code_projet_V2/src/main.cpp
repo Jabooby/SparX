@@ -13,7 +13,7 @@
 #include <robot_sparX.h>
 #include <SoftwareSerial.h>
 #include <SharpIR.h>
-//#include <LiquidCrystal_I2C.h>
+#include <RFID.h>
 #include <Adafruit_AM2320.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
@@ -118,6 +118,8 @@ int in3 = 31;
 int in4 = 35;
 int timerlift;
 int timerrotation;
+uchar serNum[5];
+uchar* CardRead();
 /************************* SETUP. *************************/
 
 void setup() {
@@ -128,9 +130,15 @@ void setup() {
   timerCapteurs = millis();
   sparx.timerRunning = true;
   sparx.etat = STOP;
+  SPI.begin();
   BTSerial.begin(9600); 
   lcd.init();
   lcd.backlight(); // ativer lumière arrière
+  //Pinmode for MFRC522
+  pinMode(chipSelectPin, OUTPUT);       
+  digitalWrite(chipSelectPin, LOW);    
+  pinMode(NRSTPD, OUTPUT);               
+  MFRC522_Init();
   // Set all the motor control pins to outputs
 	pinMode(enA, OUTPUT);
 	pinMode(enB, OUTPUT);
@@ -170,12 +178,52 @@ uint8_t gestionCapteurs()
   uint8_t nbByte = 32;
   uint8_t donneeCapteurs[nbByte];
   uint8_t donneeNFC[] = "cactus      T05 H10 h07 L87   F"; //https://tools.word-counter.com/character-count/result.html
-  
+  uint8_t msgErreur[] = "ERREUR";
+  uint8_t msgCactus[] = "cactus";
+  uint8_t msgChampignon[] = "Champignon";
+  uint8_t msgSunflower[] = "Sunflower";
   uint8_t retourLum = gestionLumiere();
   uint8_t retourIR = gestionIR();
+  uint8_t idNFC = (int)CardRead();
   BTReceive();
   LCDCapteurs(donneeNFC, donneeCapteurs);
   //Serial.println(receiveChar);
+  if(idNFC != 1121)
+  {
+    switch(idNFC)
+    {
+      case(1234): //Cactus
+        for(int i = 0; i < 5; i++)
+        {
+          donneeNFC[i] = msgCactus[i];
+        }
+        break;
+      case(2345): //champignon
+        for(int i = 0; i < 10; i++)
+        {
+          donneeNFC[i] = msgChampignon[i];
+        }
+        break;
+      case(3456): //Sunflower
+        for(int i = 0; i < 9; i++)
+        {
+          donneeNFC[i] = msgSunflower[i];
+        }
+        break;
+      case(4567): //Extra pour whatever
+        for(int i = 0; i < 5; i++)
+        {
+          donneeNFC[i] = msgErreur[i];
+        }
+        break;
+      default: //erreur tag non utilisé
+        for(int i = 0; i < 5; i++)
+        {
+          donneeNFC[i] = msgErreur[i];
+        }
+        break;
+    }
+  }
   if(receiveChar == 'M' || sparx.etat == MANUEL)
   {
     if(receiveChar == 'O')
@@ -183,7 +231,6 @@ uint8_t gestionCapteurs()
       sparx.etat = STOP;
       return(AUCUN);
     }
-
     else
     {
       Serial.println("BLUETOOTH");
@@ -875,4 +922,23 @@ int BTReceive(){
 int BTWrite(String data){
   BTSerial.println(data);
   return 1;
+}
+uchar* CardRead(){
+  uchar status;
+  uchar str[MAX_LEN];
+  status = MFRC522_Request(PICC_REQIDL, str);
+  if (status != MI_OK)
+  {
+    return 0;
+  }
+  status = MFRC522_Anticoll(str);
+  if (status == MI_OK)
+  {
+   // Serial.print("The card's number is: ");
+    memcpy(serNum, str, 5);
+    ShowCardID(serNum);
+    return serNum;
+  }
+  return 0;
+  MFRC522_Halt(); 
 }
