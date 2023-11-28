@@ -115,8 +115,8 @@ int in2 = 42;
 int enB = A11;
 int in3 = 46;
 int in4 = 40;
-int timerlift;
-int timerrotation;
+double timerlift;
+double timerrotation;
 //uchar serNum[5];
 //uchar* CardRead();
 /************************* SETUP. *************************/
@@ -768,8 +768,12 @@ void etat_machine_run(uint8_t sensors)
       {
         if (sensors == DOUBLE_LUM)
         {
-          timerrotation=millis();
+          Serial.println(millis());
           RotationStop();
+          timerrotation=millis();
+          Serial.print("Rotation millis(): "),Serial.println(timerrotation);
+          break;
+          //delay(10000);
         }
         else
         {
@@ -792,7 +796,7 @@ void etat_machine_run(uint8_t sensors)
       break;
     //si l'état est LIFT DOWN
     case LIFT_DOWN:
-      if(millis()-timerlift>1000){ //Endtoimne haz maçiv pp
+      if(millis()-timerlift>1000){
         LiftStop();
         sparx.etat = STOP;
         break;
