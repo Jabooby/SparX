@@ -73,7 +73,7 @@ struct robot {
 };
 
 /************************* VARIABLES GLOBALES *************************/
-extern struct robot sparx; //création de la valeur global SparX. SparX est le robot et nous pouvons accéder
+//extern struct robot sparx; //création de la valeur global SparX. SparX est le robot et nous pouvons accéder
 // les différentes fonctions du robot. Pour accéder le moteur gauche juste faire "Sparx.vitesse_moteur_gauche"
 const uint8_t IR_PIN[4] =  {A0, A1, A2, A3};
 

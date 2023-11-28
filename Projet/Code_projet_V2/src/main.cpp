@@ -13,7 +13,7 @@
 #include <robot_sparX.h>
 #include <SoftwareSerial.h>
 #include <SharpIR.h>
-#include <RFID.h>
+//#include <RFID.h>
 #include <Adafruit_AM2320.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
@@ -93,7 +93,6 @@ void RotationStop();
 
 /************************* VALEURS GLOBALES. *************************/
 #define MODEL_IR 1080
-struct robot sparx;
 int avantpin = A5;
 int arrierepin = A6;
 int gauchepin = A7;
@@ -109,17 +108,17 @@ SharpIR irGauche(IR_PIN[1], MODEL_IR);
 SharpIR irDroite(IR_PIN[2], MODEL_IR);
 SharpIR capteursIR[3] = {irAvant, irDroite, irGauche}; 
 //Moteur Rotation
-int enA = 36;
-int in1 = 38;
-int in2 = 39;
+int enA = A10;
+int in1 = 44;
+int in2 = 42;
 //Moteur Lift
-int enB = 37;
-int in3 = 31;
-int in4 = 35;
+int enB = A11;
+int in3 = 46;
+int in4 = 40;
 int timerlift;
 int timerrotation;
-uchar serNum[5];
-uchar* CardRead();
+//uchar serNum[5];
+//uchar* CardRead();
 /************************* SETUP. *************************/
 
 void setup() {
@@ -135,13 +134,11 @@ void setup() {
   lcd.init();
   lcd.backlight(); // ativer lumière arrière
   //Pinmode for MFRC522
-  pinMode(chipSelectPin, OUTPUT);       
-  digitalWrite(chipSelectPin, LOW);    
-  pinMode(NRSTPD, OUTPUT);               
-  MFRC522_Init();
+  //pinMode(chipSelectPin, OUTPUT);       
+  //digitalWrite(chipSelectPin, LOW);    
+  //pinMode(NRSTPD, OUTPUT);               
+  //MFRC522_Init();
   // Set all the motor control pins to outputs
-	pinMode(enA, OUTPUT);
-	pinMode(enB, OUTPUT);
 	pinMode(in1, OUTPUT);
 	pinMode(in2, OUTPUT);
 	pinMode(in3, OUTPUT);
@@ -184,11 +181,11 @@ uint8_t gestionCapteurs()
   uint8_t msgSunflower[] = "Sunflower";
   uint8_t retourLum = gestionLumiere();
   uint8_t retourIR = gestionIR();
-  uint8_t idNFC = (int)CardRead();
+  //uint8_t idNFC = (int)CardRead();
   BTReceive();
   LCDCapteurs(donneeNFC, donneeCapteurs);
   //Serial.println(receiveChar);
-  if(idNFC != 1121)
+ /* if(idNFC != 1121)
   {
     switch(idNFC)
     {
@@ -223,7 +220,7 @@ uint8_t gestionCapteurs()
         }
         break;
     }
-  }
+  }*/
   if(receiveChar == 'M' || sparx.etat == MANUEL)
   {
     if(receiveChar == 'O')
@@ -475,40 +472,47 @@ void etat_machine_run(uint8_t sensors)
       //et le robot voit rien
       if(sensors == AUCUN){
         sparx.etat = AVANCE;
+        break;
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
         bougerGauche();
         sparx.etat = TOURNE_GAUCHE;
+        break;
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
         bougerDroite();
         sparx.etat = TOURNE_DROITE;
+        break;
         //Change état à tourne droite
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
         bougerAvance();
         sparx.etat = AVANCE;
+        break;
         //Serial.println("je vais tout droit");
       }
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
         bougerDroite();
         sparx.etat = TOURNE_DROITE;
+        break;
         //Serial.println("Je vais à droite");
       }
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
         bougerGauche();
         sparx.etat = TOURNE_GAUCHE;
+        break;
         //Serial.println("Je vais à gauche");
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
         Demitour();
         sparx.etat = TOURNE_180;
+        break;
       }
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM){
@@ -516,18 +520,23 @@ void etat_machine_run(uint8_t sensors)
         //stop();
         timerlift= millis();
         liftup();
+        stop();
         sparx.etat = LIFT_UP;
+        //Serial.println(sparx.etat);
+        break;
       }
       //sensor IR avant détecte un mur
       else if(sensors == SENSOR_IR_AV){ //ICI
         Demitour();
         sparx.etat = TOURNE_180;
+        break;
         //Change état à recule ou 180
       }
       //Bluetooth manuel
       else if(sensors == BLUETOOTH){
         stop();
         sparx.etat = MANUEL;
+        break;
       }
       else
         //ERROR
@@ -543,10 +552,12 @@ void etat_machine_run(uint8_t sensors)
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
         sparx.etat = STOP;
+        break;
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
         sparx.etat = STOP;
+        break;
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
@@ -555,26 +566,32 @@ void etat_machine_run(uint8_t sensors)
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
         sparx.etat = STOP;
+        break;
       }
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
         sparx.etat = STOP;
+        break;
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
         sparx.etat = STOP;
+        break;
       }
       //sensor IR avant détecte un mur
       else if(sensors == SENSOR_IR_AV){
         sparx.etat = STOP;
+        break;
       }
       else if(sensors == DOUBLE_LUM){
         sparx.etat = STOP;
+        break;
       }
       //Bluetooth manuel
       else if(sensors == BLUETOOTH){
         stop();
         sparx.etat = MANUEL;
+        break;
       }
       else
         //ERROR
@@ -608,10 +625,12 @@ void etat_machine_run(uint8_t sensors)
     
       if(sensors == AUCUN){
         sparx.etat = STOP;
+        break;
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
         sparx.etat = STOP;
+        break;
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
@@ -620,31 +639,38 @@ void etat_machine_run(uint8_t sensors)
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
         sparx.etat = STOP;
+        break;
       }
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
         bougerDroite();
+        break;
       }
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
         sparx.etat = STOP;
+        break;
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
         sparx.etat = STOP;
+        break;
       }
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM){
         sparx.etat = STOP;
+        break;
       }
       //le capteur IR avant détecte quelque chose
       else if(sensors == SENSOR_IR_AV){
         sparx.etat = STOP;
+        break;
       }
       //Bluetooth manuel
       else if(sensors == BLUETOOTH){
         stop();
         sparx.etat = MANUEL;
+        break;
       }
       else
         //ERROR
@@ -655,6 +681,7 @@ void etat_machine_run(uint8_t sensors)
     
       if(sensors == AUCUN){
         sparx.etat = STOP;
+        break;
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
@@ -663,14 +690,17 @@ void etat_machine_run(uint8_t sensors)
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
         sparx.etat = STOP;
+        break;
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
         sparx.etat = STOP;
+        break;
       }
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
         sparx.etat = STOP;
+        break;
       }
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
@@ -679,19 +709,23 @@ void etat_machine_run(uint8_t sensors)
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
         sparx.etat = STOP;
+        break;
       }
       //2 capteurs de lumière ont la même valeur
       else if(sensors == DOUBLE_LUM){
         sparx.etat = STOP;
+        break;
       }
       //sensor IR avant détecte un mur
       else if(sensors == SENSOR_IR_AV){
         sparx.etat = STOP;
+        break;
       }
       //Bluetooth manuel
       else if(sensors == BLUETOOTH){
         stop();
         sparx.etat = MANUEL;
+        break;
       }
       else
         //ERROR
@@ -699,47 +733,58 @@ void etat_machine_run(uint8_t sensors)
 
        //si l'état est LIFT UP
     case LIFT_UP:
+      Serial.println(sparx.etat);
       Serial.println("LIFTUP");
-      if(millis()-timerlift>2000){
-      LiftStop();
-      timerrotation=millis();
-      sparx.etat = MAINTIENT_POSITION;
-        if(sensors == BLUETOOTH){
+      if(millis()-timerlift>800)
+      {
+        LiftStop();
+        timerrotation=millis();
+        sparx.etat = MAINTIENT_POSITION;
+        break;
+      }
+      if(sensors == BLUETOOTH)
+      {
         stop();
         sparx.etat = MANUEL;
-        }
+        break;
       }
+      
         //ERROR
       break;
     
       //si l'état est à MAINTIENT Position
     case MAINTIENT_POSITION:
       //2 capteurs de lumière ont la même valeur
-      if(millis()-timerrotation<5000)
+      Serial.println("MAINTIENT");
+      if(millis()-timerrotation<16000)
       {
         RotationDroite();
       }
-      else if (millis()-timerrotation>5000&&millis()-timerrotation<10000)
+      else if (millis()-timerrotation>16000&&millis()-timerrotation<32000)
       {
         RotationGauche();
       }
-      else if(millis()-timerrotation>10000)
+      else if(millis()-timerrotation>32000)
       {
         if (sensors == DOUBLE_LUM)
         {
           timerrotation=millis();
+          RotationStop();
         }
         else
         {
+          RotationStop();
           timerlift=millis();
           LiftDown();
           sparx.etat = LIFT_DOWN;
+          break;
         }
       }
       //Bluetooth manuel
       else if(sensors == BLUETOOTH){
         stop();
         sparx.etat = MANUEL;
+        break;
       }
       else{
         //ERROR
@@ -747,24 +792,22 @@ void etat_machine_run(uint8_t sensors)
       break;
     //si l'état est LIFT DOWN
     case LIFT_DOWN:
-      if(millis()-timerlift>2000){
-      LiftStop();
-      sparx.etat = STOP;
-      if(sensors == BLUETOOTH){
-        stop();
-        sparx.etat = MANUEL;
-        }
+      if(millis()-timerlift>1000){ //Endtoimne haz maçiv pp
+        LiftStop();
+        sparx.etat = STOP;
+        break;
       }
       else if(sensors == BLUETOOTH){
         stop();
         sparx.etat = MANUEL;
+        break;
       }
       else
         //ERROR
       break;
     
     case MANUEL:
-      Serial.println("Manuel");
+      //Serial.println("Manuel");
       switch(receiveChar)
       {
         case('W'):
@@ -822,17 +865,15 @@ void Demitour()
 }
 void liftup()
 {
-  //analogWrite (enB,255);
-  digitalWrite(in3,HIGH);
-  digitalWrite(in4,LOW);
+  analogWrite (enB,130);
+  digitalWrite(in3,LOW);
+  digitalWrite(in4,HIGH);
 }
 
 void LiftDown (){
-  //vitesse lift
-  //analogWrite(enB, 255);
-  	//active la descente
-  digitalWrite(in3, LOW);
-	digitalWrite(in4, HIGH);
+  analogWrite (enB,130);
+  digitalWrite(in3,HIGH);
+  digitalWrite(in4,LOW);
 }
 
 void LiftStop (){
@@ -842,16 +883,15 @@ void LiftStop (){
 }
 
 void RotationDroite (){
-  //vitesse rotation
-  //analogWrite(enB, 255);
-  	//Rotation droite
-  digitalWrite(in1, LOW);
-	digitalWrite(in2, HIGH);
+  analogWrite(enA, 130);
+  digitalWrite(in1, HIGH);
+	digitalWrite(in2, LOW);
 }
 
 void RotationGauche(){
-  digitalWrite(in1, HIGH);
-	digitalWrite(in2, LOW);
+  analogWrite(enA, 130);
+  digitalWrite(in1, LOW); //antihoraire
+	digitalWrite(in2, HIGH);
 }
 
 void RotationStop (){
@@ -924,7 +964,7 @@ int BTWrite(String data){
   BTSerial.println(data);
   return 1;
 }
-uchar* CardRead(){
+/*uchar* CardRead(){
   uchar status;
   uchar str[MAX_LEN];
   status = MFRC522_Request(PICC_REQIDL, str);
@@ -942,4 +982,4 @@ uchar* CardRead(){
   }
   return 0;
   MFRC522_Halt(); 
-}
+}*/
