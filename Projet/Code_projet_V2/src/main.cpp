@@ -245,7 +245,7 @@ uint8_t gestionCapteurs()
 void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
 {
   //tester ici. Timer trop élevé, seulement les methodes dans le millis se font. Ajouter fonctions.
-  if((millis() - timerCapteurs)> 10000)
+  if((millis() - timerCapteurs)> 30000)
   {
     timerCapteurs = millis();
     uint8_t donneeLCDCapteurs[20];
@@ -466,8 +466,8 @@ uint8_t gestionIR()
 void etat_machine_run(uint8_t sensors) 
 {
   //selon l'état du robot
-  //Serial.print("État robot: "), Serial.println(sparx.etat);
-  //Serial.print("Sensors robot: "), Serial.println(sensors);
+  Serial.print("État robot: "), Serial.println(sparx.etat);
+  Serial.print("Sensors robot: "), Serial.println(sensors);
   switch(sparx.etat)
   {
     //si l'état est à STOP
@@ -553,6 +553,8 @@ void etat_machine_run(uint8_t sensors)
     if(sensors == AUCUN){ 
         //Serial.println("Je recherche la lumière");
         bougerAvance();
+        sparx.etat = AVANCE;
+        break;
       }
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
@@ -567,6 +569,8 @@ void etat_machine_run(uint8_t sensors)
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
         bougerAvance();
+        sparx.etat = AVANCE;
+        break;
       }
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
@@ -643,6 +647,8 @@ void etat_machine_run(uint8_t sensors)
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
         bougerDroite();
+        sparx.etat = TOURNE_DROITE;
+        break;
       }
       //voit de la lumière en avant
       else if(sensors == SENSOR_LUM_AV){
@@ -652,6 +658,7 @@ void etat_machine_run(uint8_t sensors)
       //voit de la lumière à droite
       else if(sensors == SENSOR_LUM_DR){
         bougerDroite();
+        sparx.etat = TOURNE_DROITE;
         break;
       }
       //voit de la lumière à gauche
@@ -694,6 +701,8 @@ void etat_machine_run(uint8_t sensors)
       //voit un mur à droite
       else if(sensors == SENSOR_IR_DR){
         bougerGauche();
+        sparx.etat = STOP;
+        break;
       }
       //voit un mur à gauche
       else if(sensors == SENSOR_IR_GA){
@@ -713,6 +722,8 @@ void etat_machine_run(uint8_t sensors)
       //voit de la lumière à gauche
       else if(sensors == SENSOR_LUM_GA){
         bougerGauche();
+        sparx.etat = TOURNE_GAUCHE;
+        break;
       }
       //voit de la lumière en arrière
       else if(sensors == SENSOR_LUM_AR){
@@ -743,7 +754,7 @@ void etat_machine_run(uint8_t sensors)
     case LIFT_UP:
       //Serial.println(sparx.etat);
       //Serial.println("LIFTUP");
-      if(millis()-timerlift>800)
+      if(millis()-timerlift>1600)
       {
         LiftStop();
         timerrotation=millis();
@@ -764,19 +775,20 @@ void etat_machine_run(uint8_t sensors)
     case MAINTIENT_POSITION:
       //2 capteurs de lumière ont la même valeur
       //Serial.println("MAINTIENT");
-      if(millis()-timerrotation<16000)
+      if(millis()-timerrotation<5000)
       {
-        RotationDroite();
+        bougerGauche();
       }
-      else if (millis()-timerrotation>16000&&millis()-timerrotation<32000)
+      else if (millis()-timerrotation>5000&&millis()-timerrotation<10000)
       {
-        RotationGauche();
+        bougerDroite();
       }
-      else if(millis()-timerrotation>32000)
+      else if(millis()-timerrotation>10000)
       {
         if (sensors == DOUBLE_LUM)
         {
           //Serial.println(millis());
+          stop();
           RotationStop();
           timerrotation=millis();
           //Serial.print("Rotation millis(): "),Serial.println(timerrotation);
@@ -785,7 +797,7 @@ void etat_machine_run(uint8_t sensors)
         }
         else
         {
-          RotationStop();
+          stop();
           timerlift=millis();
           LiftDown();
           sparx.etat = LIFT_DOWN;
@@ -877,39 +889,39 @@ void Demitour()
 }
 void liftup()
 {
-  analogWrite (enB,130);
-  digitalWrite(in3,LOW);
-  digitalWrite(in4,HIGH);
+  analogWrite (enA,135);
+  digitalWrite(in1,LOW);
+  digitalWrite(in2,HIGH);
 }
 
 void LiftDown (){
-  analogWrite (enB,130);
-  digitalWrite(in3,HIGH);
-  digitalWrite(in4,LOW);
+  analogWrite (enA,130);
+  digitalWrite(in1,HIGH);
+  digitalWrite(in2,LOW);
 }
 
 void LiftStop (){
     //arrete le lift
-  digitalWrite(in3, LOW);
-	digitalWrite(in4, LOW);
-}
-
-void RotationDroite (){
-  analogWrite(enA, 130);
-  digitalWrite(in1, HIGH);
+  digitalWrite(in1, LOW);
 	digitalWrite(in2, LOW);
 }
 
+void RotationDroite (){
+  analogWrite(enB, 130);
+  digitalWrite(in3, LOW);
+	digitalWrite(in4, HIGH);
+}
+
 void RotationGauche(){
-  analogWrite(enA, 130);
-  digitalWrite(in1, LOW); //antihoraire
-	digitalWrite(in2, HIGH);
+  analogWrite(enB, 130);
+  digitalWrite(in3, HIGH); //antihoraire
+	digitalWrite(in4, LOW);
 }
 
 void RotationStop (){
 
-  digitalWrite(in1, LOW);
-	digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+	digitalWrite(in4, LOW);
 }
 
   void getangle(float angle)
