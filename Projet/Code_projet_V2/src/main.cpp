@@ -197,25 +197,29 @@ uint8_t gestionCapteurs()
         {
           donneeNFC[i] = msgCactus[i];
         }
-        for(int i = 6; i < 10; i++)
+        for(int i = 6; i < 12; i++)
         {
           donneeNFC[i] = ' ';
         }
         break;
-      case(214): //champignon
+      case(219): //champignon
         //Serial.println("champignon");
         for(int i = 0; i < 10; i++)
         {
           donneeNFC[i] = msgChampignon[i];
         }
+        donneeNFC[10] = ' ';
+        donneeNFC[11] = ' ';
         break;
-      case(194): //Sunflower
+      case(167): //Sunflower
         //Serial.println("tournesol");
         for(int i = 0; i < 9; i++)
         {
           donneeNFC[i] = msgSunflower[i];
         }
         donneeNFC[9] = ' ';
+        donneeNFC[10] = ' ';
+        donneeNFC[11] = ' ';
         break;
     }
   }
@@ -228,7 +232,7 @@ uint8_t gestionCapteurs()
     }
     else
     {
-      Serial.println("BLUETOOTH");
+      //Serial.println("BLUETOOTH");
       return(BLUETOOTH);
     }
   }
@@ -245,31 +249,35 @@ uint8_t gestionCapteurs()
 void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
 {
   //tester ici. Timer trop élevé, seulement les methodes dans le millis se font. Ajouter fonctions.
-  if((millis() - timerCapteurs)> 30000)
+  if((millis() - timerCapteurs)> 15000)
   {
     timerCapteurs = millis();
-    uint8_t donneeLCDCapteurs[20];
+    uint8_t donneeLCDCapteurs[21];
     uint8_t humidityAmbiant[3];
     uint8_t tempAmbiant[3];
     uint8_t humidityDirt[3];
-    uint8_t donneeNOM[12];
+    uint8_t donneeNOM[12] = "          ";
     uint8_t donneeEspace[]= {32, 32, 32, 32};
      uint8_t nbByte = 32;
     //lecture_NFC_NbByte(69, nbByte, donneeNFC); //NFC PP POOPOO
+    //Serial.print("Donnée NFC: "),Serial.println((char*)donneeNFC);
+    //Serial.print("Donnée Nom: "),Serial.println((char*)donneeNOM);
     for(int i = 0; i<12; i++)
     {
       donneeNOM[i] = donneeNFC[i];
+      //Serial.print("Donnée Nom: "), Serial.print(i), Serial.print(": "),Serial.println((char*)donneeNOM);
       if(i < 5)
         donneeCapteurs[i] = donneeNFC[i];
       else
         donneeCapteurs[i] = 32;
     }
+    //Serial.print("Donnée Nom: "),Serial.println((char*)donneeNOM);
     itoa(getHumidityAmbiant(), (char*)humidityAmbiant, 10);
-    Serial.println((char*) humidityAmbiant);
+    //Serial.println((char*) humidityAmbiant);
     itoa(getTempAmbiant(), (char*)tempAmbiant, 10);
-    Serial.println((char*) tempAmbiant);
+    //Serial.println((char*) tempAmbiant);
     itoa(calculHumidityDirt(), (char*)humidityDirt, 10);
-    Serial.println((char*) humidityDirt);
+    //Serial.println((char*) humidityDirt);
     donneeLCDCapteurs[0] = 'T';
     donneeLCDCapteurs[1] = '2';
     if(tempAmbiant[1] < '0')
@@ -285,43 +293,41 @@ void LCDCapteurs(uint8_t* donneeNFC, uint8_t* donneeCapteurs)
     donneeLCDCapteurs[10] = humidityDirt[1], donneeLCDCapteurs[11] = 32;
     donneeLCDCapteurs[12] = ' ', donneeLCDCapteurs[13] = ' ', donneeLCDCapteurs[14] = ' ', donneeLCDCapteurs[15] = 32;
     donneeLCDCapteurs[16] = 32, donneeLCDCapteurs[17] = 32, donneeLCDCapteurs[18] = 32, donneeLCDCapteurs[19] = 'F'; //F ou \n(valeur ascii 10)
-    
+    //Serial.print("Donnée Nom: "),Serial.println((char*)donneeNOM);
+    //Serial.println((char*) donneeLCDCapteurs);
+    LCDWrite(0,1, donneeLCDCapteurs);
     LCDWrite(0,0, donneeNOM);
     LCDWrite(12,0, donneeEspace);
-    Serial.println((char*) donneeLCDCapteurs);
-    LCDWrite(0,1, donneeLCDCapteurs);
     for(int i = 12; i < 32; i++)
     {
       donneeCapteurs[i] = donneeLCDCapteurs[i-12];
     }
-    
+    gestionTXBT(donneeCapteurs);
   }
-  gestionTXBT(donneeCapteurs);
+  
 }
 
 void gestionTXBT(uint8_t* donneeCapteurs)
 {
+  Serial.println((char*) donneeCapteurs);
   char donneeBT[17];
   uint8_t j = 0;
   for(int i = 0; i < 32; i ++)
   {
-    if(donneeCapteurs[i]!= 32)
+    if(donneeCapteurs[i]!= ' ')
     {
       donneeBT[j] = (char)donneeCapteurs[i];
+      //Serial.print("Donnée BT: "), Serial.print(j), Serial.print(": "),Serial.println((char*)donneeBT);
       j++;
     }
   }
   donneeBT[14] = 'F';
   donneeBT[15] = '\n';
   donneeBT[16] = '\0';
-  /*for(int i = 0; i < 32; i++)
-    Serial.print((char)donneeCapteurs[i]);
-  for(int i = 0; i < 19; i++)
-    Serial.print(donneeBT);
-  */
   if(receiveChar == 'i')
   {
     Serial.print(donneeBT);
+    Serial.println(' ');
     BTSerial.println(donneeBT);
     receiveChar = '\0';
   }
@@ -420,7 +426,7 @@ uint8_t gestionLumiere()
 uint8_t gestionIR()
 {
  /* code pour appeler les 3 capteurs IR */
-  int distanceIR = 10;
+  int distanceIR = 13;
   int emplacement;
   int emplacementIR = 4;
   int valeur_capteur[3];
@@ -466,8 +472,8 @@ uint8_t gestionIR()
 void etat_machine_run(uint8_t sensors) 
 {
   //selon l'état du robot
-  Serial.print("État robot: "), Serial.println(sparx.etat);
-  Serial.print("Sensors robot: "), Serial.println(sensors);
+  //Serial.print("État robot: "), Serial.println(sparx.etat);
+  //Serial.print("Sensors robot: "), Serial.println(sensors);
   switch(sparx.etat)
   {
     //si l'état est à STOP
